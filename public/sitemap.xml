@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  
+  <!-- Homepage -->
+  <url>
+    <loc>https://bythewave.sk/</loc>
+    <lastmod>2024-01-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://bythewave.sk/images/hero-background.png</image:loc>
+      <image:title>Executive Mobility - Luxusné vozidlá</image:title>
+    </image:image>
+  </url>
+
+  <!-- Services Page -->
+  <url>
+    <loc>https://bythewave.sk/sluzby</loc>
+    <lastmod>2024-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Vehicles Page -->
+  <url>
+    <loc>https://bythewave.sk/nase-vozidla</loc>
+    <lastmod>2024-01-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://bythewave.sk/images/hyundai-staria-clean.png</image:loc>
+      <image:title>Hyundai Staria Luxury 4x4</image:title>
+    </image:image>
+  </url>
+
+  <!-- Vehicle Detail Pages -->
+  <url>
+    <loc>https://bythewave.sk/nase-vozidla/1</loc>
+    <lastmod>2024-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Rental Page -->
+  <url>
+    <loc>https://bythewave.sk/prenajom-vozidiel</loc>
+    <lastmod>2024-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Transport Page -->
+  <url>
+    <loc>https://bythewave.sk/preprava-osob</loc>
+    <lastmod>2024-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Contact Page -->
+  <url>
+    <loc>https://bythewave.sk/kontakt</loc>
+    <lastmod>2024-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+</urlset>

@@ -1,0 +1,27 @@
+{
+  "name": "By The Wave - Prenájom luxusných vanov a prémiová preprava osôb",
+  "short_name": "BY THE WAVE",
+  "description": "Prémiové služby prenájmu vozidiel a prepravy osôb na Slovensku. Luxusné vozidlá, profesionálni vodiči a exkluzívne služby mobility.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#B88746",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/images/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "travel", "transportation"],
+  "lang": "sk",
+  "dir": "ltr"
+}
