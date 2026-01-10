@@ -1,5 +1,19 @@
 import { type NextRequest, NextResponse } from "next/server"
 
+export const runtime = "nodejs"
+
+// Always return JSON even when the client calls the endpoint with the wrong method.
+export async function GET(): Promise<NextResponse<{ success: false; message: string }>> {
+  return NextResponse.json(
+    { success: false, message: "Method Not Allowed. Use POST /api/reservation." },
+    { status: 405 },
+  )
+}
+
+export async function OPTIONS(): Promise<NextResponse<null>> {
+  return new NextResponse(null, { status: 204 })
+}
+
 interface ReservationFormResponse {
   success: boolean
   message?: string
@@ -36,38 +50,51 @@ export async function POST(request: NextRequest): Promise<NextResponse<Reservati
       .replace(/'/g, "&#39;")
 
   try {
-    const formData = await request.formData()
+    const contentType = request.headers.get("content-type") || ""
+
+    // Accept both JSON and FormData payloads.
+    const payload: Record<string, any> = {}
+
+    if (contentType.includes("application/json")) {
+      Object.assign(payload, await request.json())
+    } else {
+      const formData = await request.formData()
+      for (const [key, value] of formData.entries()) {
+        // FormData values can be string or File; we only expect strings.
+        payload[key] = typeof value === "string" ? value : ""
+      }
+    }
 
     // Extract form data
-    const personTypeRaw = (formData.get("personType") as string) || "individual"
+    const personTypeRaw = (payload["personType"] as string) || "individual"
     const personType = personTypeRaw === "company" ? "company" : "individual"
 
-    const firstName = (formData.get("firstName") as string) || ""
-    const lastName = (formData.get("lastName") as string) || ""
-    const companyName = (formData.get("companyName") as string) || ""
-    const email = (formData.get("email") as string) || ""
-    const phone = (formData.get("phone") as string) || ""
+    const firstName = (payload["firstName"] as string) || ""
+    const lastName = (payload["lastName"] as string) || ""
+    const companyName = (payload["companyName"] as string) || ""
+    const email = (payload["email"] as string) || ""
+    const phone = (payload["phone"] as string) || ""
 
-    const pickupAddress = (formData.get("pickupAddress") as string) || ""
-    const destinationAddress = (formData.get("destinationAddress") as string) || ""
-    const date = (formData.get("date") as string) || ""
-    const time = (formData.get("time") as string) || ""
-    const passengersRaw = (formData.get("passengers") as string) || ""
-    const returnTrip = ((formData.get("returnTrip") as string) || "false") === "true"
+    const pickupAddress = (payload["pickupAddress"] as string) || ""
+    const destinationAddress = (payload["destinationAddress"] as string) || ""
+    const date = (payload["date"] as string) || ""
+    const time = (payload["time"] as string) || ""
+    const passengersRaw = (payload["passengers"] as string) || ""
+    const returnTrip = (((payload["returnTrip"] as string) || "false") === "true")
 
-    const vehicleCategory = (formData.get("vehicleCategory") as string) || ""
+    const vehicleCategory = (payload["vehicleCategory"] as string) || ""
 
-    const sameAsMainPassengerRaw = (formData.get("sameAsMainPassenger") as string) || "true"
+    const sameAsMainPassengerRaw = (payload["sameAsMainPassenger"] as string) || "true"
     const sameAsMainPassenger = sameAsMainPassengerRaw !== "false"
-    const mainPassengerFirstName = (formData.get("mainPassengerFirstName") as string) || ""
-    const mainPassengerLastName = (formData.get("mainPassengerLastName") as string) || ""
+    const mainPassengerFirstName = (payload["mainPassengerFirstName"] as string) || ""
+    const mainPassengerLastName = (payload["mainPassengerLastName"] as string) || ""
 
-    const flightNumber = (formData.get("flightNumber") as string) || ""
-    const paymentMethod = (formData.get("paymentMethod") as string) || ""
+    const flightNumber = (payload["flightNumber"] as string) || ""
+    const paymentMethod = (payload["paymentMethod"] as string) || ""
 
-    const notes = (formData.get("notes") as string) || ""
-    const gdprConsent = ((formData.get("gdprConsent") as string) || "false") === "true"
-    const marketingConsent = ((formData.get("marketingConsent") as string) || "false") === "true"
+    const notes = (payload["notes"] as string) || ""
+    const gdprConsent = (((payload["gdprConsent"] as string) || "false") === "true")
+    const marketingConsent = (((payload["marketingConsent"] as string) || "false") === "true")
 
     // Validation
     const errors: ReservationFormResponse["errors"] = {}
@@ -137,11 +164,14 @@ export async function POST(request: NextRequest): Promise<NextResponse<Reservati
     }
 
     if (Object.keys(errors).length > 0) {
-      return NextResponse.json({
-        success: false,
-        errors,
-        message: "Prosím opravte chyby vo formulári",
-      })
+      return NextResponse.json(
+        {
+          success: false,
+          errors,
+          message: "Prosím opravte chyby vo formulári",
+        },
+        { status: 400 },
+      )
     }
 
     // Get API key from environment
@@ -150,18 +180,24 @@ export async function POST(request: NextRequest): Promise<NextResponse<Reservati
     // Verify API key exists and is valid format
     if (!apiKey) {
       console.error("❌ RESEND_API_KEY is not set in environment variables")
-      return NextResponse.json({
-        success: false,
-        message: "Konfiguračná chyba servera. Kontaktujte administrátora.",
-      })
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Konfiguračná chyba servera. Kontaktujte administrátora.",
+        },
+        { status: 500 },
+      )
     }
 
     if (!apiKey.startsWith("re_")) {
       console.error("❌ RESEND_API_KEY has invalid format:", apiKey.substring(0, 10) + "...")
-      return NextResponse.json({
-        success: false,
-        message: "Konfiguračná chyba servera. Kontaktujte administrátora.",
-      })
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Konfiguračná chyba servera. Kontaktujte administrátora.",
+        },
+        { status: 500 },
+      )
     }
 
     // Log form submission attempt
@@ -172,8 +208,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<Reservati
     try {
       // Prepare email data - using the new recipient email
       const emailData = {
-        from: "BY THE WAVE <web@rezervacie.btw.sk>",
-        to: ["marketing@btw.sk","igor.tittel@gmail.com"], // Updated to new email
+        from: process.env.CONTACT_FROM_EMAIL || "BY THE WAVE <web@rezervacie.btw.sk>",
+        to: [process.env.CONTACT_TO_EMAIL || "marketing@btw.sk"],
         subject: `Nová web rezervácia - ${firstName} ${lastName} (${date} ${time})`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f5f5f5;">
@@ -398,26 +434,35 @@ Táto správa bola odoslaná z rezervačného formulára na bythewave.sk
           console.error("🔧 Server error on Resend side")
         }
 
-        return NextResponse.json({
-          success: false,
-          message: userMessage,
-        })
+        return NextResponse.json(
+          {
+            success: false,
+            message: userMessage,
+          },
+          { status: response.status },
+        )
       }
     } catch (fetchError) {
       console.error("❌ Network/Fetch Error:", fetchError)
 
-      return NextResponse.json({
-        success: false,
-        message:
-          "Chyba pripojenia k emailovej službe. Skontrolujte internetové pripojenie a skúste to znovu.",
-      })
+      return NextResponse.json(
+        {
+          success: false,
+          message:
+            "Chyba pripojenia k emailovej službe. Skontrolujte internetové pripojenie a skúste to znovu.",
+        },
+        { status: 502 },
+      )
     }
   } catch (error) {
     console.error("❌ Unexpected error in reservation form:", error)
 
-    return NextResponse.json({
-      success: false,
-      message: "Nastala neočakávaná chyba. Skúste to prosím znovu alebo nás kontaktujte priamo.",
-    })
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Nastala neočakávaná chyba. Skúste to prosím znovu alebo nás kontaktujte priamo.",
+      },
+      { status: 500 },
+    )
   }
 }
