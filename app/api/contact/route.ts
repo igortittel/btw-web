@@ -2,6 +2,39 @@ import { type NextRequest, NextResponse } from "next/server"
 
 export const runtime = "nodejs"
 
+const getClientIp = (request: NextRequest) => {
+  const xff = request.headers.get("x-forwarded-for")
+  if (xff) return xff.split(",")[0].trim()
+  return (
+    request.headers.get("x-real-ip") ||
+    request.headers.get("cf-connecting-ip") ||
+    "unknown"
+  )
+}
+
+// Best-effort in-memory rate-limit (works per warm runtime instance)
+const getRateLimitStore = () => {
+  const g = globalThis as any
+  if (!g.__BTW_CONTACT_RL__) g.__BTW_CONTACT_RL__ = new Map<string, number[]>()
+  return g.__BTW_CONTACT_RL__ as Map<string, number[]>
+}
+
+const isRateLimited = (key: string, limit: number, windowMs: number) => {
+  const store = getRateLimitStore()
+  const now = Date.now()
+  const arr = store.get(key) || []
+  const fresh = arr.filter((t) => now - t < windowMs)
+  fresh.push(now)
+  store.set(key, fresh)
+  return fresh.length > limit
+}
+
+const countLinks = (text: string) => {
+  const matches = text.match(/https?:\/\//gi) || []
+  const www = text.match(/\bwww\./gi) || []
+  return matches.length + www.length
+}
+
 export async function GET(): Promise<NextResponse<{ success: false; message: string }>> {
   return NextResponse.json(
     { success: false, message: "Method Not Allowed. Use POST /api/contact." },
@@ -31,6 +64,34 @@ export async function POST(request: NextRequest): Promise<NextResponse<ContactFo
   try {
     const formData = await request.formData()
 
+    const ip = getClientIp(request)
+
+    // Normalize early
+    const firstName = String(formData.get("firstName") || "").trim()
+    const lastName = String(formData.get("lastName") || "").trim()
+    const email = String(formData.get("email") || "").trim()
+    const message = String(formData.get("message") || "").trim()
+    const phone = String(formData.get("phone") || "").trim()
+    const subject = String(formData.get("subject") || "").trim()
+    const gdprConsent = String(formData.get("gdprConsent") || "false") === "true"
+
+    // Best-effort rate limit: per IP + email
+    // (kept silent to avoid giving bots feedback)
+    const rlKey = `${ip}:${email.toLowerCase()}`
+    if (isRateLimited(rlKey, 8, 10 * 60 * 1000)) {
+      return NextResponse.json({ success: true }, { status: 200 })
+    }
+
+    // Heuristic: too many links in message is usually spam
+    if (countLinks(message) > 2) {
+      return NextResponse.json({ success: true }, { status: 200 })
+    }
+
+    // Heuristic: absurdly long payloads are often bot spam
+    if (message.length > 4000 || subject.length > 200) {
+      return NextResponse.json({ success: true }, { status: 200 })
+    }
+
     const honeypot = String(formData.get("website") || "").trim()
     if (honeypot) {
       return NextResponse.json({ success: true }, { status: 200 })
@@ -41,14 +102,6 @@ export async function POST(request: NextRequest): Promise<NextResponse<ContactFo
     if (!startedAt || !Number.isFinite(elapsedMs) || elapsedMs < 1500) {
       return NextResponse.json({ success: true }, { status: 200 })
     }
-
-    const firstName = formData.get("firstName") as string
-    const lastName = formData.get("lastName") as string
-    const email = formData.get("email") as string
-    const message = (formData.get("message") as string) || ""
-    const phone = (formData.get("phone") as string) || ""
-    const subject = (formData.get("subject") as string) || ""
-    const gdprConsent = String(formData.get("gdprConsent") || "false") === "true"
 
     const escapeHtml = (input: string) =>
       input
@@ -95,18 +148,24 @@ export async function POST(request: NextRequest): Promise<NextResponse<ContactFo
 
     if (!apiKey) {
       console.error("❌ RESEND_API_KEY is not set in environment variables")
-      return NextResponse.json({
-        success: false,
-        message: "Konfiguračná chyba servera. Kontaktujte administrátora.",
-      })
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Konfiguračná chyba servera. Kontaktujte administrátora.",
+        },
+        { status: 500 },
+      )
     }
 
     if (!apiKey.startsWith("re_")) {
       console.error("❌ RESEND_API_KEY has invalid format:", apiKey.substring(0, 10) + "...")
-      return NextResponse.json({
-        success: false,
-        message: "Konfiguračná chyba servera. Kontaktujte administrátora.",
-      })
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Konfiguračná chyba servera. Kontaktujte administrátora.",
+        },
+        { status: 500 },
+      )
     }
 
     console.log("📧 Attempting to send email...")
@@ -268,25 +327,34 @@ Táto správa bola odoslaná z kontaktného formulára na bythewave.sk
           console.error("🔧 Server error on Resend side")
         }
 
-        return NextResponse.json({
-          success: false,
-          message: userMessage,
-        })
+        return NextResponse.json(
+          {
+            success: false,
+            message: userMessage,
+          },
+          { status: response.status },
+        )
       }
     } catch (fetchError) {
       console.error("❌ Network/Fetch Error:", fetchError)
 
-      return NextResponse.json({
-        success: false,
-        message: "Chyba pripojenia k emailovej službe. Skontrolujte internetové pripojenie a skúste to znovu.",
-      })
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Chyba pripojenia k emailovej službe. Skontrolujte internetové pripojenie a skúste to znovu.",
+        },
+        { status: 502 },
+      )
     }
   } catch (error) {
     console.error("❌ Unexpected error in contact form:", error)
 
-    return NextResponse.json({
-      success: false,
-      message: "Nastala neočakávaná chyba. Skúste to prosím znovu alebo nás kontaktujte priamo.",
-    })
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Nastala neočakávaná chyba. Skúste to prosím znovu alebo nás kontaktujte priamo.",
+      },
+      { status: 500 },
+    )
   }
 }
