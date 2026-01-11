@@ -65,6 +65,13 @@ export async function POST(request: NextRequest): Promise<NextResponse<Reservati
       }
     }
 
+    // Anti-spam: honeypot field (should stay empty for real users)
+    const honeypot = String(payload["website"] || "").trim()
+    if (honeypot) {
+      // Pretend success so bots get no feedback
+      return NextResponse.json({ success: true }, { status: 200 })
+    }
+
     // Extract form data
     const personTypeRaw = (payload["personType"] as string) || "individual"
     const personType = personTypeRaw === "company" ? "company" : "individual"
