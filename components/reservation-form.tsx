@@ -669,7 +669,7 @@ export function ReservationForm() {
                   Odosielam...
                 </>
               ) : (
-                "Odoslať správu"
+                "Odoslať nezáväzný dopyt"
               )}
             </Button>
           </div>
