@@ -432,6 +432,16 @@ Táto správa bola odoslaná z rezervačného formulára na bythewave.sk
 
                   <p style="margin: 0 0 14px 0; color: #333; font-size: 16px; line-height: 1.7;">ďakujeme za prejavenú dôveru. Váš dopyt na transfer sme úspešne prijali.</p>
 
+                  <p style="margin: 0 0 14px 0; color: #333; font-size: 16px; line-height: 1.7;">Informácie o dopyte:<br>
+                  Adresa vyzdvihnutia: ${pickupAddress}<br>
+                  Cieľová adresa: ${destinationAddress}<br>
+                  Dátum a čas: ${date} ${time}<br>
+                  Počet pasažierov: ${passengers}<br>
+                  Spiatočná cesta: ${returnTrip}<br>
+                  Kategória vozidla: ${vehicleCategory}<br>
+                  Spôsob platby: ${paymentMethod}<br>
+                  Poznámky:${notes}</p>
+
                   <p style="margin: 0 0 14px 0; color: #333; font-size: 16px; line-height: 1.7;">Čoskoro Vás budeme kontaktovať na uvedenom tel. čísle <strong>${escapeHtml(phone)}</strong>.</p>
 
                   <p style="margin: 0 0 14px 0; color: #333; font-size: 16px; line-height: 1.7;">V prípade akýchkoľvek otázok nás neváhajte kontaktovať prostredníctvom kontaktov uverejnených na našej webstránke v sekcii Kontakty.</p>
