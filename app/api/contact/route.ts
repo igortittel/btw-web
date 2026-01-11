@@ -1,5 +1,18 @@
 import { type NextRequest, NextResponse } from "next/server"
 
+export const runtime = "nodejs"
+
+export async function GET(): Promise<NextResponse<{ success: false; message: string }>> {
+  return NextResponse.json(
+    { success: false, message: "Method Not Allowed. Use POST /api/contact." },
+    { status: 405 },
+  )
+}
+
+export async function OPTIONS(): Promise<NextResponse<null>> {
+  return new NextResponse(null, { status: 204 })
+}
+
 interface ContactFormResponse {
   success: boolean
   message?: string
@@ -8,6 +21,9 @@ interface ContactFormResponse {
     lastName?: string
     email?: string
     message?: string
+    phone?: string
+    subject?: string
+    gdprConsent?: string
   }
 }
 
@@ -15,13 +31,33 @@ export async function POST(request: NextRequest): Promise<NextResponse<ContactFo
   try {
     const formData = await request.formData()
 
-    // Extract form data
+    const honeypot = String(formData.get("website") || "").trim()
+    if (honeypot) {
+      return NextResponse.json({ success: true }, { status: 200 })
+    }
+
+    const startedAt = Number(formData.get("startedAt") || 0)
+    const elapsedMs = Date.now() - startedAt
+    if (!startedAt || !Number.isFinite(elapsedMs) || elapsedMs < 1500) {
+      return NextResponse.json({ success: true }, { status: 200 })
+    }
+
     const firstName = formData.get("firstName") as string
     const lastName = formData.get("lastName") as string
     const email = formData.get("email") as string
-    const message = formData.get("message") as string
+    const message = (formData.get("message") as string) || ""
+    const phone = (formData.get("phone") as string) || ""
+    const subject = (formData.get("subject") as string) || ""
+    const gdprConsent = String(formData.get("gdprConsent") || "false") === "true"
 
-    // Validation
+    const escapeHtml = (input: string) =>
+      input
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;")
+
     const errors: ContactFormResponse["errors"] = {}
 
     if (!firstName || firstName.trim().length < 2) {
@@ -40,18 +76,23 @@ export async function POST(request: NextRequest): Promise<NextResponse<ContactFo
       errors.message = "Správa musí mať aspoň 10 znakov"
     }
 
-    if (Object.keys(errors).length > 0) {
-      return NextResponse.json({
-        success: false,
-        errors,
-        message: "Prosím opravte chyby vo formulári",
-      })
+    if (phone && phone.trim().length < 6) {
+      errors.phone = "Telefónne číslo musí mať aspoň 6 znakov"
     }
 
-    // Get API key from environment
+    if (!gdprConsent) {
+      errors.gdprConsent = "Je potrebné súhlasiť so spracovaním údajov"
+    }
+
+    if (Object.keys(errors).length > 0) {
+      return NextResponse.json(
+        { success: false, errors, message: "Prosím opravte chyby vo formulári" },
+        { status: 400 },
+      )
+    }
+
     const apiKey = process.env.RESEND_API_KEY
 
-    // Verify API key exists and is valid format
     if (!apiKey) {
       console.error("❌ RESEND_API_KEY is not set in environment variables")
       return NextResponse.json({
@@ -68,17 +109,17 @@ export async function POST(request: NextRequest): Promise<NextResponse<ContactFo
       })
     }
 
-    // Log form submission attempt
     console.log("📧 Attempting to send email...")
     console.log(`👤 From: ${firstName} ${lastName} (${email})`)
     console.log(`📅 Time: ${new Date().toLocaleString("sk-SK")}`)
 
     try {
-      // Prepare email data - using the new recipient email
       const emailData = {
-        from: "BY THE WAVE <onboarding@resend.dev>",
-        to: ["XXXXXXXXXXX"], // Updated to new email
-        subject: `Nová správa z kontaktného formulára - ${firstName} ${lastName}`,
+        from: process.env.CONTACT_FROM_EMAIL || "BY THE WAVE <web@rezervacie.btw.sk>",
+        to: [process.env.CONTACT_TO_EMAIL || "marketing@btw.sk"],
+        subject: subject
+          ? `Kontakt - ${firstName} ${lastName} (${subject})`
+          : `Kontakt - ${firstName} ${lastName}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f5f5f5;">
             <!-- Header -->
@@ -122,7 +163,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ContactFo
               <div style="margin: 30px 0;">
                 <h3 style="color: #333; margin: 0 0 15px 0; font-size: 18px; font-weight: 600;">Správa:</h3>
                 <div style="background: #f8f9fa; padding: 25px; border-radius: 8px; border-left: 5px solid #B88746; line-height: 1.7; font-size: 16px; color: #444;">
-                  ${message.replace(/\n/g, "<br>")}
+                  ${escapeHtml(message).replace(/\n/g, "<br>")}
                 </div>
               </div>
               
@@ -169,7 +210,6 @@ Táto správa bola odoslaná z kontaktného formulára na bythewave.sk
         `,
       }
 
-      // Send email via Resend API
       const response = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
@@ -179,7 +219,6 @@ Táto správa bola odoslaná z kontaktného formulára na bythewave.sk
         body: JSON.stringify(emailData),
       })
 
-      // Handle response
       if (response.ok) {
         const result = await response.json()
         console.log("✅ Email successfully sent!")
@@ -191,7 +230,6 @@ Táto správa bola odoslaná z kontaktného formulára na bythewave.sk
           message: "Ďakujeme za vašu správu! Email bol úspešne odoslaný a ozveme sa vám čo najskôr.",
         })
       } else {
-        // Handle API errors
         const errorText = await response.text()
         let errorData
         try {
@@ -204,7 +242,6 @@ Táto správa bola odoslaná z kontaktného formulára na bythewave.sk
         console.error(`Status: ${response.status} ${response.statusText}`)
         console.error("Response:", errorData)
 
-        // Provide specific error messages
         let userMessage = "Nastala chyba pri odosielaní emailu."
 
         if (response.status === 401) {
