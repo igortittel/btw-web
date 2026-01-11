@@ -213,6 +213,9 @@ export async function POST(request: NextRequest): Promise<NextResponse<Reservati
     console.log(`📅 Reservation time: ${new Date().toLocaleString("sk-SK")}`)
 
     try {
+      // Prepare base URL for logo
+      const publicBaseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || ""
+      const logoUrl = publicBaseUrl ? `${publicBaseUrl}/images/logo.png` : ""
       // Prepare email data - using the new recipient email
       const emailData = {
         from: process.env.CONTACT_FROM_EMAIL || "BY THE WAVE <web@rezervacie.btw.sk>",
@@ -220,6 +223,9 @@ export async function POST(request: NextRequest): Promise<NextResponse<Reservati
         subject: `Nová web rezervácia - ${firstName} ${lastName} (${date} ${time})`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f5f5f5;">
+            ${logoUrl ? `<div style="text-align:center; margin: 0 0 14px 0;">
+              <img src="${logoUrl}" alt="BY THE WAVE" width="120" height="40" style="display:inline-block; max-width:120px; height:auto;" />
+            </div>` : ""}
             <!-- Header -->
             <div style="background: linear-gradient(135deg, #B88746 0%, #A67C52 100%); padding: 30px 20px; border-radius: 12px 12px 0 0; text-align: center;">
               <h1 style="color: white; margin: 0; font-size: 28px; font-weight: bold;">BY THE WAVE</h1>
@@ -401,6 +407,65 @@ Táto správa bola odoslaná z rezervačného formulára na bythewave.sk
         console.log("✅ Reservation email successfully sent!")
         console.log(`📧 Email ID: ${result.id}`)
         console.log("=".repeat(50))
+
+        // Send customer confirmation email (best-effort: do not fail the reservation if this email fails)
+        try {
+          const confirmationFrom = process.env.CONFIRMATION_FROM_EMAIL || "BY THE WAVE <potvrdenie@rezervacie.btw.sk>"
+          const confirmationTo = email
+
+          const confirmationEmailData = {
+            from: confirmationFrom,
+            to: [confirmationTo],
+            subject: "Potvrdenie prijatia dopytu",
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f5f5f5;">
+                ${logoUrl ? `<div style="text-align:center; margin: 0 0 14px 0;">
+                  <img src="${logoUrl}" alt="BY THE WAVE" width="120" height="40" style="display:inline-block; max-width:120px; height:auto;" />
+                </div>` : ""}
+                <div style="background: linear-gradient(135deg, #B88746 0%, #A67C52 100%); padding: 26px 18px; border-radius: 12px 12px 0 0; text-align: center;">
+                  <h1 style="color: white; margin: 0; font-size: 26px; font-weight: bold;">BY THE WAVE</h1>
+                  <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 15px; letter-spacing: 1px;">Executive Mobility</p>
+                </div>
+
+                <div style="background: white; padding: 28px 22px; border-radius: 0 0 12px 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                  <p style="margin: 0 0 14px 0; color: #333; font-size: 16px; line-height: 1.7;">Dobrý deň, p. <strong>${escapeHtml(lastName)}</strong>,</p>
+
+                  <p style="margin: 0 0 14px 0; color: #333; font-size: 16px; line-height: 1.7;">ďakujeme za prejavenú dôveru. Váš dopyt na transfer sme úspešne prijali.</p>
+
+                  <p style="margin: 0 0 14px 0; color: #333; font-size: 16px; line-height: 1.7;">Čoskoro Vás budeme kontaktovať na uvedenom tel. čísle <strong>${escapeHtml(phone)}</strong>.</p>
+
+                  <p style="margin: 0 0 14px 0; color: #333; font-size: 16px; line-height: 1.7;">V prípade akýchkoľvek otázok nás neváhajte kontaktovať prostredníctvom kontaktov uverejnených na našej webstránke v sekcii Kontakty.</p>
+
+                  <p style="margin: 18px 0 0 0; color: #333; font-size: 16px; line-height: 1.7;">S pozdravom,<br><strong>BY THE WAVE</strong></p>
+
+                  <div style="margin-top: 22px; padding-top: 16px; border-top: 1px solid #eee; color: #999; font-size: 12px; text-align: center;">
+                    Tento email bol odoslaný automaticky. Prosím, neodpovedajte naň.
+                  </div>
+                </div>
+              </div>
+            `,
+            text: `Dobrý deň, p. ${lastName},\n\nďakujeme za prejavenú dôveru. Váš dopyt na transfer sme úspešne prijali.\n\nČoskoro Vás budeme kontaktovať na uvedenom tel. čísle ${phone}.\n\nV prípade akýchkoľvek otázok nás neváhajte kontaktovať prostredníctvom kontaktov uverejnených na našej webstránke v sekcii Kontakty.\n\nS pozdravom\nBY THE WAVE`,
+          }
+
+          const confirmationResponse = await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${apiKey}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(confirmationEmailData),
+          })
+
+          if (confirmationResponse.ok) {
+            const confirmationResult = await confirmationResponse.json()
+            console.log("✅ Confirmation email sent", confirmationResult?.id)
+          } else {
+            const confirmationError = await confirmationResponse.text()
+            console.warn("⚠️ Confirmation email failed", confirmationResponse.status, confirmationError)
+          }
+        } catch (confirmationError) {
+          console.warn("⚠️ Confirmation email unexpected error", confirmationError)
+        }
 
         return NextResponse.json({
           success: true,
