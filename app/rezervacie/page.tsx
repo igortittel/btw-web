@@ -156,27 +156,7 @@ export default function PrepravaOsobPage() {
         </div>
       </section>
 
-      <ReservationForm/>
-
-      {/* Vehicle Showcase */}
-      <section className="py-20 px-6 bg-[#1D1D1D] relative">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl font-bold text-center mb-16 tracking-wide text-white">NAŠE VOZIDLÁ</h2>
-
-          <div className="relative">
-            <VehicleShowcase />
-
-          </div>
-
-          <div className="text-center mt-8">
-            <Link href="/nase-vozidla">
-              <Button className="bg-[#B88746] hover:bg-[#A67C52] text-white font-medium px-6 py-2">
-                Zobraziť všetky vozidlá
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
+       <ReservationForm/>
 
       {/* Features Section */}
       <section className="py-20 px-6 bg-[#111111]">
@@ -212,14 +192,6 @@ export default function PrepravaOsobPage() {
               title="Cena a kvalita"
               description="Sme jedni z najlepších v pomere cena a kvalita"
             />
-          </div>
-
-          <div className="text-center mt-12">
-            <Link href="/sluzby">
-              <Button className="bg-[#B88746] hover:bg-[#A67C52] text-white font-medium px-6 py-2">
-                Zobraziť služby
-              </Button>
-            </Link>
           </div>
         </div>
       </section>

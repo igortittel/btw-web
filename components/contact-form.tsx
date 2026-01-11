@@ -15,6 +15,8 @@ interface FormState {
     firstName?: string
     lastName?: string
     email?: string
+    phone?: string
+    subject?: string
     message?: string
     gdprConsent?: string
   }
@@ -63,7 +65,7 @@ export function ContactForm() {
       if (result?.success) {
         setFormState({
           success: true,
-          message: result.message,
+          message: result?.message || "Ďakujeme! Správa bola prijatá. Ozveme sa vám čoskoro.",
         })
         // Reset form on success using ref
         if (formRef.current) {
@@ -167,6 +169,43 @@ export function ContactForm() {
           </div>
 
           <div>
+            <label className="block text-sm font-medium mb-3 text-white">Telefón (voliteľné)</label>
+            <Input
+              type="tel"
+              name="phone"
+              className={`bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors ${
+                formState?.errors?.phone ? "border-red-500 focus:border-red-500" : "focus:border-[#B88746]"
+              }`}
+              placeholder="Telefón"
+              disabled={isSubmitting}
+            />
+            {formState?.errors?.phone && (
+              <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                <AlertCircle className="w-4 h-4" />
+                {formState.errors.phone}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-3 text-white">Predmet (voliteľné)</label>
+            <Input
+              name="subject"
+              className={`bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors ${
+                formState?.errors?.subject ? "border-red-500 focus:border-red-500" : "focus:border-[#B88746]"
+              }`}
+              placeholder="Predmet"
+              disabled={isSubmitting}
+            />
+            {formState?.errors?.subject && (
+              <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                <AlertCircle className="w-4 h-4" />
+                {formState.errors.subject}
+              </p>
+            )}
+          </div>
+
+          <div>
             <label className="block text-sm font-medium mb-3 text-white">Vaša správa*</label>
             <Textarea
               name="message"
@@ -189,8 +228,7 @@ export function ContactForm() {
           <div className="hidden" aria-hidden="true">
             <label htmlFor="website">Website</label>
             <input id="website" name="website" tabIndex={-1} autoComplete="off" />
-          </div>          
-
+          </div>
           {/* GDPR Consent (required) */}
           <div className="flex flex-col gap-2">
             <input type="hidden" name="gdprConsent" value={gdprConsent ? "true" : "false"} />
