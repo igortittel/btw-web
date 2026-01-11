@@ -169,7 +169,7 @@ export function ContactForm() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-3 text-white">Telefón (voliteľné)</label>
+            <label className="block text-sm font-medium mb-3 text-white">Telefón*</label>
             <Input
               type="tel"
               name="phone"
@@ -177,6 +177,7 @@ export function ContactForm() {
                 formState?.errors?.phone ? "border-red-500 focus:border-red-500" : "focus:border-[#B88746]"
               }`}
               placeholder="Telefón"
+              required
               disabled={isSubmitting}
             />
             {formState?.errors?.phone && (
@@ -188,7 +189,7 @@ export function ContactForm() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-3 text-white">Predmet (voliteľné)</label>
+            <label className="block text-sm font-medium mb-3 text-white">Predmet</label>
             <Input
               name="subject"
               className={`bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors ${

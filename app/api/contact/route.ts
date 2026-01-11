@@ -161,8 +161,15 @@ export async function POST(request: NextRequest): Promise<NextResponse<ContactFo
               
               <!-- Message -->
               <div style="margin: 30px 0;">
-                <h3 style="color: #333; margin: 0 0 15px 0; font-size: 18px; font-weight: 600;">Správa:</h3>
-                <div style="background: #f8f9fa; padding: 25px; border-radius: 8px; border-left: 5px solid #B88746; line-height: 1.7; font-size: 16px; color: #444;">
+                ${subject ? `
+                <h3 style="color: #333; margin: 0 0 10px 0; font-size: 16px; font-weight: 600;">Predmet:</h3>
+                <div style="background: #f8f9fa; padding: 18px; border-radius: 8px; border-left: 5px solid #B88746; line-height: 1.6; font-size: 16px; color: #444; margin-bottom: 18px;">
+                  ${escapeHtml(subject).replace(/\n/g, "<br>")}
+                </div>
+                ` : ``}
+
+                <h3 style="color: #333; margin: 0 0 10px 0; font-size: 18px; font-weight: 600;">Správa:</h3>
+                <div style="background: #f8f9fa; padding: 22px; border-radius: 8px; border-left: 5px solid #B88746; line-height: 1.7; font-size: 16px; color: #444;">
                   ${escapeHtml(message).replace(/\n/g, "<br>")}
                 </div>
               </div>
