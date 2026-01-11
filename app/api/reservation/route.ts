@@ -213,8 +213,12 @@ export async function POST(request: NextRequest): Promise<NextResponse<Reservati
     console.log(`📅 Reservation time: ${new Date().toLocaleString("sk-SK")}`)
 
     try {
-      // Prepare base URL for logo
-      const publicBaseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || ""
+      // Prepare base URL for logo (must be absolute for email clients)
+      const envBaseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || ""
+      const forwardedProto = request.headers.get("x-forwarded-proto") || "https"
+      const forwardedHost = request.headers.get("x-forwarded-host") || request.headers.get("host") || ""
+      const requestBaseUrl = forwardedHost ? `${forwardedProto}://${forwardedHost}` : ""
+      const publicBaseUrl = envBaseUrl || requestBaseUrl
       const logoUrl = publicBaseUrl ? `${publicBaseUrl}/images/logo.png` : ""
       // Prepare email data - using the new recipient email
       const emailData = {
@@ -418,43 +422,92 @@ Táto správa bola odoslaná z rezervačného formulára na bythewave.sk
             to: [confirmationTo],
             subject: "Potvrdenie prijatia dopytu",
             html: `
-              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f5f5f5;">
-                ${logoUrl ? `<div style="text-align:center; margin: 0 0 14px 0;">
-                  <img src="${logoUrl}" alt="BY THE WAVE" width="120" height="40" style="display:inline-block; max-width:120px; height:auto;" />
-                </div>` : ""}
-                <div style="background: linear-gradient(135deg, #B88746 0%, #A67C52 100%); padding: 26px 18px; border-radius: 12px 12px 0 0; text-align: center;">
-                  <h1 style="color: white; margin: 0; font-size: 26px; font-weight: bold;">BY THE WAVE</h1>
-                  <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 15px; letter-spacing: 1px;">Executive Mobility</p>
-                </div>
+              <div style="font-family: Arial, sans-serif; background:#0b0b0b; padding: 24px 12px;">
+                <div style="max-width: 640px; margin: 0 auto;">
 
-                <div style="background: white; padding: 28px 22px; border-radius: 0 0 12px 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                  <p style="margin: 0 0 14px 0; color: #333; font-size: 16px; line-height: 1.7;">Dobrý deň, p. <strong>${escapeHtml(lastName)}</strong>,</p>
-
-                  <p style="margin: 0 0 14px 0; color: #333; font-size: 16px; line-height: 1.7;">ďakujeme za prejavenú dôveru. Váš dopyt na transfer sme úspešne prijali.</p>
-
-                  <p style="margin: 0 0 14px 0; color: #333; font-size: 16px; line-height: 1.7;">Informácie o dopyte:<br>
-                  Adresa vyzdvihnutia: ${pickupAddress}<br>
-                  Cieľová adresa: ${destinationAddress}<br>
-                  Dátum a čas: ${date} ${time}<br>
-                  Počet pasažierov: ${passengers}<br>
-                  Spiatočná cesta: ${returnTrip}<br>
-                  Kategória vozidla: ${vehicleCategory}<br>
-                  Spôsob platby: ${paymentMethod}<br>
-                  Poznámky:${notes}</p>
-
-                  <p style="margin: 0 0 14px 0; color: #333; font-size: 16px; line-height: 1.7;">Čoskoro Vás budeme kontaktovať na uvedenom tel. čísle <strong>${escapeHtml(phone)}</strong>.</p>
-
-                  <p style="margin: 0 0 14px 0; color: #333; font-size: 16px; line-height: 1.7;">V prípade akýchkoľvek otázok nás neváhajte kontaktovať prostredníctvom kontaktov uverejnených na našej webstránke v sekcii Kontakty.</p>
-
-                  <p style="margin: 18px 0 0 0; color: #333; font-size: 16px; line-height: 1.7;">S pozdravom,<br><strong>BY THE WAVE</strong></p>
-
-                  <div style="margin-top: 22px; padding-top: 16px; border-top: 1px solid #eee; color: #999; font-size: 12px; text-align: center;">
-                    Tento email bol odoslaný automaticky. Prosím, neodpovedajte naň.
+                  <div style="text-align:center; margin: 0 0 14px 0;">
+                    ${logoUrl ? `<img src="${logoUrl}" alt="BY THE WAVE" width="140" height="46" style="display:inline-block; max-width:140px; height:auto;" />` : ""}
                   </div>
+
+                  <div style="background: linear-gradient(135deg, #B88746 0%, #A67C52 100%); padding: 22px 18px; border-radius: 14px 14px 0 0; text-align: center;">
+                    <div style="color: rgba(255,255,255,0.92); font-size: 14px; letter-spacing: 1px;">Executive Mobility</div>
+                    <div style="color: #fff; margin-top: 8px; font-size: 22px; font-weight: 700;">Potvrdenie prijatia dopytu</div>
+                  </div>
+
+                  <div style="background: #141414; border: 1px solid #222; padding: 22px 20px; border-radius: 0 0 14px 14px; box-shadow: 0 10px 20px rgba(0,0,0,0.35);">
+                    <p style="margin: 0 0 12px 0; color: #e9e9e9; font-size: 16px; line-height: 1.7;">Dobrý deň, p. <strong style=\"color:#fff;\">${escapeHtml(lastName)}</strong>,</p>
+
+                    <p style="margin: 0 0 14px 0; color: #e9e9e9; font-size: 16px; line-height: 1.7;">ďakujeme za prejavenú dôveru. Váš dopyt na transfer sme úspešne prijali.</p>
+
+                    <div style="margin: 18px 0; padding: 16px; border-radius: 12px; background: #0f0f0f; border: 1px solid #242424;">
+                      <div style="color:#B88746; font-weight:700; font-size: 14px; letter-spacing: .6px; margin-bottom: 10px;">INFORMÁCIE O DOPYTE</div>
+                      <table style="width:100%; border-collapse: collapse; font-size: 14px; color:#e9e9e9;">
+                        <tr>
+                          <td style="padding:8px 0; color:#bdbdbd; width: 190px;">Vyzdvihnutie</td>
+                          <td style="padding:8px 0; color:#fff;">${escapeHtml(pickupAddress)}</td>
+                        </tr>
+                        <tr>
+                          <td style="padding:8px 0; color:#bdbdbd;">Cieľ</td>
+                          <td style="padding:8px 0; color:#fff;">${escapeHtml(destinationAddress)}</td>
+                        </tr>
+                        <tr>
+                          <td style="padding:8px 0; color:#bdbdbd;">Dátum a čas</td>
+                          <td style="padding:8px 0; color:#fff;">${escapeHtml(date)} ${escapeHtml(time)}</td>
+                        </tr>
+                        <tr>
+                          <td style="padding:8px 0; color:#bdbdbd;">Počet pasažierov</td>
+                          <td style="padding:8px 0; color:#fff;">${passengers}</td>
+                        </tr>
+                        <tr>
+                          <td style="padding:8px 0; color:#bdbdbd;">Spiatočná cesta</td>
+                          <td style="padding:8px 0; color:#fff;">${returnTrip ? "Áno" : "Nie"}</td>
+                        </tr>
+                        <tr>
+                          <td style="padding:8px 0; color:#bdbdbd;">Kategória vozidla</td>
+                          <td style="padding:8px 0; color:#fff;">${escapeHtml(vehicleCategory)}</td>
+                        </tr>
+                        <tr>
+                          <td style="padding:8px 0; color:#bdbdbd;">Spôsob platby</td>
+                          <td style="padding:8px 0; color:#fff;">${escapeHtml(paymentMethod)}</td>
+                        </tr>
+                        ${notes ? `
+                        <tr>
+                          <td style="padding:8px 0; color:#bdbdbd; vertical-align: top;">Poznámky</td>
+                          <td style="padding:8px 0; color:#fff; white-space: pre-wrap;">${escapeHtml(notes)}</td>
+                        </tr>
+                        ` : ``}
+                      </table>
+                    </div>
+
+                    <p style="margin: 0 0 14px 0; color: #e9e9e9; font-size: 16px; line-height: 1.7;">Čoskoro Vás budeme kontaktovať na uvedenom tel. čísle <strong style=\"color:#fff;\">${escapeHtml(phone)}</strong>.</p>
+
+                    <p style="margin: 0 0 14px 0; color: #e9e9e9; font-size: 16px; line-height: 1.7;">V prípade akýchkoľvek otázok nás neváhajte kontaktovať prostredníctvom kontaktov uverejnených na našej webstránke v sekcii Kontakty.</p>
+
+                    <div style="margin-top: 18px; color:#e9e9e9; font-size: 16px; line-height: 1.7;">S pozdravom,<br><strong style=\"color:#fff;\">BY THE WAVE</strong></div>
+
+                    <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid #2a2a2a; color: #9a9a9a; font-size: 12px; text-align: center;">
+                      Tento email bol odoslaný automaticky. Prosím, neodpovedajte naň.
+                    </div>
+                  </div>
+
                 </div>
               </div>
             `,
-            text: `Dobrý deň, p. ${lastName},\n\nďakujeme za prejavenú dôveru. Váš dopyt na transfer sme úspešne prijali.\n\nČoskoro Vás budeme kontaktovať na uvedenom tel. čísle ${phone}.\n\nV prípade akýchkoľvek otázok nás neváhajte kontaktovať prostredníctvom kontaktov uverejnených na našej webstránke v sekcii Kontakty.\n\nS pozdravom\nBY THE WAVE`,
+            text:
+              `Dobrý deň, p. ${lastName},\n\n` +
+              `ďakujeme za prejavenú dôveru. Váš dopyt na transfer sme úspešne prijali.\n\n` +
+              `Informácie o dopyte:\n` +
+              `Vyzdvihnutie: ${pickupAddress}\n` +
+              `Cieľ: ${destinationAddress}\n` +
+              `Dátum a čas: ${date} ${time}\n` +
+              `Počet pasažierov: ${passengers}\n` +
+              `Spiatočná cesta: ${returnTrip ? "Áno" : "Nie"}\n` +
+              `Kategória vozidla: ${vehicleCategory}\n` +
+              `Spôsob platby: ${paymentMethod}\n` +
+              `${notes ? `Poznámky: ${notes}\n` : ""}` +
+              `\nČoskoro Vás budeme kontaktovať na uvedenom tel. čísle ${phone}.\n\n` +
+              `V prípade akýchkoľvek otázok nás neváhajte kontaktovať prostredníctvom kontaktov uverejnených na našej webstránke v sekcii Kontakty.\n\n` +
+              `S pozdravom\nBY THE WAVE`,
           }
 
           const confirmationResponse = await fetch("https://api.resend.com/emails", {
