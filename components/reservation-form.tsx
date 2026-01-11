@@ -47,6 +47,8 @@ export function ReservationForm() {
   const [isReturnTrip, setIsReturnTrip] = useState(false)
   const [gdprConsent, setGdprConsent] = useState(false)
   const [marketingConsent, setMarketingConsent] = useState(false)
+    // Anti-spam: timestamp when the form was first rendered
+  const [startedAt] = useState(() => Date.now())
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -54,6 +56,8 @@ export function ReservationForm() {
     setFormState({})
 
     const formData = new FormData(e.currentTarget)
+        // Anti-spam: send startedAt so the API can detect instant bot submissions
+    formData.set("startedAt", String(startedAt))
 
     // Client-side validations
     const errors: FormState["errors"] = {}
@@ -100,9 +104,19 @@ export function ReservationForm() {
         body: formData,
       })
 
-      const result = await response.json()
+      const rawText = await response.text()
+      let result: any = null
+      try {
+        result = rawText ? JSON.parse(rawText) : null
+      } catch {
+        result = null
+      }
 
-      if (result.success) {
+      if (!response.ok && !result) {
+        throw new Error(`Request failed (${response.status})`)
+      }
+
+      if (result?.success) {
         setFormState({
           success: true,
           message: result.message,
@@ -128,8 +142,8 @@ export function ReservationForm() {
       } else {
         setFormState({
           success: false,
-          message: result.message || "Nastala chyba pri odosielaní správy.",
-          errors: result.errors,
+          message: result?.message || "Nastala chyba pri odosielaní správy.",
+          errors: result?.errors,
         })
       }
     } catch (error) {
@@ -586,6 +600,12 @@ export function ReservationForm() {
               disabled={isSubmitting}
             />
           </div>
+
+          {/* Honeypot - Antispam */}
+          <div className="hidden" aria-hidden="true">
+            <label htmlFor="website">Website</label>
+            <input id="website" name="website" tabIndex={-1} autoComplete="off" />
+          </div>          
 
           {/* GDPR Consent (required) */}
           <div className="flex flex-col gap-2">
