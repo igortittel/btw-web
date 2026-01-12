@@ -13,11 +13,11 @@ const montserrat = Montserrat({
 export const metadata: Metadata = {
   metadataBase: new URL("https://bythewave.sk"),
   title: {
-    default: "By The Wave - Prenájom luxusných vanov a prémiová preprava osôb",
+    default: "By The Wave - Krátkodobý a dlhodobý prenájom vozidiel, limousine service a prémiová preprava osôb",
     template: "%s | By The Wave",
   },
   description:
-    "Prémiové služby prenájmu vozidiel a prepravy osôb na Slovensku. Luxusné vozidlá, profesionálni vodiči, krátkodobý a dlhodobý prenájom. Executive mobility služby pre náročných klientov.",
+    "Prémiové služby prenájmu vozidiel a prepravy osôb na Slovensku. Luxusné vozidlá, profesionálni vodiči, krátkodobý a dlhodobý prenájom. Executive mobility a limousine service pre náročných klientov.",
   keywords: [
     "prenájom vozidiel Slovensko",
     "luxusné vozidlá prenájom",
@@ -34,6 +34,7 @@ export const metadata: Metadata = {
     "business class vozidlá",
     "prenájom dodávok",
     "car rental Slovakia",
+    "limousine service",
   ],
   authors: [{ name: "BY THE WAVE" }],
   creator: "BY THE WAVE",

@@ -233,7 +233,7 @@ export function VehicleShowcase() {
               </div>
 
               <div className="flex flex-col space-y-3 mt-auto items-center md:items-start">
-                <Link href="{`/nase-vozidla/${currentVehicle.slug}`}">
+                <Link href={`/nase-vozidla/${currentVehicle.slug}`}>
                   <Button className="bg-[#B88746] hover:bg-[#A67C52] text-white font-medium px-6 py-2 rounded-lg w-full">
                     Zobzraziť vozidlo
                   </Button>

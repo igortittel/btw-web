@@ -12,9 +12,9 @@ import { VehicleShowcase } from "@/components/vehicle-showcase"
 import Image from "next/image"
 
 export const metadata: Metadata = {
-  title: "By The Wave - Prenájom luxusných vanov a prémiová preprava osôb",
+  title: "By The Wave - Krátkodobý a dlhodobý prenájom vozidiel, limousine service a prémiová preprava osôb",
   description:
-    "Prémiové služby prenájmu vozidiel a prepravy osôb na Slovensku. Luxusné vozidlá Mercedes, BMW, Hyundai Staria. Krátkodobý a dlhodobý prenájom, VIP preprava s profesionálnym šoférom.",
+    "Prémiové služby prenájmu vozidiel a prepravy osôb na Slovensku. Luxusné vozidlá, profesionálni vodiči, krátkodobý a dlhodobý prenájom. Executive mobility a limousine service pre náročných klientov.",
   keywords: [
     "prenájom vozidiel Slovensko",
     "luxusné vozidlá prenájom",
@@ -26,21 +26,21 @@ export const metadata: Metadata = {
     "šofér s vozidlom",
   ],
   openGraph: {
-    title: "By The Wave - Prenájom luxusných vanov a prémiová preprava osôb",
+    title: "By The Wave - Krátkodobý a dlhodobý prenájom vozidiel, limousine service a prémiová preprava osôb",
     description:
-      "Prémiové služby prenájmu vozidiel a prepravy osôb na Slovensku. Luxusné vozidlá a profesionálni vodiči.",
-    url: "https://bythewave.sk",
+      "Prémiové služby prenájmu vozidiel a prepravy osôb na Slovensku. Luxusné vozidlá, profesionálni vodiči, krátkodobý a dlhodobý prenájom. Executive mobility a limousine service pre náročných klientov.",
+    url: "https://btw.sk",
     images: [
       {
         url: "/images/hero-background.png",
         width: 1200,
         height: 630,
-        alt: "BY THE WAVE Executive Mobility - Luxusné vozidlá",
+        alt: "BY THE WAVE - Executive Mobility",
       },
     ],
   },
   alternates: {
-    canonical: "https://bythewave.sk",
+    canonical: "https://btw.sk",
   },
 }
 
@@ -62,13 +62,13 @@ export default async function HomePage() {
             "@context": "https://schema.org",
             "@type": "WebPage",
             name: "BY THE WAVE - Executive Mobility",
-            description: "Prémiové služby prenájmu vozidiel a prepravy osôb na Slovensku",
-            url: "https://bythewave.sk",
+            description: "Prémiové služby prenájmu vozidiel a prepravy osôb na Slovensku. Luxusné vozidlá, profesionálni vodiči, krátkodobý a dlhodobý prenájom. Executive mobility a limousine service pre náročných klientov.",
+            url: "https://btw.sk",
             mainEntity: {
               "@type": "AutoRental",
               name: "BY THE WAVE",
-              description: "Prenájom luxusných vozidiel a VIP preprava",
-              priceRange: "€€€",
+              description: "Prémiové služby prenájmu vozidiel a prepravy osôb na Slovensku. Luxusné vozidlá, profesionálni vodiči, krátkodobý a dlhodobý prenájom. Executive mobility a limousine service pre náročných klientov.",
+              priceRange: "€€",
               address: {
                 "@type": "PostalAddress",
                 addressCountry: "SK",
