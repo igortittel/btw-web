@@ -70,7 +70,6 @@ export function ReservationForm() {
     if (!pickupAddressRef.current || !destinationAddressRef.current) return
 
     const options = {
-      componentRestrictions: { country: "sk" },
       fields: ["formatted_address", "place_id", "geometry"],
       types: ["geocode"],
     }
