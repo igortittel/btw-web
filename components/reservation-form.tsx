@@ -69,15 +69,27 @@ export function ReservationForm() {
 
     if (!pickupAddressRef.current || !destinationAddressRef.current) return
 
-    const options = {
-      fields: ["formatted_address", "place_id", "geometry"],
-      types: ["geocode"],
+    const options: any = {
+      fields: ["formatted_address", "place_id", "geometry", "name"],
+      types: ["geocode", "establishment"],
     }
 
+    // Bias results towards BA/VIE region but do not hard-limit
+    const biasBounds = new g.maps.LatLngBounds(
+      { lat: 47.0, lng: 16.0 },
+      { lat: 49.0, lng: 18.5 },
+    )
+    options.bounds = biasBounds
+    options.strictBounds = false
+    
     const pickupAutocomplete = new g.maps.places.Autocomplete(pickupAddressRef.current, options)
     const destinationAutocomplete = new g.maps.places.Autocomplete(destinationAddressRef.current, options)
 
+    let pickupHasSelection = false
+    let destinationHasSelection = false
+
     pickupAutocomplete.addListener("place_changed", () => {
+      pickupHasSelection = true
       const place = pickupAutocomplete.getPlace() || {}
       const formatted = place.formatted_address || ""
       const placeId = place.place_id || ""
@@ -91,6 +103,7 @@ export function ReservationForm() {
     })
 
     destinationAutocomplete.addListener("place_changed", () => {
+      destinationHasSelection = true
       const place = destinationAutocomplete.getPlace() || {}
       const formatted = place.formatted_address || ""
       const placeId = place.place_id || ""
@@ -103,20 +116,25 @@ export function ReservationForm() {
       setDestinationLng(typeof lng === "number" ? String(lng) : "")
     })
 
-    // Clear IDs/coords if user manually edits the address after selection
+    // Clear IDs/coords only if user edits AFTER selecting a suggestion
     const onPickupInput = () => {
+      if (!pickupHasSelection) return
+      pickupHasSelection = false
       setPickupPlaceId("")
       setPickupLat("")
       setPickupLng("")
     }
+
     const onDestinationInput = () => {
+      if (!destinationHasSelection) return
+      destinationHasSelection = false
       setDestinationPlaceId("")
       setDestinationLat("")
       setDestinationLng("")
     }
 
-    pickupAddressRef.current.addEventListener("input", onPickupInput, { once: true })
-    destinationAddressRef.current.addEventListener("input", onDestinationInput, { once: true })
+    pickupAddressRef.current.addEventListener("input", onPickupInput)
+    destinationAddressRef.current.addEventListener("input", onDestinationInput)
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -229,7 +247,7 @@ export function ReservationForm() {
   return (
     <section className="py-12 px-6 bg-[#1D1D1D]">
       <Script
-        src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`}
+        src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places&language=sk&region=SK`}
         strategy="afterInteractive"
         onLoad={initPlacesAutocomplete}
       />
