@@ -2,11 +2,12 @@
 
 import type React from "react"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { CheckCircle, AlertCircle, Loader2 } from "lucide-react"
+import Script from "next/script"
 
 
 interface FormState {
@@ -42,6 +43,17 @@ export function ReservationForm() {
   const dateInputRef = useRef<HTMLInputElement>(null)
   const timeInputRef = useRef<HTMLInputElement>(null)
 
+  const pickupAddressRef = useRef<HTMLInputElement>(null)
+  const destinationAddressRef = useRef<HTMLInputElement>(null)
+
+  const [pickupPlaceId, setPickupPlaceId] = useState("")
+  const [pickupLat, setPickupLat] = useState("")
+  const [pickupLng, setPickupLng] = useState("")
+
+  const [destinationPlaceId, setDestinationPlaceId] = useState("")
+  const [destinationLat, setDestinationLat] = useState("")
+  const [destinationLng, setDestinationLng] = useState("")
+
   const [personType, setPersonType] = useState<"individual" | "company">("individual")
   const [isDifferentMainPassenger, setIsDifferentMainPassenger] = useState(false)
   const [isReturnTrip, setIsReturnTrip] = useState(false)
@@ -49,6 +61,64 @@ export function ReservationForm() {
   const [marketingConsent, setMarketingConsent] = useState(false)
     // Anti-spam: timestamp when the form was first rendered
   const [startedAt] = useState(() => Date.now())
+
+
+  const initPlacesAutocomplete = () => {
+    const g = (window as any)?.google
+    if (!g?.maps?.places) return
+
+    if (!pickupAddressRef.current || !destinationAddressRef.current) return
+
+    const options = {
+      componentRestrictions: { country: "sk" },
+      fields: ["formatted_address", "place_id", "geometry"],
+      types: ["geocode"],
+    }
+
+    const pickupAutocomplete = new g.maps.places.Autocomplete(pickupAddressRef.current, options)
+    const destinationAutocomplete = new g.maps.places.Autocomplete(destinationAddressRef.current, options)
+
+    pickupAutocomplete.addListener("place_changed", () => {
+      const place = pickupAutocomplete.getPlace() || {}
+      const formatted = place.formatted_address || ""
+      const placeId = place.place_id || ""
+      const lat = place?.geometry?.location?.lat?.()
+      const lng = place?.geometry?.location?.lng?.()
+
+      if (pickupAddressRef.current && formatted) pickupAddressRef.current.value = formatted
+      setPickupPlaceId(placeId)
+      setPickupLat(typeof lat === "number" ? String(lat) : "")
+      setPickupLng(typeof lng === "number" ? String(lng) : "")
+    })
+
+    destinationAutocomplete.addListener("place_changed", () => {
+      const place = destinationAutocomplete.getPlace() || {}
+      const formatted = place.formatted_address || ""
+      const placeId = place.place_id || ""
+      const lat = place?.geometry?.location?.lat?.()
+      const lng = place?.geometry?.location?.lng?.()
+
+      if (destinationAddressRef.current && formatted) destinationAddressRef.current.value = formatted
+      setDestinationPlaceId(placeId)
+      setDestinationLat(typeof lat === "number" ? String(lat) : "")
+      setDestinationLng(typeof lng === "number" ? String(lng) : "")
+    })
+
+    // Clear IDs/coords if user manually edits the address after selection
+    const onPickupInput = () => {
+      setPickupPlaceId("")
+      setPickupLat("")
+      setPickupLng("")
+    }
+    const onDestinationInput = () => {
+      setDestinationPlaceId("")
+      setDestinationLat("")
+      setDestinationLng("")
+    }
+
+    pickupAddressRef.current.addEventListener("input", onPickupInput, { once: true })
+    destinationAddressRef.current.addEventListener("input", onDestinationInput, { once: true })
+  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -159,6 +229,11 @@ export function ReservationForm() {
 
   return (
     <section className="py-12 px-6 bg-[#1D1D1D]">
+      <Script
+        src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`}
+        strategy="afterInteractive"
+        onLoad={initPlacesAutocomplete}
+      />
       <style jsx global>{`
         /* Hide native calendar/time icons (WebKit). Needs :global to reliably apply with styled-jsx + shadcn Input */
         input.no-picker-icon[type="date"]::-webkit-calendar-picker-indicator,
@@ -180,6 +255,36 @@ export function ReservationForm() {
         input.no-picker-icon[type="time"] {
           -webkit-appearance: none;
           appearance: none;
+        }
+
+        /* Google Places Autocomplete dropdown (pac-container) */
+        .pac-container {
+          background: #1d1d1d;
+          border: 1px solid #333333;
+          border-radius: 10px;
+          box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+          z-index: 99999;
+          overflow: hidden;
+        }
+        .pac-container .pac-item {
+          color: #ffffff;
+          padding: 10px 12px;
+          border-top: 1px solid #2a2a2a;
+          cursor: pointer;
+          font-size: 14px;
+        }
+        .pac-container .pac-item:first-child {
+          border-top: none;
+        }
+        .pac-container .pac-item:hover {
+          background: #141414;
+        }
+        .pac-container .pac-item-query {
+          color: #ffffff;
+        }
+        .pac-container .pac-matched {
+          color: #B88746;
+          font-weight: 700;
         }
 
         /* Unified BTW checkbox styling */
@@ -354,6 +459,7 @@ export function ReservationForm() {
           <div>
             <label className="block text-sm font-medium mb-3 text-white">Adresa vyzdvihnutia*</label>
             <Input
+              ref={pickupAddressRef}
               name="pickupAddress"
               className={`bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors ${
                 formState?.errors?.pickupAddress ? "border-red-500 focus:border-red-500" : "focus:border-[#B88746]"
@@ -362,6 +468,9 @@ export function ReservationForm() {
               required
               disabled={isSubmitting}
             />
+            <input type="hidden" name="pickupPlaceId" value={pickupPlaceId} />
+            <input type="hidden" name="pickupLat" value={pickupLat} />
+            <input type="hidden" name="pickupLng" value={pickupLng} />            
             {formState?.errors?.pickupAddress && (
               <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
                 <AlertCircle className="w-4 h-4" />
@@ -373,6 +482,7 @@ export function ReservationForm() {
           <div>
             <label className="block text-sm font-medium mb-3 text-white">Cieľová adresa*</label>
             <Input
+              ref={destinationAddressRef}
               name="destinationAddress"
               className={`bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors ${
                 formState?.errors?.destinationAddress ? "border-red-500 focus:border-red-500" : "focus:border-[#B88746]"
@@ -381,6 +491,9 @@ export function ReservationForm() {
               required
               disabled={isSubmitting}
             />
+            <input type="hidden" name="destinationPlaceId" value={destinationPlaceId} />
+            <input type="hidden" name="destinationLat" value={destinationLat} />
+            <input type="hidden" name="destinationLng" value={destinationLng} />            
             {formState?.errors?.destinationAddress && (
               <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
                 <AlertCircle className="w-4 h-4" />
