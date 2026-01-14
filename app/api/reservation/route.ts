@@ -223,7 +223,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<Reservati
       // Prepare email data - using the new recipient email
       const emailData = {
         from: process.env.CONTACT_FROM_EMAIL || "BY THE WAVE <web@rezervacie.btw.sk>",
-        to: [process.env.CONTACT_TO_EMAIL || "marketing@btw.sk"],
+        to: [process.env.CONTACT_TO_EMAIL || "btw@btw.sk"],
         subject: `Nová web rezervácia - ${firstName} ${lastName} (${date} ${time})`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f5f5f5;">

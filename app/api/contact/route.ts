@@ -175,7 +175,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ContactFo
     try {
       const emailData = {
         from: process.env.CONTACT_FROM_EMAIL || "BY THE WAVE <web@rezervacie.btw.sk>",
-        to: [process.env.CONTACT_TO_EMAIL || "marketing@btw.sk"],
+        to: [process.env.CONTACT_TO_EMAIL || "bte@btw.sk"],
         subject: subject
           ? `Kontakt - ${firstName} ${lastName} (${subject})`
           : `Kontakt - ${firstName} ${lastName}`,
