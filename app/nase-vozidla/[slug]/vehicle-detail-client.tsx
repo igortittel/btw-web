@@ -10,6 +10,7 @@ import { Footer } from "@/components/footer"
 import { ContactForm } from "@/components/contact-form"
 import { ScrollToTop } from "@/components/scroll-to-top"
 import { LightboxGallery } from "@/components/lightbox-gallery"
+import { Reveal } from "@/components/Reveal"
 import { fetchVehicleBySlug, getImageUrl, formatPrice, getVehicleSpecs, type Vehicle } from "@/lib/graphql"
 
 interface VehicleDetailClientProps {
@@ -172,62 +173,76 @@ export function VehicleDetailClient({ slug }: VehicleDetailClientProps) {
       <section className="bg-[#1A1A1A] px-6 pt-24 pb-8">
         <div className="max-w-6xl mx-auto">
           {/* Back Button */}
-          <Link href="/nase-vozidla" className="flex items-center space-x-2 text-[#CCCCCC] hover:text-white mb-12">
-            <ArrowLeft className="w-4 h-4" />
-            <span className="text-sm">Späť</span>
-          </Link>
+          <Reveal y={12} delay={0.02}>
+            <Link href="/nase-vozidla" className="flex items-center space-x-2 text-[#CCCCCC] hover:text-white mb-12">
+              <ArrowLeft className="w-4 h-4" />
+              <span className="text-sm">Späť</span>
+            </Link>
+          </Reveal>
 
           {/* Vehicle Details */}
           <div className="grid md:grid-cols-2 gap-16">
             <div>
-              <Image
-                src={getImageUrl(vehicle.popisVozidla.nahlad) || "/placeholder.svg"}
-                alt={`${vehicle.title} - prenájom luxusného vozidla na Slovensku`}
-                width={576}
-                height={384}
-                className="w-full object-contain mb-4"
-                priority
-              />
+              <Reveal y={16} delay={0.08}>
+                <Image
+                  src={getImageUrl(vehicle.popisVozidla.nahlad) || "/placeholder.svg"}
+                  alt={`${vehicle.title} - prenájom luxusného vozidla na Slovensku`}
+                  width={576}
+                  height={384}
+                  className="w-full object-contain mb-4"
+                  priority
+                />
+              </Reveal>
 
               {/* Lightbox Gallery Component */}
               <LightboxGallery images={galleryImages} alt={vehicle.title} thumbnailClassName="h-[120px]" />
             </div>
 
-            <div className="flex flex-col justify-start pt-8">
-              <p className="text-[#CCCCCC] text-sm mb-3">Cena už od {formatPrice(vehicle.popisVozidla.cena)}/deň.</p>
-              <h1 className="text-3xl font-bold text-white mb-6">{vehicle.popisVozidla.nazov || vehicle.title}</h1>
-              <p className="text-[#CCCCCC] text-sm mb-8 leading-relaxed">
-                {vehicle.popisVozidla.popis || "Spoznajte novú úroveň mobility. Rezervujte si vozidlo ešte dnes."}
-              </p>
-
-              <div className="grid grid-cols-2 gap-6 mb-10">
-                <div className="flex items-center space-x-3">
-                  <Settings className="w-5 h-5 text-[#CCCCCC]" />
-                  <span className="text-sm text-[#CCCCCC]">{specs.transmission}</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <Fuel className="w-5 h-5 text-[#CCCCCC]" />
-                  <span className="text-sm text-[#CCCCCC]">{specs.fuel}</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <Users className="w-5 h-5 text-[#CCCCCC]" />
-                  <span className="text-sm text-[#CCCCCC]">{specs.passengers}</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <Car className="w-5 h-5 text-[#CCCCCC]" />
-                  <span className="text-sm text-[#CCCCCC]">{specs.type}</span>
-                </div>
+            <Reveal y={16} delay={0.12}>
+              <div className="flex flex-col justify-start pt-8">
+                <Reveal y={10} delay={0.02}>
+                  <p className="text-[#CCCCCC] text-sm mb-3">Cena už od {formatPrice(vehicle.popisVozidla.cena)}/deň.</p>
+                </Reveal>
+                <Reveal y={10} delay={0.06}>
+                  <h1 className="text-3xl font-bold text-white mb-6">{vehicle.popisVozidla.nazov || vehicle.title}</h1>
+                </Reveal>
+                <Reveal y={10} delay={0.1}>
+                  <p className="text-[#CCCCCC] text-sm mb-8 leading-relaxed">
+                    {vehicle.popisVozidla.popis || "Spoznajte novú úroveň mobility. Rezervujte si vozidlo ešte dnes."}
+                  </p>
+                </Reveal>
+                <Reveal y={10} delay={0.14}>
+                  <div className="grid grid-cols-2 gap-6 mb-10">
+                    <div className="flex items-center space-x-3">
+                      <Settings className="w-5 h-5 text-[#CCCCCC]" />
+                      <span className="text-sm text-[#CCCCCC]">{specs.transmission}</span>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <Fuel className="w-5 h-5 text-[#CCCCCC]" />
+                      <span className="text-sm text-[#CCCCCC]">{specs.fuel}</span>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <Users className="w-5 h-5 text-[#CCCCCC]" />
+                      <span className="text-sm text-[#CCCCCC]">{specs.passengers}</span>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <Car className="w-5 h-5 text-[#CCCCCC]" />
+                      <span className="text-sm text-[#CCCCCC]">{specs.type}</span>
+                    </div>
+                  </div>
+                </Reveal>
+                {/* Mobile-centered CTA button */}
+                <Reveal y={10} delay={0.18}>
+                  <div className="flex justify-center md:justify-start">
+                    <Link href="https://booqme.sk/sk/rezervacia/btw" target="_blank" rel="noopener noreferrer" className="inline-flex">
+                      <Button className="bg-[#B88746] hover:bg-[#A67C52] text-white font-medium px-8 py-3 rounded-lg w-fit">
+                        Prenajať vozidlo
+                      </Button>
+                    </Link>
+                  </div>
+                </Reveal>
               </div>
-
-              {/* Mobile-centered CTA button */}
-              <div className="flex justify-center md:justify-start">
-                <Link href="https://booqme.sk/sk/rezervacia/btw" target="_blank" rel="noopener noreferrer">
-                  <Button className="bg-[#B88746] hover:bg-[#A67C52] text-white font-medium px-8 py-3 rounded-lg w-fit">
-                    Prenajať vozidlo
-                  </Button>
-                </Link>
-              </div>
-            </div>
+            </Reveal>
           </div>
         </div>
       </section>
@@ -293,102 +308,108 @@ export function VehicleDetailClient({ slug }: VehicleDetailClientProps) {
               )}
 
             </div>
-            <div className="bg-[#1A1A1A] border-[#B88746] border-2 rounded-xl p-6">
-              <div className="flex flex-col md:flex-row md:items-start md:justify-between space-y-4 md:space-y-0">
-                <div className="flex items-start space-x-4">
-                  <div className="text-[#B88746] text-2xl flex-shrink-0 mt-1">
-                    <Truck className="w-6 h-6" />
+            <Reveal y={16} delay={0.12}>
+              <div className="bg-[#1A1A1A] border-[#B88746] border-2 rounded-xl p-6">
+                <div className="flex flex-col md:flex-row md:items-start md:justify-between space-y-4 md:space-y-0">
+                  <div className="flex items-start space-x-4">
+                    <div className="text-[#B88746] text-2xl flex-shrink-0 mt-1">
+                      <Truck className="w-6 h-6" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-xl font-bold text-white mb-4">Dlhodobý prenájom vozidla</h3>
+                      <ul className="text-[#CCCCCC] text-sm space-y-1">
+                        <li>• Prenájom vozidla od minimálne 30 dní</li>
+                        <li>• Pravidelný servis a sezónne prezutie v cene</li>
+                        <li>• Vozidlá poistené všetkými typmi poistení</li>
+                        <li>• Diaľničná známka v cene</li>
+                        <li>
+                          • Zvýhodnená cena ďalších služieb (krátkodobý prenájom, preprava osôb, Executive mobility)
+                        </li>
+                      </ul>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <h3 className="text-xl font-bold text-white mb-4">Dlhodobý prenájom vozidla</h3>
-                    <ul className="text-[#CCCCCC] text-sm space-y-1">
-                      <li>• Prenájom vozidla od minimálne 30 dní</li>
-                      <li>• Pravidelný servis a sezónne prezutie v cene</li>
-                      <li>• Vozidlá poistené všetkými typmi poistení</li>
-                      <li>• Diaľničná známka v cene</li>
-                      <li>
-                        • Zvýhodnená cena ďalších služieb (krátkodobý prenájom, preprava osôb, Executive mobility)
-                      </li>
-                    </ul>
+                  <div className="flex flex-col items-stretch md:items-end space-y-2 md:flex-shrink-0 md:ml-6">
+                    <Link href="https://booqme.sk/sk/rezervacia/btw" target="_blank" rel="noopener noreferrer">
+                      <Button className="bg-[#B88746] hover:bg-[#A67C52] text-white font-medium px-6 py-2 rounded-lg text-sm w-full md:w-auto">
+                        Prenajať vozidlo
+                      </Button>
+                    </Link>
+                    <Link href="/prenajom-vozidiel">
+                      <button className="text-[#CCCCCC] hover:text-white underline text-xs text-center w-full">
+                        Podmienky prenájmu
+                      </button>
+                    </Link>
                   </div>
-                </div>
-                <div className="flex flex-col items-stretch md:items-end space-y-2 md:flex-shrink-0 md:ml-6">
-                  <Link href="https://booqme.sk/sk/rezervacia/btw" target="_blank" rel="noopener noreferrer">
-                    <Button className="bg-[#B88746] hover:bg-[#A67C52] text-white font-medium px-6 py-2 rounded-lg text-sm w-full md:w-auto">
-                      Prenajať vozidlo
-                    </Button>
-                  </Link>
-                  <Link href="/prenajom-vozidiel">
-                    <button className="text-[#CCCCCC] hover:text-white underline text-xs text-center w-full">
-                      Podmienky prenájmu
-                    </button>
-                  </Link>
                 </div>
               </div>
-            </div>
+            </Reveal>
 
-            <div className="bg-[#1A1A1A] border-[#B88746] border-2 rounded-xl p-6">
-              <div className="flex flex-col md:flex-row md:items-start md:justify-between space-y-4 md:space-y-0">
-                <div className="flex items-start space-x-4">
-                  <div className="text-[#B88746] text-2xl flex-shrink-0 mt-1">
-                    <Truck className="w-6 h-6" />
+            <Reveal y={16} delay={0.16}>
+              <div className="bg-[#1A1A1A] border-[#B88746] border-2 rounded-xl p-6">
+                <div className="flex flex-col md:flex-row md:items-start md:justify-between space-y-4 md:space-y-0">
+                  <div className="flex items-start space-x-4">
+                    <div className="text-[#B88746] text-2xl flex-shrink-0 mt-1">
+                      <Truck className="w-6 h-6" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-xl font-bold text-white mb-4">Krátkodobý prenájom vozidla</h3>
+                      <ul className="text-[#CCCCCC] text-sm space-y-1">
+                        <li>• Prenájom vozidla od 1 dňa</li>
+                        <li>• Pravidelný servis a sezónne prezutie v cene</li>
+                        <li>• Vozidlá poistené všetkými typmi poistení</li>
+                        <li>• Diaľničná známka v cene</li>
+                        <li>• Zvýhodnená cena prepravy osôb</li>
+                      </ul>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <h3 className="text-xl font-bold text-white mb-4">Krátkodobý prenájom vozidla</h3>
-                    <ul className="text-[#CCCCCC] text-sm space-y-1">
-                      <li>• Prenájom vozidla od 1 dňa</li>
-                      <li>• Pravidelný servis a sezónne prezutie v cene</li>
-                      <li>• Vozidlá poistené všetkými typmi poistení</li>
-                      <li>• Diaľničná známka v cene</li>
-                      <li>• Zvýhodnená cena prepravy osôb</li>
-                    </ul>
+                  <div className="flex flex-col items-stretch md:items-end space-y-2 md:flex-shrink-0 md:ml-6">
+                    <Link href="https://booqme.sk/sk/rezervacia/btw" target="_blank" rel="noopener noreferrer">
+                      <Button className="bg-[#B88746] hover:bg-[#A67C52] text-white font-medium px-6 py-2 rounded-lg text-sm w-full md:w-auto">
+                        Prenajať vozidlo
+                      </Button>
+                    </Link>
+                    <Link href="/prenajom-vozidiel">
+                      <button className="text-[#CCCCCC] hover:text-white underline text-xs text-center w-full">
+                        Podmienky prenájmu
+                      </button>
+                    </Link>
                   </div>
-                </div>
-                <div className="flex flex-col items-stretch md:items-end space-y-2 md:flex-shrink-0 md:ml-6">
-                  <Link href="https://booqme.sk/sk/rezervacia/btw" target="_blank" rel="noopener noreferrer">
-                    <Button className="bg-[#B88746] hover:bg-[#A67C52] text-white font-medium px-6 py-2 rounded-lg text-sm w-full md:w-auto">
-                      Prenajať vozidlo
-                    </Button>
-                  </Link>
-                  <Link href="/prenajom-vozidiel">
-                    <button className="text-[#CCCCCC] hover:text-white underline text-xs text-center w-full">
-                      Podmienky prenájmu
-                    </button>
-                  </Link>
                 </div>
               </div>
-            </div>
+            </Reveal>
 
-            <div className="bg-[#1A1A1A] border-[#B88746] border-2 rounded-xl p-6">
-              <div className="flex flex-col md:flex-row md:items-start md:justify-between space-y-4 md:space-y-0">
-                <div className="flex items-start space-x-4">
-                  <div className="flex-shrink-0 mt-1">
-                    <Image
-                      src="/images/service-diamond-icon.png"
-                      alt="Executive mobility"
-                      width={24}
-                      height={24}
-                      className="object-contain"
-                    />
+            <Reveal y={16} delay={0.2}>
+              <div className="bg-[#1A1A1A] border-[#B88746] border-2 rounded-xl p-6">
+                <div className="flex flex-col md:flex-row md:items-start md:justify-between space-y-4 md:space-y-0">
+                  <div className="flex items-start space-x-4">
+                    <div className="flex-shrink-0 mt-1">
+                      <Image
+                        src="/images/service-diamond-icon.png"
+                        alt="Executive mobility"
+                        width={24}
+                        height={24}
+                        className="object-contain"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-xl font-bold text-white mb-4">Executive mobility</h3>
+                      <ul className="text-[#CCCCCC] text-sm space-y-1">
+                        <li>• Exkluzívna služba na mieru</li>
+                        <li>• Osobný šofér aj s vozidlom</li>
+                        <li>• Podmienky a rozsah služieb je prispôsobený klientovi</li>
+                      </ul>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <h3 className="text-xl font-bold text-white mb-4">Executive mobility</h3>
-                    <ul className="text-[#CCCCCC] text-sm space-y-1">
-                      <li>• Exkluzívna služba na mieru</li>
-                      <li>• Osobný šofér aj s vozidlom</li>
-                      <li>• Podmienky a rozsah služieb je prispôsobený klientovi</li>
-                    </ul>
+                  <div className="flex flex-col items-stretch md:items-end space-y-2 md:flex-shrink-0 md:ml-6">
+                    <Link href="/kontakt">
+                      <Button className="bg-[#B88746] hover:bg-[#A67C52] text-white font-medium px-6 py-2 rounded-lg text-sm w-full md:w-auto">
+                        Mám záujem
+                      </Button>
+                    </Link>
                   </div>
-                </div>
-                <div className="flex flex-col items-stretch md:items-end space-y-2 md:flex-shrink-0 md:ml-6">
-                  <Link href="/kontakt">
-                    <Button className="bg-[#B88746] hover:bg-[#A67C52] text-white font-medium px-6 py-2 rounded-lg text-sm w-full md:w-auto">
-                      Mám záujem
-                    </Button>
-                  </Link>
                 </div>
               </div>
-            </div>
+            </Reveal>
           </div>
         </div>
       </section>

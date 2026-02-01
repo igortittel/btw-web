@@ -101,7 +101,7 @@ export function ContactForm() {
   }
 
   return (
-    <section className="py-16 md:py-24 px-6 bg-[#1D1D1D] text-center md:text-left">
+    <section className="py-16 md:py-24 px-6 bg-[#1D1D1D] text-left">
       <div className="max-w-2xl mx-auto">
         <h2 className="text-4xl font-bold mb-6 text-white text-center">KONTAKTUJTE NÁS</h2>
         <p className="text-[#CCCCCC] mb-12 md:mb-16 mx-auto md:mx-0 text-center md:text-left">

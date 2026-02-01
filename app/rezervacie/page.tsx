@@ -12,6 +12,7 @@ import Link from "next/link"
 import type { Metadata } from "next"
 import { VehicleShowcase } from "@/components/vehicle-showcase"
 import Image from "next/image"
+import { Reveal } from "@/components/Reveal"
 
 
 export const metadata: Metadata = {
@@ -144,59 +145,79 @@ export default function PrepravaOsobPage() {
         <div className="max-w-6xl mx-auto">
           {/* Hero */}
           <div className="text-center mb-16">
-            <h1 className="text-4xl md:text-5xl font-bold tracking-wide text-white">
-              Rezervačný formulár
-              <span className="block text-[#B88746]">na prepravu osôb</span>
-            </h1>
+            <Reveal y={16} delay={0.02}>
+              <h1 className="text-4xl md:text-5xl font-bold tracking-wide text-white">
+                Rezervačný formulár
+                <span className="block text-[#B88746]">na prepravu osôb</span>
+              </h1>
+            </Reveal>
 
-            <p className="text-[#CCCCCC] mt-6 leading-relaxed max-w-3xl mx-auto">
-              Vyplňte krátky nezáväzný formulár a na základe poskytnutých informácií vás budeme kontaktovať s individuálnou cenovou ponukou.
-            </p>
+            <Reveal y={16} delay={0.08}>
+              <p className="text-[#CCCCCC] mt-6 leading-relaxed max-w-3xl mx-auto">
+                Vyplňte krátky nezáväzný formulár a na základe poskytnutých informácií vás budeme kontaktovať s individuálnou cenovou ponukou.
+              </p>
+            </Reveal>
           </div>
         </div>
       </section>
+      <Reveal y={12} delay={0.12}>
+        <div className="max-w-6xl mx-auto px-6" aria-hidden="true">
+          <div className="h-px w-full bg-white/10" />
+        </div>
+      </Reveal>
 
-       <ReservationForm/>
+      <ReservationForm />
 
       {/* Features Section */}
       <section className="py-20 px-6 bg-[#111111]">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl font-bold text-center mb-16 tracking-wide text-white">PREČO SI NÁS VYBRAŤ</h2>
+          <Reveal y={16} delay={0.02}>
+            <h2 className="text-4xl font-bold text-center mb-16 tracking-wide text-white">PREČO SI NÁS VYBRAŤ</h2>
+          </Reveal>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-            <FeatureCard
-              icon={
-                <Image
-                  src="/images/comfort-icon.png"
-                  alt="Comfort"
-                  width={32}
-                  height={32}
-                  className="w-full h-full object-contain"
-                />
-              }
-              title="Komfort a kvalita"
-              description="Ponúkame najvyšší komfort a mobilitu, pre cestovanie v štýle."
-            />
-            <FeatureCard
-              icon={<Image src="/images/time-icon.png" alt="Time" width={32} height={32} className="w-8 h-8" />}
-              title="Časová efektívita"
-              description="Vždy na čas a pripravení na vašu cestu. Spoľahnite sa na našu presnosť a profesionalitu."
-            />
-            <FeatureCard
-              icon={<Image src="/images/diamond-icon.png" alt="Diamond" width={32} height={32} className="w-8 h-8" />}
-              title="Exkluzívne autá"
-              description="Naše vozidlá predstavujú špičkovú luxus a prestíž"
-            />
-            <FeatureCard
-              icon={<Image src="/images/money-icon.png" alt="Money" width={32} height={32} className="w-8 h-8" />}
-              title="Cena a kvalita"
-              description="Sme jedni z najlepších v pomere cena a kvalita"
-            />
+            <Reveal y={16} delay={0.06}>
+              <FeatureCard
+                icon={
+                  <Image
+                    src="/images/comfort-icon.png"
+                    alt="Comfort"
+                    width={32}
+                    height={32}
+                    className="w-full h-full object-contain"
+                  />
+                }
+                title="Komfort a kvalita"
+                description="Ponúkame najvyšší komfort a mobilitu, pre cestovanie v štýle."
+              />
+            </Reveal>
+            <Reveal y={16} delay={0.1}>
+              <FeatureCard
+                icon={<Image src="/images/time-icon.png" alt="Time" width={32} height={32} className="w-8 h-8" />}
+                title="Časová efektívita"
+                description="Vždy na čas a pripravení na vašu cestu. Spoľahnite sa na našu presnosť a profesionalitu."
+              />
+            </Reveal>
+            <Reveal y={16} delay={0.14}>
+              <FeatureCard
+                icon={<Image src="/images/diamond-icon.png" alt="Diamond" width={32} height={32} className="w-8 h-8" />}
+                title="Exkluzívne autá"
+                description="Naše vozidlá predstavujú špičkovú luxus a prestíž"
+              />
+            </Reveal>
+            <Reveal y={16} delay={0.18}>
+              <FeatureCard
+                icon={<Image src="/images/money-icon.png" alt="Money" width={32} height={32} className="w-8 h-8" />}
+                title="Cena a kvalita"
+                description="Sme jedni z najlepších v pomere cena a kvalita"
+              />
+            </Reveal>
           </div>
         </div>
       </section>
-
-      <ContactForm />
+      <Reveal y={16} delay={0.06}>
+        <ContactForm />
+      </Reveal>
       <Footer />
     </div>
   )

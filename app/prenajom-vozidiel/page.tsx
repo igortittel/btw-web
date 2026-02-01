@@ -8,6 +8,7 @@ import { ScrollToTop } from "@/components/scroll-to-top"
 import Link from "next/link"
 import Script from "next/script"
 import type { Metadata } from "next"
+import { Reveal } from "@/components/Reveal"
 
 export const metadata: Metadata = {
   title: "Prenájom vozidiel - Krátkodobý a dlhodobý prenájom áut Slovensko",
@@ -81,20 +82,25 @@ export default function PrenajomVozidielPage() {
 
       <section className="py-20 px-6 pt-32 bg-[#111111]">
         <div className="max-w-6xl mx-auto">
-          <h1 className="text-4xl md:text-5xl font-bold tracking-wide text-white text-center mb-8">
+          <Reveal y={16} delay={0.02}>
+            <h1 className="text-4xl md:text-5xl font-bold tracking-wide text-white text-center mb-8">
               Krátkodobý a&nbsp;dlhodobý
               <span className="block text-[#B88746]">prenájom vozidiel</span>
-          </h1>
+            </h1>
+          </Reveal>
 
-          <p className="text-[#CCCCCC] text-center mb-16 leading-relaxed max-w-4xl mx-auto">
-            Hľadáte flexibilné riešenie mobility bez viazanosti? Či už potrebujete auto na pár dní, alebo na niekoľko
-            mesiacov/rokov, u nás si vyberiete. Zistite, aký je rozdiel medzi krátkodobým a dlhodobým prenájmom, ich
-            výhody a všetky praktické podmienky a vyberte si jednu z možností.
-          </p>
+          <Reveal y={16} delay={0.08}>
+            <p className="text-[#CCCCCC] text-center mb-16 leading-relaxed max-w-4xl mx-auto">
+              Hľadáte flexibilné riešenie mobility bez viazanosti? Či už potrebujete auto na pár dní, alebo na niekoľko
+              mesiacov/rokov, u nás si vyberiete. Zistite, aký je rozdiel medzi krátkodobým a dlhodobým prenájmom, ich
+              výhody a všetky praktické podmienky a vyberte si jednu z možností.
+            </p>
+          </Reveal>
 
           {/* Rental Service Cards */}
           <div className="space-y-6 mb-16">
-            <div className="bg-[#1A1A1A] border-[#B88746] border-2 rounded-xl p-8">
+            <Reveal y={16} delay={0.12}>
+              <div className="bg-[#1A1A1A] border-[#B88746] border-2 rounded-xl p-8">
               <div className="flex items-start space-x-4 mb-6">
                 <div className="text-[#B88746] text-2xl flex-shrink-0">
                   <Truck className="w-8 h-8" />
@@ -135,9 +141,11 @@ export default function PrenajomVozidielPage() {
                   </Button>
                 </Link>
               </div>
-            </div>
+              </div>
+            </Reveal>
 
-            <div className="bg-[#1A1A1A] border-[#B88746] border-2 rounded-xl p-8">
+            <Reveal y={16} delay={0.18}>
+              <div className="bg-[#1A1A1A] border-[#B88746] border-2 rounded-xl p-8">
               <div className="flex items-start space-x-4 mb-6">
                 <div className="text-[#B88746] text-2xl flex-shrink-0">
                   <Truck className="w-8 h-8" />
@@ -178,12 +186,14 @@ export default function PrenajomVozidielPage() {
                   </Button>
                 </Link>
               </div>
-            </div>
+              </div>
+            </Reveal>
           </div>
 
           {/* FAQ Sections */}
-          <div className="mb-16">
-            <ExpandableSection title="Je možné si vozidlo prenajať aj ako fyzická osoba?">
+          <Reveal y={16} delay={0.22}>
+            <div className="mb-16">
+              <ExpandableSection title="Je možné si vozidlo prenajať aj ako fyzická osoba?">
               <p className="text-sm">
                 Áno prenájom je dostupný pre jednotlivcov aj firmy. Stačí platný občiansky a vodičský preukaz.
               </p>
@@ -237,7 +247,8 @@ export default function PrenajomVozidielPage() {
                 môže byť spoplatnený.
               </p>
             </ExpandableSection>
-          </div>
+            </div>
+          </Reveal>
         </div>
       </section>
 
