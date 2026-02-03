@@ -320,13 +320,21 @@ export default function PrepravaOsobPage() {
               </div>
             </Reveal>
 
-            <div className="lg:col-span-3 w-full p-8 flex justify-center">
+            <div className="lg:col-span-3 w-full p-8 flex flex-col items-center gap-3">
               <Reveal y={16} delay={0.18}>
                 <Link href="/rezervacie" className="inline-flex">
                   <Button className="bg-[#B88746] hover:bg-[#A67C52] text-white font-medium px-8 py-3 rounded-lg">
                     Objednať prepravu osôb
                   </Button>
                 </Link>
+              </Reveal>
+
+              <Reveal y={16} delay={0.24}>
+                <a href="/cennik-2026.pdf" target="_blank" rel="noopener noreferrer" className="inline-flex">
+                  <Button className="border border-[#B88746] text-[#B88746] hover:text-white hover:border-white font-medium px-8 py-3 rounded-lg">
+                    Zobraziť cenník
+                  </Button>
+                </a>
               </Reveal>
             </div>
           </div>
