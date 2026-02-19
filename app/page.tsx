@@ -267,6 +267,59 @@ export default async function HomePage() {
         </div>
       </section>
 
+        {/* Hero Section */}
+        <section className="relative w-full h-[75vh] min-h-[520px] flex items-center justify-center text-center overflow-hidden">
+          {/* Desktop Image */}
+          <div className="hidden md:block absolute inset-0 bg-cover bg-center" 
+               style={{ backgroundImage: "url('/images/transfer-bratislava-schwechat-desktop.webp')" }} />
+
+          {/* Mobile Image */}
+          <div className="block md:hidden absolute inset-0 bg-cover bg-center" 
+               style={{ backgroundImage: "url('/images/transfer-bratislava-schwechat-mobile.webp')" }} />
+
+          {/* Dark Overlay Desktop */}
+          <div className="hidden md:block absolute inset-0 bg-black/80" />
+
+          {/* Dark Overlay Mobile */}
+          <div className="block md:hidden absolute inset-0 bg-black/55" />
+
+          {/* Content */}
+          <div className="relative z-10 max-w-4xl px-6">
+            <Reveal y={24} delay={0.05}>
+              <h1 className="text-4xl md:text-5xl font-bold tracking-wide text-white">
+                Odvoz na letisko Schwechat
+                <span className="block text-[#B88746]">bez stresu a čakania</span>
+              </h1>
+            </Reveal>
+
+            <Reveal y={24} delay={0.15}>
+              <div className="mt-6">
+                <p className="text-base md:text-xl text-white/90 leading-relaxed">
+                  Súkromný transfer z Bratislavy a okolia na letisko Schwechat (VIE).
+                </p>
+
+                <div className="mt-6 inline-flex items-center gap-4 rounded-full border border-white/20 bg-white/10 backdrop-blur-md px-7 py-3 shadow-[0_0_0_1px_rgba(255,255,255,0.05)]">
+                  <span className="text-base md:text-xl font-semibold tracking-wide text-[#B88746]">
+                    Už od 73 € bez DPH
+                  </span>
+                  <span className="hidden sm:inline text-sm md:text-base text-white/80">
+                    Bratislava – Schwechat
+                  </span>
+                </div>
+              </div>
+            </Reveal>
+            <Reveal y={16} delay={0.12}>
+              <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+                <Link href="/transfer-bratislava-schwechat">
+                  <Button className="bg-[#B88746] hover:bg-[#A67C52] text-white font-medium px-10 py-3 rounded-lg">
+                    Zistiť viac
+                  </Button>
+                </Link>
+              </div>
+            </Reveal>                
+          </div>
+        </section>      
+
       <ContactForm />
       <Footer />
     </div>
