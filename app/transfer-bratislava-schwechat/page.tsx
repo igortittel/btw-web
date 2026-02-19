@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import type { Metadata } from "next"
 import Script from "next/script"
+import { VehicleCardDynamic } from "@/components/vehicle-card-dynamic"
 
 export const metadata: Metadata = {
   title: "Transfer Bratislava – Schwechat | Odvoz na letisko Viedeň (VIE) | By The Wave",
@@ -229,6 +230,105 @@ export default async function TransferBratislavaSchwechatPage() {
                 business klientov, rodiny aj väčšie skupiny. Cestujete pohodlne, bezpečne a bez kompromisov.
               </p>
             </Reveal>
+          </div>
+        </section>
+
+        {/* Vehicles Section */}
+        <section className="py-10 px-6 bg-[#111111]">
+          <div className="max-w-6xl mx-auto">
+            <Reveal y={16} delay={0.02}>
+              <h2 className="text-3xl md:text-4xl font-bold tracking-wide text-white text-center">
+                Vozidlá
+                <span className="block text-[#B88746]">na prenájom a transfer</span>
+              </h2>
+            </Reveal>
+
+            <Reveal y={16} delay={0.08}>
+              <p className="text-[#CCCCCC] text-center mt-6 max-w-3xl mx-auto leading-relaxed">
+                Vyber si vozidlo podľa počtu osôb a batožiny. Pri transfere na Schwechat je komfort a priestor to, čo rozhoduje.
+              </p>
+            </Reveal>
+
+            {/* Filter Buttons (hidden) */}
+            <Reveal y={16} delay={0.12}>
+              <div className="hidden flex-col md:flex-row justify-center gap-4 mb-12 items-center mt-10">
+                <Button
+                  className={`px-6 py-2 rounded-full transition-all ${
+                    activeTab === "prenajom"
+                      ? "bg-white text-black hover:bg-gray-100"
+                      : "border border-[#666666] text-[#CCCCCC] hover:bg-[#333333] hover:text-white bg-transparent"
+                  }`}
+                >
+                  Vozidlá na prenájom ({rentalVehicles.length})
+                </Button>
+                <Button
+                  className={`px-6 py-2 rounded-full transition-all ${
+                    activeTab === "transfer"
+                      ? "bg-white text-black hover:bg-gray-100"
+                      : "border border-[#666666] text-[#CCCCCC] hover:bg-[#333333] hover:text-white bg-transparent"
+                  }`}
+                >
+                  Vozidlá na transfer ({transferVehicles.length})
+                </Button>
+              </div>
+            </Reveal>
+
+            {/* Loading State (server-side always false, kept for structure) */}
+            {loading && (
+              <div className="text-center py-20">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#B88746]"></div>
+                <p className="text-[#CCCCCC] mt-4">Načítavam vozidlá...</p>
+              </div>
+            )}
+
+            {/* Error State */}
+            {error && (
+              <div className="text-center py-20">
+                <p className="text-red-400 mb-4">{error}</p>
+                <Link href="/nase-vozidla" className="inline-flex">
+                  <Button className="bg-[#B88746] hover:bg-[#A67C52] text-black">Zobraziť všetky vozidlá</Button>
+                </Link>
+              </div>
+            )}
+
+            {/* Vehicle Grid */}
+            {!loading && !error && (
+              <>
+                {activeTab === "prenajom" ? (
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
+                    {rentalVehicles.length > 0 ? (
+                      rentalVehicles.map((vehicle, index) => (
+                        <Reveal key={`${vehicle.slug}-${index}`} y={16} delay={0.06 + index * 0.03}>
+                          <VehicleCardDynamic
+                            vehicle={vehicle}
+                            primaryButton="Prenajať vozidlo"
+                            secondaryButton="Zobraziť vozidlo"
+                          />
+                        </Reveal>
+                      ))
+                    ) : (
+                      <div className="col-span-full text-center py-20">
+                        <p className="text-[#CCCCCC]">Momentálne nemáme k dispozícii žiadne vozidlá na prenájom.</p>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
+                    {transferVehicles.length > 0 ? (
+                      transferVehicles.map((vehicle, index) => (
+                        <Reveal key={`${vehicle.slug}-${index}`} y={16} delay={0.06 + index * 0.03}>
+                          <VehicleCardDynamic vehicle={vehicle} showTransferButton={true} />
+                        </Reveal>
+                      ))
+                    ) : (
+                      <div className="col-span-full text-center py-20">
+                        <p className="text-[#CCCCCC]">Momentálne nemáme k dispozícii žiadne vozidlá na transfer.</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </section>
 
