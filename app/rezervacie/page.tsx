@@ -215,9 +215,6 @@ export default function PrepravaOsobPage() {
           </div>
         </div>
       </section>
-      <Reveal y={16} delay={0.06}>
-        <ContactForm />
-      </Reveal>
       <Footer />
     </div>
   )
