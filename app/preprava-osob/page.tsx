@@ -492,11 +492,11 @@ export default function PrepravaOsobPage() {
               <FeatureCard
                 icon={
                   <Image
-                    src="/images/comfort-icon.png"
+                    src="/images/comfort-icon.svg"
                     alt="Comfort"
                     width={32}
                     height={32}
-                    className="w-full h-full object-contain"
+                    className="w-8 h-8"
                   />
                 }
                 title="Komfort a kvalita"
@@ -505,21 +505,21 @@ export default function PrepravaOsobPage() {
             </Reveal>
             <Reveal y={24} delay={0.06}>
               <FeatureCard
-                icon={<Image src="/images/time-icon.png" alt="Time" width={32} height={32} className="w-8 h-8" />}
+                icon={<Image src="/images/time-icon.svg" alt="Time" width={32} height={32} className="w-8 h-8" />}
                 title="Časová efektívita"
                 description="Vždy na čas a pripravení na vašu cestu. Spoľahnite sa na našu presnosť a profesionalitu."
               />
             </Reveal>
             <Reveal y={24} delay={0.12}>
               <FeatureCard
-                icon={<Image src="/images/diamond-icon.png" alt="Diamond" width={32} height={32} className="w-8 h-8" />}
+                icon={<Image src="/images/diamond-icon.svg" alt="Diamond" width={32} height={32} className="w-8 h-8" />}
                 title="Exkluzívne autá"
                 description="Naše vozidlá predstavujú špičkovú luxus a prestíž"
               />
             </Reveal>
             <Reveal y={24} delay={0.18}>
               <FeatureCard
-                icon={<Image src="/images/money-icon.png" alt="Money" width={32} height={32} className="w-8 h-8" />}
+                icon={<Image src="/images/money-icon.svg" alt="Money" width={32} height={32} className="w-8 h-8" />}
                 title="Cena a kvalita"
                 description="Sme jedni z najlepších v pomere cena a kvalita"
               />

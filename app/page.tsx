@@ -170,103 +170,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Reservation Section */}
-      <section className="relative overflow-hidden flex items-center py-16 md:py-0 md:h-[743px]">
-        {/* Full-width background */}
-        <div className="absolute inset-0 bg-[url('/images/reservation-bg.png')] bg-cover bg-center" />
-        <div className="absolute inset-0 bg-black/60" />
-
-        {/* Content aligned with Main Hero */}
-        <div className="relative z-10 w-full">
-          <div className="max-w-6xl mx-auto px-6 text-center md:text-right py-4 md:py-0">
-            <Reveal y={32}>
-              <h2 className="text-4xl md:text-6xl font-bold mb-6 text-white">
-                Rezervujte si odvoz
-              </h2>
-            </Reveal>
-            <Reveal delay={0.08} y={24}>
-              <p className="text-[#CCCCCC] mb-8 max-w-2xl ml-auto text-right">
-                Vyberte si miesto a čas odchodu a spoľahnite sa, že tam budeme. Navyše si vyberte kategóriu vozidla a
-                užívajte si maximálny komfort.
-              </p>
-            </Reveal>
-            <Reveal delay={0.12} y={16}>
-              <Link href="/rezervacie">
-                <Button className="bg-[#B88746] hover:bg-[#A67C52] text-white text-lg px-8 py-3">
-                  Rezervovať odvoz
-                </Button>
-              </Link>
-            </Reveal>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="py-20 px-6 bg-[#111111]">
-        <div className="max-w-6xl mx-auto">
-          <Reveal y={24}>
-            <h2 className="text-4xl font-bold text-center mb-16 tracking-wide text-white">PREČO SI NÁS VYBRAŤ</h2>
-          </Reveal>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-2 items-stretch">
-            <Reveal>
-              <div className="h-full">
-                <FeatureCard
-                  icon={
-                    <Image
-                      src="/images/comfort-icon.png"
-                      alt="Comfort"
-                      width={32}
-                      height={32}
-                      className="w-full h-full object-contain"
-                    />
-                  }
-                  title="Komfort a kvalita"
-                  description="Ponúkame najvyšší komfort a mobilitu, pre cestovanie v štýle."
-                />
-              </div>
-            </Reveal>
-            <Reveal delay={0.06}>
-              <div className="h-full">
-                <FeatureCard
-                  icon={<Image src="/images/time-icon.png" alt="Time" width={32} height={32} className="w-8 h-8" />}
-                  title="Časová efektívita"
-                  description="Vždy na čas a pripravení na vašu cestu. Spoľahnite sa na našu presnosť a profesionalitu."
-                />
-              </div>
-            </Reveal>
-            <Reveal delay={0.12}>
-              <div className="h-full">
-                <FeatureCard
-                  icon={<Image src="/images/diamond-icon.png" alt="Diamond" width={32} height={32} className="w-8 h-8" />}
-                  title="Exkluzívne autá"
-                  description="Naše vozidlá predstavujú špičkovú luxus a prestíž"
-                />
-              </div>
-            </Reveal>
-            <Reveal delay={0.18}>
-              <div className="h-full">
-                <FeatureCard
-                  icon={<Image src="/images/money-icon.png" alt="Money" width={32} height={32} className="w-8 h-8" />}
-                  title="Cena a kvalita"
-                  description="Sme jedni z najlepších v pomere cena a kvalita"
-                />
-              </div>
-            </Reveal>
-          </div>
-
-          <div className="text-center mt-12">
-            <Reveal delay={0.12} y={16}>
-              <Link href="/sluzby">
-                <Button className="bg-[#B88746] hover:bg-[#A67C52] text-white font-medium px-6 py-2">
-                  Zobraziť služby
-                </Button>
-              </Link>
-            </Reveal>
-          </div>
-        </div>
-      </section>
-
         {/* Hero Section */}
         <section className="relative w-full h-[75vh] min-h-[520px] flex items-center justify-center text-center overflow-hidden">
           {/* Desktop Image */}
@@ -318,7 +221,104 @@ export default async function HomePage() {
               </div>
             </Reveal>                
           </div>
-        </section>      
+        </section>  
+
+      {/* Features Section */}
+      <section className="py-20 px-6 bg-[#111111]">
+        <div className="max-w-6xl mx-auto">
+          <Reveal y={24}>
+            <h2 className="text-4xl font-bold text-center mb-16 tracking-wide text-white">PREČO SI NÁS VYBRAŤ</h2>
+          </Reveal>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-2 items-stretch">
+            <Reveal>
+              <div className="h-full">
+                <FeatureCard
+                  icon={
+                    <Image
+                      src="/images/comfort-icon.svg"
+                      alt="Comfort"
+                      width={32}
+                      height={32}
+                      className="w-8 h-8"
+                    />
+                  }
+                  title="Komfort a kvalita"
+                  description="Ponúkame najvyšší komfort a mobilitu, pre cestovanie v štýle."
+                />
+              </div>
+            </Reveal>
+            <Reveal delay={0.06}>
+              <div className="h-full">
+                <FeatureCard
+                  icon={<Image src="/images/time-icon.svg" alt="Time" width={32} height={32} className="w-8 h-8" />}
+                  title="Časová efektívita"
+                  description="Vždy na čas a pripravení na vašu cestu. Spoľahnite sa na našu presnosť a profesionalitu."
+                />
+              </div>
+            </Reveal>
+            <Reveal delay={0.12}>
+              <div className="h-full">
+                <FeatureCard
+                  icon={<Image src="/images/diamond-icon.svg" alt="Diamond" width={32} height={32} className="w-8 h-8" />}
+                  title="Exkluzívne autá"
+                  description="Naše vozidlá predstavujú špičkovú luxus a prestíž"
+                />
+              </div>
+            </Reveal>
+            <Reveal delay={0.18}>
+              <div className="h-full">
+                <FeatureCard
+                  icon={<Image src="/images/money-icon.svg" alt="Money" width={32} height={32} className="w-8 h-8" />}
+                  title="Cena a kvalita"
+                  description="Sme jedni z najlepších v pomere cena a kvalita"
+                />
+              </div>
+            </Reveal>
+          </div>
+
+          <div className="text-center mt-12">
+            <Reveal delay={0.12} y={16}>
+              <Link href="/sluzby">
+                <Button className="bg-[#B88746] hover:bg-[#A67C52] text-white font-medium px-6 py-2">
+                  Zobraziť služby
+                </Button>
+              </Link>
+            </Reveal>
+          </div>
+        </div>
+      </section>    
+
+      {/* Reservation Section */}
+      <section className="relative overflow-hidden flex items-center py-16 md:py-0 md:h-[743px]">
+        {/* Full-width background */}
+        <div className="absolute inset-0 bg-[url('/images/reservation-bg.png')] bg-cover bg-center" />
+        <div className="absolute inset-0 bg-black/60" />
+
+        {/* Content aligned with Main Hero */}
+        <div className="relative z-10 w-full">
+          <div className="max-w-6xl mx-auto px-6 text-center md:text-right py-4 md:py-0">
+            <Reveal y={32}>
+              <h2 className="text-4xl md:text-6xl font-bold mb-6 text-white">
+                Rezervujte si odvoz
+              </h2>
+            </Reveal>
+            <Reveal delay={0.08} y={24}>
+              <p className="text-[#CCCCCC] mb-8 max-w-2xl ml-auto text-right">
+                Vyberte si miesto a čas odchodu a spoľahnite sa, že tam budeme. Navyše si vyberte kategóriu vozidla a
+                užívajte si maximálny komfort.
+              </p>
+            </Reveal>
+            <Reveal delay={0.12} y={16}>
+              <Link href="/rezervacie">
+                <Button className="bg-[#B88746] hover:bg-[#A67C52] text-white text-lg px-8 py-3">
+                  Rezervovať odvoz
+                </Button>
+              </Link>
+            </Reveal>
+          </div>
+        </div>
+      </section>
 
       <ContactForm />
       <Footer />

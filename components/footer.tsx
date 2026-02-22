@@ -13,7 +13,7 @@ export function Footer() {
           <div className="flex-shrink-0 text-center md:text-left">
             <Link href="/">
               <Image
-                src="/images/logo.png"
+                src="/images/logo.svg"
                 alt="BY THE WAVE"
                 width={120}
                 height={40}

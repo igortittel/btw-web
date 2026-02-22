@@ -30,7 +30,7 @@ export function Header() {
     <header className="flex items-center justify-between px-6 py-4 bg-[#111111] fixed w-full top-0 z-50">
       <div className="flex items-center space-x-2">
         <Link href="/" onClick={handleLogoClick}>
-          <Image src="/images/logo.png" alt="BY THE WAVE" width={120} height={40} className="h-10 w-auto" />
+          <Image src="/images/logo.svg" alt="BY THE WAVE" width={120} height={40} className="h-10 w-auto" />
         </Link>
       </div>
 

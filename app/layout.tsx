@@ -47,9 +47,9 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
-      { url: "/images/logo.png", type: "image/png", sizes: "32x32" },
+      { url: "/images/logo.svg", type: "image/png", sizes: "32x32" },
     ],
-    apple: [{ url: "/images/logo.png", sizes: "180x180" }],
+    apple: [{ url: "/images/logo.svg", sizes: "180x180" }],
   },
   openGraph: {
     type: "website",
@@ -110,8 +110,8 @@ export default function RootLayout({
         <link rel="canonical" href="https://btw.sk" />
         <link rel="manifest" href="/manifest.json" />
         <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="icon" href="/images/logo.png" type="image/png" sizes="32x32" />
-        <link rel="apple-touch-icon" href="/images/logo.png" sizes="180x180" />
+        <link rel="icon" href="/images/logo.svg" type="image/png" sizes="32x32" />
+        <link rel="apple-touch-icon" href="/images/logo.svg" sizes="180x180" />
         <meta name="theme-color" content="#B88746" />
         <meta name="msapplication-TileColor" content="#000000" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -126,7 +126,7 @@ export default function RootLayout({
               name: "BY THE WAVE",
               alternateName: "Executive Mobility",
               url: "https://btw.sk",
-              logo: "https://btw.sk/images/logo.png",
+              logo: "https://btw.sk/images/logo.svg",
               description: "Prémiové služby prenájmu vozidiel a prepravy osôb na Slovensku",
               address: {
                 "@type": "PostalAddress",

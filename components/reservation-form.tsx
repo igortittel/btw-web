@@ -708,7 +708,7 @@ export function ReservationForm() {
               className={`w-full bg-[#1d1d1d] border border-[#333333] text-white rounded-lg py-3 px-4 transition-colors focus:border-[#B88746]`}
             >
               <option value="">Vyberte spôsob platby</option>
-              <option value="Faktúra">Faktúra</option>
+              {personType === "company" && <option value="Faktúra">Faktúra</option>}
               <option value="Hotovosť na mieste">Hotovosť na mieste</option>
               <option value="Platobnou kartou">Platobnou kartou</option>
             </select>

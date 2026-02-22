@@ -219,7 +219,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<Reservati
       const forwardedHost = request.headers.get("x-forwarded-host") || request.headers.get("host") || ""
       const requestBaseUrl = forwardedHost ? `${forwardedProto}://${forwardedHost}` : ""
       const publicBaseUrl = envBaseUrl || requestBaseUrl
-      const logoUrl = publicBaseUrl ? `${publicBaseUrl}/images/logo.png` : ""
+      const logoUrl = publicBaseUrl ? `${publicBaseUrl}/images/logo.svg` : ""
       // Prepare email data - using the new recipient email
       const emailData = {
         from: process.env.CONTACT_FROM_EMAIL || "BY THE WAVE <web@rezervacie.btw.sk>",
