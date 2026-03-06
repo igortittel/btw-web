@@ -203,7 +203,7 @@ export default async function HomePage() {
 
                 <div className="mt-6 inline-flex items-center gap-4 rounded-full border border-white/20 bg-white/10 backdrop-blur-md px-7 py-3 shadow-[0_0_0_1px_rgba(255,255,255,0.05)]">
                   <span className="text-base md:text-xl font-semibold tracking-wide text-[#B88746]">
-                    Už od 73 € bez DPH
+                    Už od 73 €
                   </span>
                   <span className="hidden sm:inline text-sm md:text-base text-white/80">
                     Bratislava – Schwechat
