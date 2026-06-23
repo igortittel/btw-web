@@ -88,15 +88,22 @@ export function ReservationForm() {
     let pickupHasSelection = false
     let destinationHasSelection = false
 
+    const buildLabel = (place: any) => {
+      const name = place.name || ""
+      const addr = place.formatted_address || ""
+      if (name && !addr.startsWith(name)) return `${name}, ${addr}`
+      return addr
+    }
+
     pickupAutocomplete.addListener("place_changed", () => {
       pickupHasSelection = true
       const place = pickupAutocomplete.getPlace() || {}
-      const formatted = place.formatted_address || ""
+      const label = buildLabel(place)
       const placeId = place.place_id || ""
       const lat = place?.geometry?.location?.lat?.()
       const lng = place?.geometry?.location?.lng?.()
 
-      if (pickupAddressRef.current && formatted) pickupAddressRef.current.value = formatted
+      if (pickupAddressRef.current && label) pickupAddressRef.current.value = label
       setPickupPlaceId(placeId)
       setPickupLat(typeof lat === "number" ? String(lat) : "")
       setPickupLng(typeof lng === "number" ? String(lng) : "")
@@ -105,12 +112,12 @@ export function ReservationForm() {
     destinationAutocomplete.addListener("place_changed", () => {
       destinationHasSelection = true
       const place = destinationAutocomplete.getPlace() || {}
-      const formatted = place.formatted_address || ""
+      const label = buildLabel(place)
       const placeId = place.place_id || ""
       const lat = place?.geometry?.location?.lat?.()
       const lng = place?.geometry?.location?.lng?.()
 
-      if (destinationAddressRef.current && formatted) destinationAddressRef.current.value = formatted
+      if (destinationAddressRef.current && label) destinationAddressRef.current.value = label
       setDestinationPlaceId(placeId)
       setDestinationLat(typeof lat === "number" ? String(lat) : "")
       setDestinationLng(typeof lng === "number" ? String(lng) : "")
