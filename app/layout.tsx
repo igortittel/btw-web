@@ -105,7 +105,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="sk">
+    <html lang="sk" className="scroll-smooth">
       <head>
         <link rel="canonical" href="https://btw.sk" />
         <link rel="manifest" href="/manifest.json" />

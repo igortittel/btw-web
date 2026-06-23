@@ -11,6 +11,7 @@ import type { Metadata } from "next"
 import { VehicleShowcase } from "@/components/vehicle-showcase"
 import Image from "next/image"
 import { Reveal } from "@/components/Reveal"
+import { getPromoData } from "@/lib/promo"
 
 export const metadata: Metadata = {
   title: "By The Wave - Krátkodobý a dlhodobý prenájom vozidiel, limousine service a prémiová preprava osôb",
@@ -46,6 +47,8 @@ export const metadata: Metadata = {
 }
 
 export default async function HomePage() {
+  const promo = getPromoData()
+
   // Fetch vehicles for the showcase section
   // const vehicles = await fetchVehicles()
   // const featuredVehicle = vehicles.length > 0 ? vehicles[0] : null
@@ -189,6 +192,11 @@ export default async function HomePage() {
           {/* Content */}
           <div className="relative z-10 max-w-4xl px-6">
             <Reveal y={24} delay={0.05}>
+              {promo.active && (
+                <span className="inline-block mb-4 rounded-full border border-[#B88746]/50 bg-[#B88746]/10 px-5 py-1.5 text-xs uppercase tracking-[0.2em] text-[#B88746]">
+                  ✦ Letná akcia ✦
+                </span>
+              )}
               <h1 className="text-4xl md:text-5xl font-bold tracking-wide text-white">
                 Odvoz na letisko Schwechat
                 <span className="block text-[#B88746]">bez stresu a čakania</span>
@@ -201,14 +209,26 @@ export default async function HomePage() {
                   Súkromný transfer z Bratislavy a okolia na letisko Schwechat (VIE).
                 </p>
 
-                <div className="mt-6 inline-flex items-center gap-4 rounded-full border border-white/20 bg-white/10 backdrop-blur-md px-7 py-3 shadow-[0_0_0_1px_rgba(255,255,255,0.05)]">
-                  <span className="text-base md:text-xl font-semibold tracking-wide text-[#B88746]">
-                    Už od 73 €
-                  </span>
-                  <span className="hidden sm:inline text-sm md:text-base text-white/80">
-                    Bratislava – Schwechat
-                  </span>
-                </div>
+                {promo.active ? (
+                  <div className="mt-6 flex flex-col items-center gap-1.5">
+                    <span className="text-base text-white/50 line-through">Pôvodná cena 73 €</span>
+                    <div className="inline-flex items-center gap-3 rounded-full border border-[#B88746]/40 bg-[#B88746]/10 backdrop-blur-md px-7 py-3">
+                      <span className="text-base md:text-xl font-semibold tracking-wide text-[#B88746]">
+                        Transfer už od 60 €
+                      </span>
+                    </div>
+                    <p className="text-xs text-white/65 mt-1">Akcia platí len do 15. septembra</p>
+                  </div>
+                ) : (
+                  <div className="mt-6 inline-flex items-center gap-4 rounded-full border border-white/20 bg-white/10 backdrop-blur-md px-7 py-3 shadow-[0_0_0_1px_rgba(255,255,255,0.05)]">
+                    <span className="text-base md:text-xl font-semibold tracking-wide text-[#B88746]">
+                      Už od 73 €
+                    </span>
+                    <span className="hidden sm:inline text-sm md:text-base text-white/80">
+                      Bratislava – Schwechat
+                    </span>
+                  </div>
+                )}
               </div>
             </Reveal>
             <Reveal y={16} delay={0.12}>

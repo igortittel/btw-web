@@ -12,6 +12,7 @@ import type { Metadata } from "next"
 import { VehicleShowcase } from "@/components/vehicle-showcase"
 import Image from "next/image"
 import { Reveal } from "@/components/Reveal"
+import { getPromoData } from "@/lib/promo"
 
 export const metadata: Metadata = {
   title: "Preprava osôb po celom Slovensku a do okolitých krajín", 
@@ -51,6 +52,7 @@ export const metadata: Metadata = {
 }
 
 export default function PrepravaOsobPage() {
+  const promo = getPromoData()
   return (
     <div className="min-h-screen bg-[#000000] text-white">
       <ScrollToTop />
@@ -370,14 +372,28 @@ export default function PrepravaOsobPage() {
                   Súkromný transfer z Bratislavy a okolia na letisko Schwechat (VIE).
                 </p>
 
-                <div className="mt-6 inline-flex items-center gap-4 rounded-full border border-white/20 bg-white/10 backdrop-blur-md px-7 py-3 shadow-[0_0_0_1px_rgba(255,255,255,0.05)]">
-                  <span className="text-base md:text-xl font-semibold tracking-wide text-[#B88746]">
-                    Už od 73 €
-                  </span>
-                  <span className="hidden sm:inline text-sm md:text-base text-white/80">
-                    Bratislava – Schwechat
-                  </span>
-                </div>
+                {promo.active ? (
+                  <div className="mt-6 inline-flex items-center gap-3 rounded-full border border-[#B88746]/40 bg-[#B88746]/10 backdrop-blur-md px-7 py-3">
+                    <span className="text-base md:text-xl font-semibold tracking-wide text-[#B88746]">
+                      Už od 60 €
+                    </span>
+                    <span className="hidden sm:inline text-sm text-white/40 line-through">
+                      73 €
+                    </span>
+                    <span className="hidden sm:inline text-xs uppercase tracking-widest text-[#B88746]/70">
+                      Letná akcia
+                    </span>
+                  </div>
+                ) : (
+                  <div className="mt-6 inline-flex items-center gap-4 rounded-full border border-white/20 bg-white/10 backdrop-blur-md px-7 py-3 shadow-[0_0_0_1px_rgba(255,255,255,0.05)]">
+                    <span className="text-base md:text-xl font-semibold tracking-wide text-[#B88746]">
+                      Už od 73 €
+                    </span>
+                    <span className="hidden sm:inline text-sm md:text-base text-white/80">
+                      Bratislava – Schwechat
+                    </span>
+                  </div>
+                )}
               </div>
             </Reveal>
             <Reveal y={16} delay={0.12}>

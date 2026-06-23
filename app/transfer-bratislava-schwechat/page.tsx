@@ -7,6 +7,8 @@ import Link from "next/link"
 import type { Metadata } from "next"
 import Script from "next/script"
 import { VehicleCardDynamic } from "@/components/vehicle-card-dynamic"
+import { TransferSummerPromo } from "@/components/transfer-summer-promo"
+import { getPromoData } from "@/lib/promo"
 
 export const metadata: Metadata = {
   title: "Transfer Bratislava – Schwechat | Odvoz na letisko Viedeň (VIE) | By The Wave",
@@ -51,6 +53,8 @@ export const metadata: Metadata = {
 }
 
 export default async function TransferBratislavaSchwechatPage() {
+  const promo = getPromoData()
+
   // --- Vehicles (server-side) ---
   const getPriceNumber = (v: any) => {
     const raw = v?.popisVozidla?.cena
@@ -145,8 +149,8 @@ export default async function TransferBratislavaSchwechatPage() {
           <div className="relative z-10 max-w-4xl px-6">
             <Reveal y={24} delay={0.05}>
               <h1 className="text-4xl md:text-5xl font-bold tracking-wide text-white">
-                Odvoz na letisko Schwechat
-                <span className="block text-[#B88746]">bez stresu a čakania</span>
+                Transfer Bratislava - Schwechat
+                <span className="block text-[#B88746]">Odvoz na letisko Viedeň bez stresu a čakania</span>
               </h1>
             </Reveal>
 
@@ -156,18 +160,43 @@ export default async function TransferBratislavaSchwechatPage() {
                   Súkromný transfer z Bratislavy a okolia na letisko Schwechat (VIE).
                 </p>
 
-                <div className="mt-6 inline-flex items-center gap-4 rounded-full border border-white/20 bg-white/10 backdrop-blur-md px-7 py-3 shadow-[0_0_0_1px_rgba(255,255,255,0.05)]">
-                  <span className="text-base md:text-xl font-semibold tracking-wide text-[#B88746]">
-                    Už od 73 €
-                  </span>
-                  <span className="hidden sm:inline text-sm md:text-base text-white/80">
-                    Bratislava – Schwechat
-                  </span>
-                </div>
+                {promo.active ? (
+                  <div className="mt-6 flex flex-col items-center gap-1.5">
+                    <span className="text-base text-white/50 line-through">Pôvodná cena 73 €</span>
+                    <div className="inline-flex items-center gap-3 rounded-full border border-[#B88746]/40 bg-[#B88746]/10 backdrop-blur-md px-7 py-3">
+                      <span className="text-base md:text-xl font-semibold tracking-wide text-[#B88746]">
+                        Už od 60 €
+                      </span>
+                      <span className="text-xs uppercase tracking-widest text-[#B88746]/70">
+                        Letná akcia
+                      </span>
+                    </div>
+                    <p className="text-xs text-white/65 mt-1">Akcia platí len do 15. septembra</p>
+                    <a href="#ceny" className="sm:hidden mt-2">
+                      <Button className="bg-[#B88746] hover:bg-[#A67C52] text-white font-semibold px-8 py-3 rounded-lg">
+                        Zistiť viac
+                      </Button>
+                    </a>
+                  </div>
+                ) : (
+                  <div className="mt-6 inline-flex items-center gap-4 rounded-full border border-white/20 bg-white/10 backdrop-blur-md px-7 py-3 shadow-[0_0_0_1px_rgba(255,255,255,0.05)]">
+                    <span className="text-base md:text-xl font-semibold tracking-wide text-[#B88746]">
+                      Už od 73 €
+                    </span>
+                    <span className="hidden sm:inline text-sm md:text-base text-white/80">
+                      Bratislava – Schwechat
+                    </span>
+                  </div>
+                )}
               </div>
             </Reveal>
           </div>
         </section>
+        {/* Summer Promo — right after hero */}
+        <div id="ceny">
+          <TransferSummerPromo promo={promo} />
+        </div>
+
         {/* Content Section */}
         <section className="py-20 px-6 bg-[#0B0B0B]">
           <div className="max-w-4xl mx-auto text-center">
