@@ -43,7 +43,7 @@ export function TransferSummerPromo({ promo }: Props) {
               <div className="rounded-2xl border border-[#B88746]/20 bg-[#111111] overflow-hidden">
                 {/* Card top accent */}
                 <div className="h-[2px] bg-gradient-to-r from-[#B88746]/60 to-transparent" />
-                <div className="p-8">
+                <div className="p-5 sm:p-8">
                   <div className="flex items-start justify-between mb-6">
                     <div>
                       <div className="text-xs uppercase tracking-[0.15em] text-[#666666] mb-1">Business limuzína</div>
@@ -62,14 +62,14 @@ export function TransferSummerPromo({ promo }: Props) {
                         <div className="text-xs uppercase tracking-[0.12em] text-[#777777]">Odchod</div>
                         <div className="text-xs text-[#444444] mt-0.5">Bratislava → Schwechat</div>
                       </div>
-                      <div className="text-4xl font-bold text-[#B88746]">{promo.eClass.odchod} €</div>
+                      <div className="text-2xl sm:text-4xl font-bold text-[#B88746] whitespace-nowrap">{promo.eClass.odchod} €</div>
                     </div>
                     <div className="flex items-center justify-between pt-1">
                       <div>
                         <div className="text-xs uppercase tracking-[0.12em] text-[#777777]">Príchod</div>
                         <div className="text-xs text-[#444444] mt-0.5">Schwechat → Bratislava</div>
                       </div>
-                      <div className="text-4xl font-bold text-[#B88746]">
+                      <div className="text-2xl sm:text-4xl font-bold text-[#B88746] whitespace-nowrap">
                         {promo.eClass.prichod.toFixed(2).replace(".", ",")} €
                       </div>
                     </div>
@@ -80,7 +80,7 @@ export function TransferSummerPromo({ promo }: Props) {
               {/* V-Class card */}
               <div className="rounded-2xl border border-[#B88746]/20 bg-[#111111] overflow-hidden">
                 <div className="h-[2px] bg-gradient-to-r from-[#B88746]/60 to-transparent" />
-                <div className="p-8">
+                <div className="p-5 sm:p-8">
                   <div className="flex items-start justify-between mb-6">
                     <div>
                       <div className="text-xs uppercase tracking-[0.15em] text-[#666666] mb-1">Business van</div>
@@ -98,14 +98,14 @@ export function TransferSummerPromo({ promo }: Props) {
                         <div className="text-xs uppercase tracking-[0.12em] text-[#777777]">Odchod</div>
                         <div className="text-xs text-[#444444] mt-0.5">Bratislava → Schwechat</div>
                       </div>
-                      <div className="text-4xl font-bold text-[#B88746]">{promo.vClass.odchod} €</div>
+                      <div className="text-2xl sm:text-4xl font-bold text-[#B88746] whitespace-nowrap">{promo.vClass.odchod} €</div>
                     </div>
                     <div className="flex items-center justify-between pt-1">
                       <div>
                         <div className="text-xs uppercase tracking-[0.12em] text-[#777777]">Príchod</div>
                         <div className="text-xs text-[#444444] mt-0.5">Schwechat → Bratislava</div>
                       </div>
-                      <div className="text-4xl font-bold text-[#B88746]">
+                      <div className="text-2xl sm:text-4xl font-bold text-[#B88746] whitespace-nowrap">
                         {promo.vClass.prichod.toFixed(2).replace(".", ",")} €
                       </div>
                     </div>

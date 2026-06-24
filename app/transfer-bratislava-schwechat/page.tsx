@@ -146,7 +146,7 @@ export default async function TransferBratislavaSchwechatPage() {
           <div className="block md:hidden absolute inset-0 bg-black/55" />
 
           {/* Content */}
-          <div className="relative z-10 max-w-4xl px-6">
+          <div className="relative z-10 max-w-4xl px-6 pt-16 md:pt-0">
             <Reveal y={24} delay={0.05}>
               <h1 className="text-4xl md:text-5xl font-bold tracking-wide text-white">
                 Transfer Bratislava - Schwechat
