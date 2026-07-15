@@ -27,10 +27,10 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Prenájom vozidiel - Krátkodobý a dlhodobý prenájom | BY THE WAVE",
     description: "Prenájom vozidiel na Slovensku od 1 dňa až po 4 roky. Komplexný servis, poistenie a údržba v cene.",
-    url: "https://bythewave.sk/prenajom-vozidiel",
+    url: "https://btw.sk/prenajom-vozidiel",
   },
   alternates: {
-    canonical: "https://bythewave.sk/prenajom-vozidiel",
+    canonical: "https://btw.sk/prenajom-vozidiel",
   },
 }
 
@@ -39,6 +39,30 @@ export default function PrenajomVozidielPage() {
     <div className="min-h-screen bg-[#000000] text-white">
       <ScrollToTop />
       <Header />
+
+      {/* FAQPage Structured Data */}
+      <Script
+        id="structured-data-faq-rental"
+        type="application/ld+json"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: [
+              { "@type": "Question", name: "Je možné si vozidlo prenajať aj ako fyzická osoba?", acceptedAnswer: { "@type": "Answer", text: "Áno, prenájom je dostupný pre jednotlivcov aj firmy. Stačí platný občiansky a vodičský preukaz." } },
+              { "@type": "Question", name: "Aký je minimálny vek pre prenájom auta?", acceptedAnswer: { "@type": "Answer", text: "Vodič musí mať minimálne 21 rokov a mať vodičský preukaz aspoň 2 roky." } },
+              { "@type": "Question", name: "Ako prebieha platba?", acceptedAnswer: { "@type": "Answer", text: "Platbu je možné uskutočniť kartou, prevodom alebo (pri firmách) aj na faktúru. V každom prípade treba zaplatiť kauciu." } },
+              { "@type": "Question", name: "Je potrebné vozidlo natankovať pred vrátením?", acceptedAnswer: { "@type": "Answer", text: "Áno, vozidlo sa vracia s rovnakým množstvom paliva, s akým ste ho prevzali. Ak nechcete dostankovať, doúčtujeme palivo." } },
+              { "@type": "Question", name: "Musím mať vlastnú poisťku?", acceptedAnswer: { "@type": "Answer", text: "Nie, všetky naše vozidlá sú poistené – máte v cene PZP aj havarijné poistenie." } },
+              { "@type": "Question", name: "Koľko kilometrov môžem najazdíť?", acceptedAnswer: { "@type": "Answer", text: "Pri krátkodobom prenájme je to max. 400 km/deň (každý kilometer navyše je spoplatnený sumou 0,45 €). Pri dlhodobom prenájme záleží od dohody." } },
+              { "@type": "Question", name: "Môžem si vybrať konkrétny model?", acceptedAnswer: { "@type": "Answer", text: "Áno, pri krátkodobej rezervácii si vyberiete z dostupných modelov. V prípade dlhodobého prenájmu si môžete vybrať buď z dostupných modelov alebo požiadať o konkrétne vozidlo podľa želania." } },
+              { "@type": "Question", name: "Je potrebné sa vopred objednať?", acceptedAnswer: { "@type": "Answer", text: "Odporúčame rezerváciu vopred, najmä v sezóne. Tak vieme zaručiť dostupnosť vybraného vozidla." } },
+              { "@type": "Question", name: "Môžem vozidlo používať aj v zahraničí?", acceptedAnswer: { "@type": "Answer", text: "Áno, ale túto informáciu je potrebné uviesť pri rezervácii. Zahraničný prenájom má vlastné podmienky a môže byť spoplatnený." } },
+            ],
+          }),
+        }}
+      />
 
       {/* Structured Data for Rental Services */}
       <Script

@@ -38,7 +38,9 @@ export function ServiceCard({ icon, title, description, features, buttonText, bu
                       ? "/preprava-osob"
                       : buttonText.includes("Mám záujem")
                         ? "/kontakt"
-                        : "https://booqme.sk/sk/rezervacia/btw"
+                        : buttonText.includes("Rezervovať odvoz")
+                          ? "/rezervacie"
+                          : "https://booqme.sk/sk/rezervacia/btw"
               }
               target={
                 buttonText.includes("Vybrať vozidlo") || buttonText.includes("Vybrať termín") ? "_blank" : undefined

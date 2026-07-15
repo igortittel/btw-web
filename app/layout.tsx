@@ -11,7 +11,7 @@ const montserrat = Montserrat({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://bythewave.sk"),
+  metadataBase: new URL("https://btw.sk"),
   title: {
     default: "By The Wave - Krátkodobý a dlhodobý prenájom vozidiel, limousine service a prémiová preprava osôb",
     template: "%s | By The Wave",
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "sk_SK",
-    url: "https://bythewave.sk",
+    url: "https://btw.sk",
     siteName: "By The Wave - Prenájom luxusných vanov a prémiová preprava osôb",
     title: "By The Wave - Prenájom luxusných vanov a prémiová preprava osôb",
     description:
@@ -85,10 +85,6 @@ export const metadata: Metadata = {
       "max-image-preview": "large",
       "max-snippet": -1,
     },
-  },
-  verification: {
-    google: "your-google-verification-code",
-    yandex: "your-yandex-verification-code",
   },
   alternates: {
     canonical: "https://btw.sk",
@@ -122,7 +118,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
-              "@type": "Organization",
+              "@type": ["LocalBusiness", "TaxiService"],
               name: "BY THE WAVE",
               alternateName: "Executive Mobility",
               url: "https://btw.sk",
@@ -130,13 +126,33 @@ export default function RootLayout({
               description: "Prémiové služby prenájmu vozidiel a prepravy osôb na Slovensku",
               address: {
                 "@type": "PostalAddress",
-                addressCountry: "SK",
+                streetAddress: "Trenčianska 56/A",
                 addressLocality: "Bratislava",
+                postalCode: "821 09",
+                addressCountry: "SK",
+              },
+              telephone: "+421905102220",
+              openingHoursSpecification: {
+                "@type": "OpeningHoursSpecification",
+                dayOfWeek: ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+                opens: "00:00",
+                closes: "23:59",
               },
               contactPoint: {
                 "@type": "ContactPoint",
+                telephone: "+421905102220",
                 contactType: "customer service",
                 availableLanguage: ["Slovak", "English"],
+                hoursAvailable: {
+                  "@type": "OpeningHoursSpecification",
+                  dayOfWeek: ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+                  opens: "00:00",
+                  closes: "23:59",
+                },
+              },
+              areaServed: {
+                "@type": "Country",
+                name: "Slovakia",
               },
               sameAs: ["https://www.instagram.com/bythewave_sk/", "https://www.facebook.com/bythewavesk"],
               hasOfferCatalog: {

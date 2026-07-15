@@ -46,7 +46,7 @@ export function TransferSummerPromo({ promo }: Props) {
                 <div className="p-5 sm:p-8">
                   <div className="flex items-start justify-between mb-6">
                     <div>
-                      <div className="text-xs uppercase tracking-[0.15em] text-[#666666] mb-1">Business limuzína</div>
+                      <div className="text-xs uppercase tracking-[0.15em] text-[#666666] mb-1">Business Class</div>
                       <div className="text-2xl font-bold text-white">E-Class</div>
                     </div>
                     <div className="text-right">

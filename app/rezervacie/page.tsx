@@ -16,39 +16,25 @@ import { Reveal } from "@/components/Reveal"
 
 
 export const metadata: Metadata = {
-  title: "Preprava osôb po celom Slovensku a do okolitých krajín", 
+  title: "Rezervácia prepravy a transferov | By The Wave",
   description:
-    "Luxusná preprava osôb po Slovensku a do okolitých krajín. Letiskové transfery, individuálne jazdy a profesionálni šoféri. By The Wave - pohodlie bez kompromisov.",
+    "Rezervujte si pohodlný odvoz, letiskový transfer alebo prepravu osôb. Rýchla online rezervácia, fixná cena, profesionálny šofér. Dostupné 24/7.",
   keywords: [
-      "preprava osôb Slovensko",
-      "preprava osôb do zahraničia",
-      "medzinárodná preprava osôb",
-      "letiskový transfer Bratislava",
-      "letiskový transfer Viedeň",
-      "transfer na letisko Budapešť",
-      "transfer na letisko Praha",
-      "súkromná preprava osôb",
-      "komfotná preprava osôb",
-      "luxusná preprava osôb",
-      "šofér na objednávku",
-      "profesionálny šofér Slovensko",
-      "VIP preprava Slovensko",
-      "business transfer služby",
-      "doprava na mieru Slovensko",
-      "door to door preprava",
-      "bezpečná osobná doprava",
-      "executive transfer služby",
-      "airport transfer Slovakia",
-      "premium chauffeur service"
+      "rezervácia prepravy",
+      "objednať odvoz",
+      "rezervovať transfer",
+      "letiskový transfer rezervácia",
+      "odvoz na letisko objednávka",
+      "preprava osôb rezervácia",
   ],
   openGraph: {
-    title: "Preprava osôb po celom Slovensku a do okolitých krajín | BY THE WAVE",
+    title: "Rezervácia prepravy a transferov | BY THE WAVE",
     description:
-      "Luxusná preprava osôb po Slovensku a do okolitých krajín. Letiskové transfery, individuálne jazdy a profesionálni šoféri.",
-    url: "https://bythewave.sk/preprava-osob",
+      "Rezervujte si pohodlný odvoz, letiskový transfer alebo prepravu osôb. Rýchla online rezervácia, fixná cena.",
+    url: "https://btw.sk/rezervacie",
   },
   alternates: {
-    canonical: "https://bythewave.sk/preprava-osob",
+    canonical: "https://btw.sk/rezervacie",
   },
 }
 

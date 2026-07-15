@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     title: "Naše vozidlá - Prémiové autá a transfer | BY THE WAVE",
     description:
       "Prezrite si našu flotilu prémiových vozidiel. Krátkodobý aj dlhodobý prenájom, profesionálni šoféri a komfort bez kompromisov.",
-    url: "https://bythewave.sk/nase-vozidla",
+    url: "https://btw.sk/nase-vozidla",
     images: [
       {
         url: "/images/vehicles-og.png",
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     ],
   },
   alternates: {
-    canonical: "https://bythewave.sk/nase-vozidla",
+    canonical: "https://btw.sk/nase-vozidla",
   },
 }
 

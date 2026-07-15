@@ -18,10 +18,10 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Kontakt - BY THE WAVE Executive Mobility",
     description: "Kontaktujte nás pre prenájom luxusných vozidiel a VIP prepravu na Slovensku.",
-    url: "https://bythewave.sk/kontakt",
+    url: "https://btw.sk/kontakt",
   },
   alternates: {
-    canonical: "https://bythewave.sk/kontakt",
+    canonical: "https://btw.sk/kontakt",
   },
 }
 

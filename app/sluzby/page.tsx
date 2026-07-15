@@ -29,10 +29,10 @@ export const metadata: Metadata = {
     title: "Naše služby - Prenájom vozidiel a preprava osôb | BY THE WAVE",
     description:
       "Kompletné služby prenájmu vozidiel a prepravy osôb na Slovensku. Profesionálne služby mobility pre náročných klientov.",
-    url: "https://bythewave.sk/sluzby",
+    url: "https://btw.sk/sluzby",
   },
   alternates: {
-    canonical: "https://bythewave.sk/sluzby",
+    canonical: "https://btw.sk/sluzby",
   },
 }
 
@@ -187,6 +187,30 @@ export default function SluzbyPage() {
                 description=""
                 buttonText="Mám záujem"
                 buttonLink=""
+              />
+            </Reveal>
+
+            <Reveal delay={0.32}>
+              <ServiceCard
+                icon={
+                  <Image
+                    src="/images/plane.svg"
+                    alt="Letisko"
+                    width={32}
+                    height={32}
+                    className="w-8 h-8"
+                  />
+                }
+                title="Odvoz/vyzdvihnutie z letiska Schwechat"
+                features={[
+                  "Vyzdvihnutie na adrese",
+                  "Pomoc s batožinou",
+                  "Sledovanie času príletov a odletov",
+                  "Individuálny transfer",
+                ]}
+                description=""
+                buttonText="Rezervovať odvoz"
+                buttonLink="/transfer-bratislava-schwechat"
               />
             </Reveal>
           </div>

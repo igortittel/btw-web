@@ -68,6 +68,14 @@ export function Header() {
           >
             Preprava osôb
           </Link>
+          <Link
+            href="/transfer-bratislava-schwechat"
+            className={`text-[#CCCCCC] hover:text-white transition-colors ${
+              isActiveLink("/transfer-bratislava-schwechat") ? "border-b-2 border-[#B88746] text-white" : ""
+            }`}
+          >
+            Odvoz na Schwechat
+          </Link>
         </nav>
 
         <div className="hidden md:block">
@@ -121,6 +129,15 @@ export function Header() {
               onClick={() => setIsMenuOpen(false)}
             >
               Preprava osôb
+            </Link>
+            <Link
+              href="/transfer-bratislava-schwechat"
+              className={`text-[#CCCCCC] hover:text-white transition-colors text-lg ${
+                isActiveLink("/transfer-bratislava-schwechat") ? "border-b-2 border-[#B88746] text-white pb-2" : ""
+              }`}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Odvoz na Schwechat
             </Link>
 
             <div className="pt-4">

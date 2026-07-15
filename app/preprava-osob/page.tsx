@@ -44,10 +44,10 @@ export const metadata: Metadata = {
     title: "Preprava osôb po celom Slovensku a do okolitých krajín | BY THE WAVE",
     description:
       "Luxusná preprava osôb po Slovensku a do okolitých krajín. Letiskové transfery, individuálne jazdy a profesionálni šoféri.",
-    url: "https://bythewave.sk/preprava-osob",
+    url: "https://btw.sk/preprava-osob",
   },
   alternates: {
-    canonical: "https://bythewave.sk/preprava-osob",
+    canonical: "https://btw.sk/preprava-osob",
   },
 }
 
@@ -57,6 +57,27 @@ export default function PrepravaOsobPage() {
     <div className="min-h-screen bg-[#000000] text-white">
       <ScrollToTop />
       <Header />
+
+      {/* FAQPage Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: [
+              { "@type": "Question", name: "Ako si môžem objednať prepravu?", acceptedAnswer: { "@type": "Answer", text: "Prepravu si viete objednať online cez náš rezervačný formulár alebo telefonicky. Stačí uviesť miesto nástupu, cieľ cesty, dátum, čas a počet osôb. Následne vám potvrdíme dostupnosť a cenu." } },
+              { "@type": "Question", name: "Ako dlho vopred je potrebné rezervovať?", acceptedAnswer: { "@type": "Answer", text: "Ideálne je rezervovať aspoň 24 hodín vopred, pri letiskových a medzinárodných transferoch odporúčame 48 hodín. V naliehavých prípadoch sa vždy snažíme nájsť riešenie aj last minute." } },
+              { "@type": "Question", name: "Čo ak má môj let meškanie?", acceptedAnswer: { "@type": "Answer", text: "Lety aktívne sledujeme podľa čísla letu, ktoré zadáte pri rezervácii. Pri meškaní prispôsobíme čas vyzdvihnutia. Kratšie meškania sú bez doplatku, pri dlhšom čakaní vás vopred informujeme o prípadnom príplatku." } },
+              { "@type": "Question", name: "Koľko osôb a batožiny viete odviezť?", acceptedAnswer: { "@type": "Answer", text: "Vozidlá kategórie First Class a Business Class majú kapacitu 1–3 osoby s batožinou, vo vozidlách kategórie Business Van je kapacita 6–8 osôb v závislosti od modelu vozidla." } },
+              { "@type": "Question", name: "Poskytujete detské autosedačky?", acceptedAnswer: { "@type": "Answer", text: "Áno, na požiadanie vieme zabezpečiť detskú sedačku alebo podsedák pre rôzne vekové kategórie. Stačí pri rezervácii uviesť počet detí a približný vek." } },
+              { "@type": "Question", name: "Aké územie pokrývate?", acceptedAnswer: { "@type": "Answer", text: "Zabezpečujeme prepravu po celom Slovensku a do okolitých krajín, najmä Rakúsko, Maďarsko, Česko a Poľsko. Pri dlhších medzinárodných trasách vám pripravíme individuálnu cenovú ponuku." } },
+              { "@type": "Question", name: "Ako prebieha platba?", acceptedAnswer: { "@type": "Answer", text: "Platba je možná v hotovosti, platobnou kartou priamo vo vozidle, platbou vopred na účet alebo na faktúru pre firemných klientov." } },
+              { "@type": "Question", name: "Aké sú storno podmienky?", acceptedAnswer: { "@type": "Answer", text: "Bezplatné storno je možné do určitého času pred odchodom (spravidla 24 hodín). Pri neskoršom zrušení alebo nevyužití prepravy sa môže účtovať storno poplatok. Detaily vždy uvádzame v potvrdení rezervácie." } },
+            ],
+          }),
+        }}
+      />
 
       {/* Structured Data for Passenger Transport Services */}
       <script
@@ -332,7 +353,7 @@ export default function PrepravaOsobPage() {
               </Reveal>
 
               <Reveal y={16} delay={0.24}>
-                <a href="/cennik-2026.pdf" target="_blank" rel="noopener noreferrer" className="inline-flex">
+                <a href="https://pdf.btw.sk/cennik-2026-akcia.pdf" target="_blank" rel="noopener noreferrer" className="inline-flex">
                   <Button className="border border-[#B88746] text-[#B88746] hover:text-white hover:border-white font-medium px-8 py-3 rounded-lg">
                     Zobraziť cenník
                   </Button>
@@ -360,10 +381,10 @@ export default function PrepravaOsobPage() {
           {/* Content */}
           <div className="relative z-10 max-w-4xl px-6">
             <Reveal y={24} delay={0.05}>
-              <h1 className="text-4xl md:text-5xl font-bold tracking-wide text-white">
+              <h2 className="text-4xl md:text-5xl font-bold tracking-wide text-white">
                 Odvoz na letisko Schwechat
                 <span className="block text-[#B88746]">bez stresu a čakania</span>
-              </h1>
+              </h2>
             </Reveal>
 
             <Reveal y={24} delay={0.15}>

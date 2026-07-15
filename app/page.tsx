@@ -197,10 +197,10 @@ export default async function HomePage() {
                   ✦ Letná akcia ✦
                 </span>
               )}
-              <h1 className="text-4xl md:text-5xl font-bold tracking-wide text-white">
+              <h2 className="text-4xl md:text-5xl font-bold tracking-wide text-white">
                 Odvoz na letisko Schwechat
                 <span className="block text-[#B88746]">bez stresu a čakania</span>
-              </h1>
+              </h2>
             </Reveal>
 
             <Reveal y={24} delay={0.15}>
