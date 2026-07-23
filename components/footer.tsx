@@ -23,7 +23,7 @@ export function Footer() {
           </div>
 
           {/* Navigation Links */}
-          <div className="flex flex-col md:flex-row md:space-x-16 space-y-6 md:space-y-0">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="space-y-3 text-center md:text-left">
               <Link href="/sluzby" className="block text-[#CCCCCC] hover:text-white text-sm transition-colors">
                 Služby
@@ -31,32 +31,32 @@ export function Footer() {
               <Link href="/nase-vozidla" className="block text-[#CCCCCC] hover:text-white text-sm transition-colors">
                 Naše vozidlá
               </Link>
-              <Link
-                href="/prenajom-vozidiel"
-                className="block text-[#CCCCCC] hover:text-white text-sm transition-colors"
-              >
-                Prenájom vozidiel
+              <Link href="/kontakt" className="block text-[#CCCCCC] hover:text-white text-sm transition-colors">
+                Kontakt
               </Link>
             </div>
 
             <div className="space-y-3 text-center md:text-left">
-              <Link
-                href="/kontakt"
-                className="block text-[#CCCCCC] hover:text-white text-sm transition-colors"
-              >
-                Kontakt
+              <Link href="/prenajom-vozidiel" className="block text-[#CCCCCC] hover:text-white text-sm transition-colors">
+                Prenájom vozidiel
               </Link>
-              <Link
-                href="/ochrana-osobnych-udajov"
-                className="block text-[#CCCCCC] hover:text-white text-sm transition-colors"
-              >
+              <Link href="/preprava-osob" className="block text-[#CCCCCC] hover:text-white text-sm transition-colors">
+                Preprava osôb
+              </Link>
+              <Link href="/transfer-bratislava-schwechat" className="block text-[#CCCCCC] hover:text-white text-sm transition-colors">
+                Odvoz na Schwechat
+              </Link>
+            </div>
+
+            <div className="space-y-3 text-center md:text-left">
+              <Link href="/ochrana-osobnych-udajov" className="block text-[#CCCCCC] hover:text-white text-sm transition-colors">
                 Ochrana osobných údajov
               </Link>
-              <Link
-                href="/vseobecne-obchodne-podmienky"
-                className="block text-[#CCCCCC] hover:text-white text-sm transition-colors"
-              >
+              <Link href="/vseobecne-obchodne-podmienky" className="block text-[#CCCCCC] hover:text-white text-sm transition-colors">
                 Všeobecné obchodné podmienky
+              </Link>
+              <Link href="/blog" className="block text-[#CCCCCC] hover:text-white text-sm transition-colors">
+                Blog
               </Link>
             </div>
           </div>
