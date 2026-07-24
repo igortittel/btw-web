@@ -3,7 +3,7 @@
   "short_name": "BY THE WAVE",
   "description": "Prémiové služby prenájmu vozidiel a prepravy osôb na Slovensku. Luxusné vozidlá, profesionálni vodiči a exkluzívne služby mobility.",
   "start_url": "/",
-  "display": "standalone",
+  "display": "browser",
   "background_color": "#000000",
   "theme_color": "#B88746",
   "orientation": "portrait-primary",
