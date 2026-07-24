@@ -74,6 +74,26 @@
     <priority>0.7</priority>
   </url>
 
+  <!-- Blog Index -->
+  <url>
+    <loc>https://btw.sk/blog</loc>
+    <lastmod>2026-07-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Blog: Súkromný transfer Bratislava – Schwechat -->
+  <url>
+    <loc>https://btw.sk/blog/sukromny-transfer-bratislava-schwechat</loc>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://btw.sk/images/transfer-bratislava-schwechat-desktop.webp</image:loc>
+      <image:title>Súkromný transfer Bratislava – Schwechat | By The Wave</image:title>
+    </image:image>
+  </url>
+
   <!-- Privacy Policy -->
   <url>
     <loc>https://btw.sk/ochrana-osobnych-udajov</loc>
