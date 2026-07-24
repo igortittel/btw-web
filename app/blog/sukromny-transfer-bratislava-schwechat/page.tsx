@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import Image from "next/image"
 import Link from "next/link"
 import Script from "next/script"
 import { Header } from "@/components/header"
@@ -22,7 +23,7 @@ export const metadata: Metadata = {
     type: "article",
     images: [
       {
-        url: "https://btw.sk/images/transfer-bratislava-schwechat-desktop.webp",
+        url: "https://btw.sk/images/bts-vie.png",
         width: 1200,
         height: 630,
         alt: "Súkromný transfer Bratislava – Schwechat | By The Wave",
@@ -38,7 +39,7 @@ const articleSchema = {
   headline: "Súkromný transfer Bratislava – Schwechat: Kedy dáva zmysel viac ako autobus?",
   description:
     "Detailné porovnanie nákladov, komfortu a scenárov. Transfer Bratislava – Schwechat pre tých, ktorí rozhodujú na základe faktov.",
-  image: "https://btw.sk/images/transfer-bratislava-schwechat-desktop.webp",
+  image: "https://btw.sk/images/bts-vie.png",
   author: { "@type": "Organization", name: "By The Wave", url: "https://btw.sk" },
   publisher: {
     "@type": "Organization",
@@ -222,12 +223,8 @@ export default function BlogArticlePage() {
         {/* ─── Hero ─── */}
         <section className="relative w-full h-[60vh] min-h-[420px] flex items-end justify-center overflow-hidden">
           <div
-            className="absolute inset-0 bg-cover bg-center hidden md:block"
-            style={{ backgroundImage: "url('/images/transfer-bratislava-schwechat-desktop.webp')" }}
-          />
-          <div
-            className="absolute inset-0 bg-cover bg-center block md:hidden"
-            style={{ backgroundImage: "url('/images/transfer-bratislava-schwechat-mobile.webp')" }}
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: "url('/images/bts-vie.png')" }}
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/50 to-black" />
 

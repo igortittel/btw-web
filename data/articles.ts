@@ -26,7 +26,7 @@ export const articles: Article[] = [
     category: "transfery",
     date: "2026-07-21",
     readTime: 8,
-    image: "/images/transfer-bratislava-schwechat-desktop.webp",
+    image: "/images/bts-vie.png",
     imageAlt: "Súkromný transfer Bratislava – Schwechat",
   },
 ]
