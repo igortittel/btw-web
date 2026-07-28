@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { ReservationForm } from "@/components/reservation-form"
+import { ReservationFormTest } from "@/components/reservation-form-test"
 import { ScrollToTop } from "@/components/scroll-to-top"
 import { Reveal } from "@/components/Reveal"
 
@@ -102,7 +102,7 @@ export default function TestFormPage() {
         </div>
       </Reveal>
 
-      <ReservationForm />
+      <ReservationFormTest />
 
       <Footer />
     </div>

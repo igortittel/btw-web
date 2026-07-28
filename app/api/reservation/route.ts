@@ -37,6 +37,14 @@ interface ReservationFormResponse {
     notes?: string
     gdprConsent?: string
     marketingConsent?: string
+    returnPickupAddress?: string
+    returnDestinationAddress?: string
+    returnDate?: string
+    returnTime?: string
+    returnPassengers?: string
+    returnVehicleCategory?: string
+    returnPassengerFirstName?: string
+    returnPassengerLastName?: string
   }
 }
 
@@ -98,6 +106,18 @@ export async function POST(request: NextRequest): Promise<NextResponse<Reservati
 
     const flightNumber = (payload["flightNumber"] as string) || ""
     const paymentMethod = (payload["paymentMethod"] as string) || ""
+
+    const returnPickupAddress = (payload["returnPickupAddress"] as string) || ""
+    const returnDestinationAddress = (payload["returnDestinationAddress"] as string) || ""
+    const returnDate = (payload["returnDate"] as string) || ""
+    const returnTime = (payload["returnTime"] as string) || ""
+    const returnPassengersRaw = (payload["returnPassengers"] as string) || ""
+    const returnVehicleCategory = (payload["returnVehicleCategory"] as string) || ""
+    const returnFlightNumber = (payload["returnFlightNumber"] as string) || ""
+    const returnSamePassengerRaw = (payload["returnSamePassenger"] as string) || "true"
+    const returnSamePassenger = returnSamePassengerRaw !== "false"
+    const returnPassengerFirstName = (payload["returnPassengerFirstName"] as string) || ""
+    const returnPassengerLastName = (payload["returnPassengerLastName"] as string) || ""
 
     const notes = (payload["notes"] as string) || ""
     const gdprConsent = (((payload["gdprConsent"] as string) || "false") === "true")
@@ -163,6 +183,36 @@ export async function POST(request: NextRequest): Promise<NextResponse<Reservati
       }
       if (!mainPassengerLastName || mainPassengerLastName.trim().length < 2) {
         errors.mainPassengerLastName = "Priezvisko hlavného pasažiera musí mať aspoň 2 znaky"
+      }
+    }
+
+    if (returnTrip) {
+      if (!returnPickupAddress || returnPickupAddress.trim().length < 5) {
+        errors.returnPickupAddress = "Adresa vyzdvihnutia spiatočnej cesty je povinná"
+      }
+      if (!returnDestinationAddress || returnDestinationAddress.trim().length < 5) {
+        errors.returnDestinationAddress = "Cieľová adresa spiatočnej cesty je povinná"
+      }
+      if (!returnDate) {
+        errors.returnDate = "Dátum spiatočnej cesty je povinný"
+      }
+      if (!returnTime) {
+        errors.returnTime = "Čas spiatočnej cesty je povinný"
+      }
+      const returnPassengers = parseInt(returnPassengersRaw, 10)
+      if (isNaN(returnPassengers) || returnPassengers < 1 || returnPassengers > 20) {
+        errors.returnPassengers = "Počet pasažierov musí byť číslo od 1 do 20"
+      }
+      if (!validVehicleCategories.includes(returnVehicleCategory)) {
+        errors.returnVehicleCategory = "Vyberte platnú kategóriu vozidla pre spiatočnú cestu"
+      }
+      if (!returnSamePassenger) {
+        if (!returnPassengerFirstName || returnPassengerFirstName.trim().length < 2) {
+          errors.returnPassengerFirstName = "Meno hlavného pasažiera musí mať aspoň 2 znaky"
+        }
+        if (!returnPassengerLastName || returnPassengerLastName.trim().length < 2) {
+          errors.returnPassengerLastName = "Priezvisko hlavného pasažiera musí mať aspoň 2 znaky"
+        }
       }
     }
 
@@ -289,6 +339,39 @@ export async function POST(request: NextRequest): Promise<NextResponse<Reservati
                     <td style="padding: 10px 0; font-weight: 600; color: #555;">Spiatočná cesta:</td>
                     <td style="padding: 10px 0;">${returnTrip ? "Áno" : "Nie"}</td>
                   </tr>
+                  ${returnTrip ? `
+                  <tr>
+                    <td colspan="2" style="padding: 12px 0 4px 0; font-weight: 700; color: #B88746; font-size: 13px; letter-spacing: 0.05em; border-top: 1px solid #eee;">SPIATOČNÁ CESTA</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px 0; font-weight: 600; color: #555; width: 180px; vertical-align: top;">Vyzdvihnutie (sp.):</td>
+                    <td style="padding: 10px 0;">${escapeHtml(returnPickupAddress)}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px 0; font-weight: 600; color: #555;">Cieľ (sp.):</td>
+                    <td style="padding: 10px 0;">${escapeHtml(returnDestinationAddress)}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px 0; font-weight: 600; color: #555;">Dátum a čas (sp.):</td>
+                    <td style="padding: 10px 0;">${escapeHtml(returnDate)} ${escapeHtml(returnTime)}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px 0; font-weight: 600; color: #555;">Pasažieri (sp.):</td>
+                    <td style="padding: 10px 0;">${parseInt(returnPassengersRaw, 10) || returnPassengersRaw}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px 0; font-weight: 600; color: #555;">Kategória (sp.):</td>
+                    <td style="padding: 10px 0;">${escapeHtml(returnVehicleCategory)}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px 0; font-weight: 600; color: #555;">Pasažier (sp.):</td>
+                    <td style="padding: 10px 0;">${returnSamePassenger ? "Zhodný s objednávateľom" : escapeHtml(returnPassengerFirstName) + " " + escapeHtml(returnPassengerLastName)}</td>
+                  </tr>
+                  ${returnFlightNumber ? `<tr>
+                    <td style="padding: 10px 0; font-weight: 600; color: #555;">Let (sp.):</td>
+                    <td style="padding: 10px 0;">${escapeHtml(returnFlightNumber)}</td>
+                  </tr>` : ""}
+                  ` : ""}
                   <tr>
                     <td style="padding: 10px 0; font-weight: 600; color: #555;">Kategória vozidla:</td>
                     <td style="padding: 10px 0;">${escapeHtml(vehicleCategory)}</td>
@@ -376,6 +459,15 @@ Cieľ: ${destinationAddress}
 Dátum a čas: ${date} ${time}
 Pasažieri: ${passengers}
 Spiatočná cesta: ${returnTrip ? "Áno" : "Nie"}
+${returnTrip ? `
+─── SPIATOČNÁ CESTA ───
+Vyzdvihnutie (sp.): ${returnPickupAddress}
+Cieľ (sp.): ${returnDestinationAddress}
+Dátum a čas (sp.): ${returnDate} ${returnTime}
+Pasažieri (sp.): ${returnPassengersRaw}
+Kategória (sp.): ${returnVehicleCategory}
+Pasažier (sp.): ${returnSamePassenger ? "Zhodný s objednávateľom" : returnPassengerFirstName + " " + returnPassengerLastName}
+${returnFlightNumber ? `Let (sp.): ${returnFlightNumber}` : ""}` : ""}
 Kategória vozidla: ${vehicleCategory}
 Hlavný pasažier: ${
           sameAsMainPassenger
@@ -462,6 +554,35 @@ Táto správa bola odoslaná z rezervačného formulára na bythewave.sk
                           <td style="padding:8px 0; color:#bdbdbd;">Spiatočná cesta</td>
                           <td style="padding:8px 0; color:#fff;">${returnTrip ? "Áno" : "Nie"}</td>
                         </tr>
+                        ${returnTrip ? `
+                        <tr>
+                          <td colspan="2" style="padding: 10px 0 2px 0; color:#B88746; font-size:12px; font-weight:700; letter-spacing:0.08em; border-top:1px solid #2a2a2a;">SPIATOČNÁ CESTA</td>
+                        </tr>
+                        <tr>
+                          <td style="padding:8px 0; color:#bdbdbd;">Vyzdvihnutie (sp.)</td>
+                          <td style="padding:8px 0; color:#fff;">${escapeHtml(returnPickupAddress)}</td>
+                        </tr>
+                        <tr>
+                          <td style="padding:8px 0; color:#bdbdbd;">Cieľ (sp.)</td>
+                          <td style="padding:8px 0; color:#fff;">${escapeHtml(returnDestinationAddress)}</td>
+                        </tr>
+                        <tr>
+                          <td style="padding:8px 0; color:#bdbdbd;">Dátum a čas (sp.)</td>
+                          <td style="padding:8px 0; color:#fff;">${escapeHtml(returnDate)} ${escapeHtml(returnTime)}</td>
+                        </tr>
+                        <tr>
+                          <td style="padding:8px 0; color:#bdbdbd;">Počet pasažierov (sp.)</td>
+                          <td style="padding:8px 0; color:#fff;">${returnPassengersRaw}</td>
+                        </tr>
+                        <tr>
+                          <td style="padding:8px 0; color:#bdbdbd;">Kategória (sp.)</td>
+                          <td style="padding:8px 0; color:#fff;">${escapeHtml(returnVehicleCategory)}</td>
+                        </tr>
+                        ${returnFlightNumber ? `<tr>
+                          <td style="padding:8px 0; color:#bdbdbd;">Let (sp.)</td>
+                          <td style="padding:8px 0; color:#fff;">${escapeHtml(returnFlightNumber)}</td>
+                        </tr>` : ""}
+                        ` : ""}
                         <tr>
                           <td style="padding:8px 0; color:#bdbdbd;">Kategória vozidla</td>
                           <td style="padding:8px 0; color:#fff;">${escapeHtml(vehicleCategory)}</td>
@@ -502,6 +623,16 @@ Táto správa bola odoslaná z rezervačného formulára na bythewave.sk
               `Dátum a čas: ${date} ${time}\n` +
               `Počet pasažierov: ${passengers}\n` +
               `Spiatočná cesta: ${returnTrip ? "Áno" : "Nie"}\n` +
+              (returnTrip ? (
+                `\n─── Spiatočná cesta ───\n` +
+                `Vyzdvihnutie: ${returnPickupAddress}\n` +
+                `Cieľ: ${returnDestinationAddress}\n` +
+                `Dátum a čas: ${returnDate} ${returnTime}\n` +
+                `Počet pasažierov: ${returnPassengersRaw}\n` +
+                `Kategória vozidla: ${returnVehicleCategory}\n` +
+                (returnFlightNumber ? `Číslo letu: ${returnFlightNumber}\n` : "") +
+                `───────────────────────\n\n`
+              ) : "") +
               `Kategória vozidla: ${vehicleCategory}\n` +
               `Spôsob platby: ${paymentMethod}\n` +
               `${notes ? `Poznámky: ${notes}\n` : ""}` +
