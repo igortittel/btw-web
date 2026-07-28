@@ -43,8 +43,8 @@ interface FormState {
 
 const VEHICLE_CATEGORIES = ["Business Van", "Business Class", "First Class", "Nezáleží"]
 
-const passengerDisclaimer = (
-  <div className="mt-3 p-4 rounded-lg border border-[#B88746]/40 bg-[#B88746]/10 text-sm text-[#D4A96A] leading-relaxed">
+const PassengerDisclaimer = () => (
+  <div className="p-4 rounded-lg border border-[#B88746]/40 bg-[#B88746]/10 text-sm text-[#D4A96A] leading-relaxed">
     <strong className="block mb-1 text-[#B88746]">Upozornenie na kapacitu vozidiel:</strong>
     Vozidlá kategórie Business Class a First Class majú maximálny počet pasažierov 3. Vozidlá kategórie Business Van majú maximálny počet pasažierov 7. V prípade presahujúceho počtu pasažierov zvolenej kategórie vozidla bude potrebné navýšiť počet vozidiel, čo znamená zvýšenie celkovej ceny za transfer.
   </div>
@@ -57,32 +57,44 @@ export function ReservationFormTest() {
 
   const [mapsLoaded, setMapsLoaded] = useState(false)
   const returnAutocompleteInitialized = useRef(false)
+  const waypointAutocompleteInitialized = useRef(false)
+  const returnWaypointAutocompleteInitialized = useRef(false)
 
   // Main trip refs & state
   const dateInputRef = useRef<HTMLInputElement>(null)
   const timeInputRef = useRef<HTMLInputElement>(null)
   const pickupAddressRef = useRef<HTMLInputElement>(null)
   const destinationAddressRef = useRef<HTMLInputElement>(null)
+  const waypointAddressRef = useRef<HTMLInputElement>(null)
   const [pickupPlaceId, setPickupPlaceId] = useState("")
   const [pickupLat, setPickupLat] = useState("")
   const [pickupLng, setPickupLng] = useState("")
   const [destinationPlaceId, setDestinationPlaceId] = useState("")
   const [destinationLat, setDestinationLat] = useState("")
   const [destinationLng, setDestinationLng] = useState("")
+  const [waypointPlaceId, setWaypointPlaceId] = useState("")
+  const [waypointLat, setWaypointLat] = useState("")
+  const [waypointLng, setWaypointLng] = useState("")
   const [passengerCount, setPassengerCount] = useState(0)
+  const [hasWaypoint, setHasWaypoint] = useState(false)
 
   // Return trip refs & state
   const returnDateInputRef = useRef<HTMLInputElement>(null)
   const returnTimeInputRef = useRef<HTMLInputElement>(null)
   const returnPickupAddressRef = useRef<HTMLInputElement>(null)
   const returnDestinationAddressRef = useRef<HTMLInputElement>(null)
+  const returnWaypointAddressRef = useRef<HTMLInputElement>(null)
   const [returnPickupPlaceId, setReturnPickupPlaceId] = useState("")
   const [returnPickupLat, setReturnPickupLat] = useState("")
   const [returnPickupLng, setReturnPickupLng] = useState("")
   const [returnDestinationPlaceId, setReturnDestinationPlaceId] = useState("")
   const [returnDestinationLat, setReturnDestinationLat] = useState("")
   const [returnDestinationLng, setReturnDestinationLng] = useState("")
+  const [returnWaypointPlaceId, setReturnWaypointPlaceId] = useState("")
+  const [returnWaypointLat, setReturnWaypointLat] = useState("")
+  const [returnWaypointLng, setReturnWaypointLng] = useState("")
   const [returnPassengerCount, setReturnPassengerCount] = useState(0)
+  const [hasReturnWaypoint, setHasReturnWaypoint] = useState(false)
 
   // Form toggles
   const [personType, setPersonType] = useState<"individual" | "company">("individual")
@@ -106,106 +118,83 @@ export function ReservationFormTest() {
     strictBounds: false,
   })
 
+  const attachAutocomplete = (
+    g: any,
+    inputRef: React.RefObject<HTMLInputElement | null>,
+    setPlaceId: (v: string) => void,
+    setLat: (v: string) => void,
+    setLng: (v: string) => void,
+  ) => {
+    if (!inputRef.current) return
+    const opts = makeAutocompleteOptions(g)
+    const ac = new g.maps.places.Autocomplete(inputRef.current, opts)
+    let selected = false
+
+    ac.addListener("place_changed", () => {
+      selected = true
+      const place = ac.getPlace() || {}
+      const label = buildLabel(place)
+      if (inputRef.current && label) inputRef.current.value = label
+      setPlaceId(place.place_id || "")
+      const lat = place?.geometry?.location?.lat?.()
+      const lng = place?.geometry?.location?.lng?.()
+      setLat(typeof lat === "number" ? String(lat) : "")
+      setLng(typeof lng === "number" ? String(lng) : "")
+    })
+
+    inputRef.current.addEventListener("input", () => {
+      if (!selected) return
+      selected = false
+      setPlaceId(""); setLat(""); setLng("")
+    })
+  }
+
   const initOutboundAutocomplete = () => {
     const g = (window as any)?.google
-    if (!g?.maps?.places || !pickupAddressRef.current || !destinationAddressRef.current) return
+    if (!g?.maps?.places) return
+    attachAutocomplete(g, pickupAddressRef, setPickupPlaceId, setPickupLat, setPickupLng)
+    attachAutocomplete(g, destinationAddressRef, setDestinationPlaceId, setDestinationLat, setDestinationLng)
+  }
 
-    const opts = makeAutocompleteOptions(g)
-    const pickupAC = new g.maps.places.Autocomplete(pickupAddressRef.current, opts)
-    const destAC = new g.maps.places.Autocomplete(destinationAddressRef.current, opts)
-
-    let pickupSel = false, destSel = false
-
-    pickupAC.addListener("place_changed", () => {
-      pickupSel = true
-      const place = pickupAC.getPlace() || {}
-      const label = buildLabel(place)
-      if (pickupAddressRef.current && label) pickupAddressRef.current.value = label
-      setPickupPlaceId(place.place_id || "")
-      const lat = place?.geometry?.location?.lat?.()
-      const lng = place?.geometry?.location?.lng?.()
-      setPickupLat(typeof lat === "number" ? String(lat) : "")
-      setPickupLng(typeof lng === "number" ? String(lng) : "")
-    })
-
-    destAC.addListener("place_changed", () => {
-      destSel = true
-      const place = destAC.getPlace() || {}
-      const label = buildLabel(place)
-      if (destinationAddressRef.current && label) destinationAddressRef.current.value = label
-      setDestinationPlaceId(place.place_id || "")
-      const lat = place?.geometry?.location?.lat?.()
-      const lng = place?.geometry?.location?.lng?.()
-      setDestinationLat(typeof lat === "number" ? String(lat) : "")
-      setDestinationLng(typeof lng === "number" ? String(lng) : "")
-    })
-
-    pickupAddressRef.current.addEventListener("input", () => {
-      if (!pickupSel) return; pickupSel = false
-      setPickupPlaceId(""); setPickupLat(""); setPickupLng("")
-    })
-    destinationAddressRef.current.addEventListener("input", () => {
-      if (!destSel) return; destSel = false
-      setDestinationPlaceId(""); setDestinationLat(""); setDestinationLng("")
-    })
+  const initWaypointAutocomplete = () => {
+    const g = (window as any)?.google
+    if (!g?.maps?.places) return
+    attachAutocomplete(g, waypointAddressRef, setWaypointPlaceId, setWaypointLat, setWaypointLng)
+    waypointAutocompleteInitialized.current = true
   }
 
   const initReturnAutocomplete = () => {
     const g = (window as any)?.google
-    if (!g?.maps?.places || !returnPickupAddressRef.current || !returnDestinationAddressRef.current) return
-
-    const opts = makeAutocompleteOptions(g)
-    const pickupAC = new g.maps.places.Autocomplete(returnPickupAddressRef.current, opts)
-    const destAC = new g.maps.places.Autocomplete(returnDestinationAddressRef.current, opts)
-
-    let pickupSel = false, destSel = false
-
-    pickupAC.addListener("place_changed", () => {
-      pickupSel = true
-      const place = pickupAC.getPlace() || {}
-      const label = buildLabel(place)
-      if (returnPickupAddressRef.current && label) returnPickupAddressRef.current.value = label
-      setReturnPickupPlaceId(place.place_id || "")
-      const lat = place?.geometry?.location?.lat?.()
-      const lng = place?.geometry?.location?.lng?.()
-      setReturnPickupLat(typeof lat === "number" ? String(lat) : "")
-      setReturnPickupLng(typeof lng === "number" ? String(lng) : "")
-    })
-
-    destAC.addListener("place_changed", () => {
-      destSel = true
-      const place = destAC.getPlace() || {}
-      const label = buildLabel(place)
-      if (returnDestinationAddressRef.current && label) returnDestinationAddressRef.current.value = label
-      setReturnDestinationPlaceId(place.place_id || "")
-      const lat = place?.geometry?.location?.lat?.()
-      const lng = place?.geometry?.location?.lng?.()
-      setReturnDestinationLat(typeof lat === "number" ? String(lat) : "")
-      setReturnDestinationLng(typeof lng === "number" ? String(lng) : "")
-    })
-
-    returnPickupAddressRef.current.addEventListener("input", () => {
-      if (!pickupSel) return; pickupSel = false
-      setReturnPickupPlaceId(""); setReturnPickupLat(""); setReturnPickupLng("")
-    })
-    returnDestinationAddressRef.current.addEventListener("input", () => {
-      if (!destSel) return; destSel = false
-      setReturnDestinationPlaceId(""); setReturnDestinationLat(""); setReturnDestinationLng("")
-    })
-
+    if (!g?.maps?.places) return
+    attachAutocomplete(g, returnPickupAddressRef, setReturnPickupPlaceId, setReturnPickupLat, setReturnPickupLng)
+    attachAutocomplete(g, returnDestinationAddressRef, setReturnDestinationPlaceId, setReturnDestinationLat, setReturnDestinationLng)
     returnAutocompleteInitialized.current = true
   }
 
+  const initReturnWaypointAutocomplete = () => {
+    const g = (window as any)?.google
+    if (!g?.maps?.places) return
+    attachAutocomplete(g, returnWaypointAddressRef, setReturnWaypointPlaceId, setReturnWaypointLat, setReturnWaypointLng)
+    returnWaypointAutocompleteInitialized.current = true
+  }
+
   useEffect(() => {
-    if (!isReturnTrip) {
-      returnAutocompleteInitialized.current = false
-      return
-    }
-    if (mapsLoaded && !returnAutocompleteInitialized.current) {
-      initReturnAutocomplete()
-    }
+    if (!isReturnTrip) { returnAutocompleteInitialized.current = false; return }
+    if (mapsLoaded && !returnAutocompleteInitialized.current) initReturnAutocomplete()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isReturnTrip, mapsLoaded])
+
+  useEffect(() => {
+    if (!hasWaypoint) { waypointAutocompleteInitialized.current = false; return }
+    if (mapsLoaded && !waypointAutocompleteInitialized.current) initWaypointAutocomplete()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasWaypoint, mapsLoaded])
+
+  useEffect(() => {
+    if (!hasReturnWaypoint) { returnWaypointAutocompleteInitialized.current = false; return }
+    if (mapsLoaded && !returnWaypointAutocompleteInitialized.current) initReturnWaypointAutocomplete()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasReturnWaypoint, mapsLoaded])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -232,19 +221,14 @@ export function ReservationFormTest() {
     if (isReturnTrip) {
       const retPickup = formData.get("returnPickupAddress")?.toString().trim() || ""
       if (retPickup.length < 5) errors.returnPickupAddress = "Adresa vyzdvihnutia spiatočnej cesty je povinná."
-
       const retDest = formData.get("returnDestinationAddress")?.toString().trim() || ""
       if (retDest.length < 5) errors.returnDestinationAddress = "Cieľová adresa spiatočnej cesty je povinná."
-
       if (!formData.get("returnDate")) errors.returnDate = "Dátum spiatočnej cesty je povinný."
       if (!formData.get("returnTime")) errors.returnTime = "Čas spiatočnej cesty je povinný."
-
       const retPass = parseInt(formData.get("returnPassengers")?.toString() || "", 10)
       if (isNaN(retPass) || retPass < 1 || retPass > 20) errors.returnPassengers = "Počet pasažierov musí byť číslo od 1 do 20."
-
       const retVehicle = formData.get("returnVehicleCategory")?.toString() || ""
       if (!VEHICLE_CATEGORIES.includes(retVehicle)) errors.returnVehicleCategory = "Vyberte kategóriu vozidla spiatočnej cesty."
-
       if (!isReturnSamePassenger) {
         const retFirst = formData.get("returnPassengerFirstName")?.toString().trim() || ""
         const retLast = formData.get("returnPassengerLastName")?.toString().trim() || ""
@@ -286,11 +270,14 @@ export function ReservationFormTest() {
         setMarketingConsent(false)
         setPassengerCount(0)
         setReturnPassengerCount(0)
+        setHasWaypoint(false)
+        setHasReturnWaypoint(false)
         setPickupPlaceId(""); setPickupLat(""); setPickupLng("")
         setDestinationPlaceId(""); setDestinationLat(""); setDestinationLng("")
+        setWaypointPlaceId(""); setWaypointLat(""); setWaypointLng("")
         setReturnPickupPlaceId(""); setReturnPickupLat(""); setReturnPickupLng("")
         setReturnDestinationPlaceId(""); setReturnDestinationLat(""); setReturnDestinationLng("")
-
+        setReturnWaypointPlaceId(""); setReturnWaypointLat(""); setReturnWaypointLng("")
         setTimeout(() => {
           const el = document.getElementById("form-message")
           if (el) el.scrollIntoView({ behavior: "smooth", block: "center" })
@@ -309,6 +296,18 @@ export function ReservationFormTest() {
       setIsSubmitting(false)
     }
   }
+
+  const WaypointButton = ({ onClick }: { onClick: () => void }) => (
+    <div className="flex items-center gap-3 py-1">
+      <div className="flex-1 h-px bg-[#2a2a2a]" />
+      <button type="button" onClick={onClick} disabled={isSubmitting}
+        className="flex items-center gap-2 text-sm text-[#888888] hover:text-[#B88746] transition-colors whitespace-nowrap disabled:opacity-40">
+        + Pridať medzizastávku
+        <span className="text-xs border border-current/50 px-2 py-0.5 rounded-full text-[#B88746] border-[#B88746]/40">+10 EUR</span>
+      </button>
+      <div className="flex-1 h-px bg-[#2a2a2a]" />
+    </div>
+  )
 
   return (
     <section className="py-12 px-6 bg-[#1D1D1D]">
@@ -340,35 +339,29 @@ export function ReservationFormTest() {
       <div className="max-w-2xl mx-auto">
         <form ref={formRef} onSubmit={handleSubmit} className="space-y-8">
 
-          {/* Person Type Switcher */}
+          {/* Person Type */}
           <div className="flex gap-4 mb-4">
             <input type="hidden" name="personType" value={personType} />
             <button type="button" onClick={() => setPersonType("individual")}
               className={`flex-1 py-3 rounded-lg font-medium transition-colors ${personType === "individual" ? "bg-[#B88746] text-white" : "bg-[#1d1d1d] border border-[#333333] text-white hover:border-[#B88746]"}`}
-              aria-pressed={personType === "individual"}>
-              Fyzická osoba
-            </button>
+              aria-pressed={personType === "individual"}>Fyzická osoba</button>
             <button type="button" onClick={() => setPersonType("company")}
               className={`flex-1 py-3 rounded-lg font-medium transition-colors ${personType === "company" ? "bg-[#B88746] text-white" : "bg-[#1d1d1d] border border-[#333333] text-white hover:border-[#B88746]"}`}
-              aria-pressed={personType === "company"}>
-              Firma
-            </button>
+              aria-pressed={personType === "company"}>Firma</button>
           </div>
 
           {/* Name */}
           <div className="grid md:grid-cols-2 gap-8">
             <div>
               <label className="block text-sm font-medium mb-3 text-white">Meno*</label>
-              <Input name="firstName"
-                className={`bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors ${formState?.errors?.firstName ? "border-red-500 focus:border-red-500" : "focus:border-[#B88746]"}`}
-                placeholder="Meno" required disabled={isSubmitting} />
+              <Input name="firstName" placeholder="Meno" required disabled={isSubmitting}
+                className={`bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors ${formState?.errors?.firstName ? "border-red-500 focus:border-red-500" : "focus:border-[#B88746]"}`} />
               {formState?.errors?.firstName && <p className="text-red-500 text-sm mt-1 flex items-center gap-1"><AlertCircle className="w-4 h-4" />{formState.errors.firstName}</p>}
             </div>
             <div>
               <label className="block text-sm font-medium mb-3 text-white">Priezvisko*</label>
-              <Input name="lastName"
-                className={`bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors ${formState?.errors?.lastName ? "border-red-500 focus:border-red-500" : "focus:border-[#B88746]"}`}
-                placeholder="Priezvisko" required disabled={isSubmitting} />
+              <Input name="lastName" placeholder="Priezvisko" required disabled={isSubmitting}
+                className={`bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors ${formState?.errors?.lastName ? "border-red-500 focus:border-red-500" : "focus:border-[#B88746]"}`} />
               {formState?.errors?.lastName && <p className="text-red-500 text-sm mt-1 flex items-center gap-1"><AlertCircle className="w-4 h-4" />{formState.errors.lastName}</p>}
             </div>
           </div>
@@ -376,26 +369,23 @@ export function ReservationFormTest() {
           {personType === "company" && (
             <div>
               <label className="block text-sm font-medium mb-3 text-white">Názov spoločnosti*</label>
-              <Input name="companyName"
-                className={`bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors ${formState?.errors?.companyName ? "border-red-500 focus:border-red-500" : "focus:border-[#B88746]"}`}
-                placeholder="Názov spoločnosti" required={personType === "company"} disabled={isSubmitting} />
+              <Input name="companyName" placeholder="Názov spoločnosti" required={personType === "company"} disabled={isSubmitting}
+                className={`bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors ${formState?.errors?.companyName ? "border-red-500 focus:border-red-500" : "focus:border-[#B88746]"}`} />
               {formState?.errors?.companyName && <p className="text-red-500 text-sm mt-1 flex items-center gap-1"><AlertCircle className="w-4 h-4" />{formState.errors.companyName}</p>}
             </div>
           )}
 
           <div>
             <label className="block text-sm font-medium mb-3 text-white">E-mail*</label>
-            <Input type="email" name="email"
-              className={`bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors ${formState?.errors?.email ? "border-red-500 focus:border-red-500" : "focus:border-[#B88746]"}`}
-              placeholder="E-mail" required disabled={isSubmitting} />
+            <Input type="email" name="email" placeholder="E-mail" required disabled={isSubmitting}
+              className={`bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors ${formState?.errors?.email ? "border-red-500 focus:border-red-500" : "focus:border-[#B88746]"}`} />
             {formState?.errors?.email && <p className="text-red-500 text-sm mt-1 flex items-center gap-1"><AlertCircle className="w-4 h-4" />{formState.errors.email}</p>}
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-3 text-white">Tel číslo*</label>
-            <Input type="tel" name="phone"
-              className={`bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors ${formState?.errors?.phone ? "border-red-500 focus:border-red-500" : "focus:border-[#B88746]"}`}
-              placeholder="Telefónne číslo" required disabled={isSubmitting} />
+            <Input type="tel" name="phone" placeholder="Telefónne číslo" required disabled={isSubmitting}
+              className={`bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors ${formState?.errors?.phone ? "border-red-500 focus:border-red-500" : "focus:border-[#B88746]"}`} />
             {formState?.errors?.phone && <p className="text-red-500 text-sm mt-1 flex items-center gap-1"><AlertCircle className="w-4 h-4" />{formState.errors.phone}</p>}
           </div>
 
@@ -403,20 +393,42 @@ export function ReservationFormTest() {
           <div>
             <label className="block text-sm font-medium mb-3 text-white">Adresa vyzdvihnutia*</label>
             <Input ref={pickupAddressRef} name="pickupAddress"
-              className={`bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors ${formState?.errors?.pickupAddress ? "border-red-500 focus:border-red-500" : "focus:border-[#B88746]"}`}
-              placeholder="Zadajte adresu vyzdvihnutia (autocomplete)" required disabled={isSubmitting} />
+              placeholder="Zadajte adresu vyzdvihnutia (autocomplete)" required disabled={isSubmitting}
+              className={`bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors ${formState?.errors?.pickupAddress ? "border-red-500 focus:border-red-500" : "focus:border-[#B88746]"}`} />
             <input type="hidden" name="pickupPlaceId" value={pickupPlaceId} />
             <input type="hidden" name="pickupLat" value={pickupLat} />
             <input type="hidden" name="pickupLng" value={pickupLng} />
             {formState?.errors?.pickupAddress && <p className="text-red-500 text-sm mt-1 flex items-center gap-1"><AlertCircle className="w-4 h-4" />{formState.errors.pickupAddress}</p>}
           </div>
 
+          {/* Waypoint (main) */}
+          {!hasWaypoint ? (
+            <WaypointButton onClick={() => setHasWaypoint(true)} />
+          ) : (
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <label className="text-sm font-medium text-white">Medzizastávka</label>
+                <button type="button" disabled={isSubmitting}
+                  onClick={() => { setHasWaypoint(false); setWaypointPlaceId(""); setWaypointLat(""); setWaypointLng("") }}
+                  className="text-xs text-[#666666] hover:text-white transition-colors">
+                  × Odstrániť
+                </button>
+              </div>
+              <Input ref={waypointAddressRef} name="waypointAddress"
+                placeholder="Zadajte medzizastávku (autocomplete)" disabled={isSubmitting}
+                className="bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors focus:border-[#B88746]" />
+              <input type="hidden" name="waypointPlaceId" value={waypointPlaceId} />
+              <input type="hidden" name="waypointLat" value={waypointLat} />
+              <input type="hidden" name="waypointLng" value={waypointLng} />
+            </div>
+          )}
+
           {/* Destination */}
           <div>
             <label className="block text-sm font-medium mb-3 text-white">Cieľová adresa*</label>
             <Input ref={destinationAddressRef} name="destinationAddress"
-              className={`bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors ${formState?.errors?.destinationAddress ? "border-red-500 focus:border-red-500" : "focus:border-[#B88746]"}`}
-              placeholder="Zadajte cieľovú adresu (autocomplete)" required disabled={isSubmitting} />
+              placeholder="Zadajte cieľovú adresu (autocomplete)" required disabled={isSubmitting}
+              className={`bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors ${formState?.errors?.destinationAddress ? "border-red-500 focus:border-red-500" : "focus:border-[#B88746]"}`} />
             <input type="hidden" name="destinationPlaceId" value={destinationPlaceId} />
             <input type="hidden" name="destinationLat" value={destinationLat} />
             <input type="hidden" name="destinationLng" value={destinationLng} />
@@ -451,7 +463,6 @@ export function ReservationFormTest() {
                 onChange={(e) => setPassengerCount(Number(e.target.value))}
                 className={`bg-[#1d1d1d] border-[#333333] text-white rounded-lg py-3 transition-colors ${formState?.errors?.passengers ? "border-red-500 focus:border-red-500" : "focus:border-[#B88746]"}`}
                 required disabled={isSubmitting} />
-              {passengerCount >= 4 && passengerDisclaimer}
               {formState?.errors?.passengers && <p className="text-red-500 text-sm mt-1 flex items-center gap-1"><AlertCircle className="w-4 h-4" />{formState.errors.passengers}</p>}
             </div>
             <div className="flex items-center gap-3 md:pt-9">
@@ -459,20 +470,65 @@ export function ReservationFormTest() {
               <input id="returnTrip" type="checkbox" checked={isReturnTrip}
                 onChange={() => setIsReturnTrip(!isReturnTrip)}
                 disabled={isSubmitting} className="btw-checkbox" />
-              <label htmlFor="returnTrip" className="text-white select-none cursor-pointer">
-                Spiatočná cesta
-              </label>
+              <label htmlFor="returnTrip" className="text-white select-none cursor-pointer">Spiatočná cesta</label>
             </div>
           </div>
 
-          {/* Return trip section */}
+          {/* Passenger disclaimer — full width, below the grid */}
+          {passengerCount >= 4 && <PassengerDisclaimer />}
+
+          {/* Vehicle Category */}
+          <div>
+            <label className="block text-sm font-medium mb-3 text-white">Kategória vozidla*</label>
+            <select name="vehicleCategory" required disabled={isSubmitting}
+              className="w-full bg-[#1d1d1d] border border-[#333333] text-white rounded-lg py-3 px-4 transition-colors focus:border-[#B88746]">
+              <option value="">Vyberte kategóriu</option>
+              {VEHICLE_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+            {formState?.errors?.vehicleCategory && <p className="text-red-500 text-sm mt-1 flex items-center gap-1"><AlertCircle className="w-4 h-4" />{formState.errors.vehicleCategory}</p>}
+          </div>
+
+          {/* Main passenger toggle */}
+          <div className="flex items-center gap-3">
+            <input type="hidden" name="sameAsMainPassenger" value={isDifferentMainPassenger ? "false" : "true"} />
+            <input id="sameAsMainPassenger" type="checkbox" checked={!isDifferentMainPassenger}
+              onChange={() => setIsDifferentMainPassenger(!isDifferentMainPassenger)}
+              disabled={isSubmitting} className="btw-checkbox" />
+            <label htmlFor="sameAsMainPassenger" className="text-white select-none cursor-pointer">
+              Meno a priezvisko je totožné s hlavným pasažierom
+            </label>
+          </div>
+
+          {isDifferentMainPassenger && (
+            <div className="grid md:grid-cols-2 gap-8">
+              <div>
+                <label className="block text-sm font-medium mb-3 text-white">Meno pasažiera*</label>
+                <Input name="mainPassengerFirstName" placeholder="Meno pasažiera" required disabled={isSubmitting}
+                  className={`bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors ${formState?.errors?.mainPassengerFirstName ? "border-red-500 focus:border-red-500" : "focus:border-[#B88746]"}`} />
+                {formState?.errors?.mainPassengerFirstName && <p className="text-red-500 text-sm mt-1 flex items-center gap-1"><AlertCircle className="w-4 h-4" />{formState.errors.mainPassengerFirstName}</p>}
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-3 text-white">Priezvisko pasažiera*</label>
+                <Input name="mainPassengerLastName" placeholder="Priezvisko pasažiera" required disabled={isSubmitting}
+                  className={`bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors ${formState?.errors?.mainPassengerLastName ? "border-red-500 focus:border-red-500" : "focus:border-[#B88746]"}`} />
+                {formState?.errors?.mainPassengerLastName && <p className="text-red-500 text-sm mt-1 flex items-center gap-1"><AlertCircle className="w-4 h-4" />{formState.errors.mainPassengerLastName}</p>}
+              </div>
+            </div>
+          )}
+
+          {/* Flight number (outbound) */}
+          <div>
+            <label className="block text-sm font-medium mb-3 text-white">Číslo letu (voliteľné)</label>
+            <Input name="flightNumber" placeholder="Číslo letu" disabled={isSubmitting}
+              className="bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors focus:border-[#B88746]" />
+          </div>
+
+          {/* Return trip section — above payment */}
           {isReturnTrip && (
             <div>
               <div className="flex items-center gap-3 mb-8">
                 <div className="flex-1 h-px bg-[#B88746]/35" />
-                <span className="text-[#B88746] text-xs font-bold tracking-[0.15em] uppercase whitespace-nowrap">
-                  Spiatočná cesta
-                </span>
+                <span className="text-[#B88746] text-xs font-bold tracking-[0.15em] uppercase whitespace-nowrap">Spiatočná cesta</span>
                 <div className="flex-1 h-px bg-[#B88746]/35" />
               </div>
 
@@ -482,20 +538,42 @@ export function ReservationFormTest() {
                 <div>
                   <label className="block text-sm font-medium mb-3 text-white">Adresa vyzdvihnutia (spiatočná)*</label>
                   <Input ref={returnPickupAddressRef} name="returnPickupAddress"
-                    className={`bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors ${formState?.errors?.returnPickupAddress ? "border-red-500 focus:border-red-500" : "focus:border-[#B88746]"}`}
-                    placeholder="Zadajte adresu vyzdvihnutia (autocomplete)" disabled={isSubmitting} />
+                    placeholder="Zadajte adresu vyzdvihnutia (autocomplete)" disabled={isSubmitting}
+                    className={`bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors ${formState?.errors?.returnPickupAddress ? "border-red-500 focus:border-red-500" : "focus:border-[#B88746]"}`} />
                   <input type="hidden" name="returnPickupPlaceId" value={returnPickupPlaceId} />
                   <input type="hidden" name="returnPickupLat" value={returnPickupLat} />
                   <input type="hidden" name="returnPickupLng" value={returnPickupLng} />
                   {formState?.errors?.returnPickupAddress && <p className="text-red-500 text-sm mt-1 flex items-center gap-1"><AlertCircle className="w-4 h-4" />{formState.errors.returnPickupAddress}</p>}
                 </div>
 
+                {/* Waypoint (return) */}
+                {!hasReturnWaypoint ? (
+                  <WaypointButton onClick={() => setHasReturnWaypoint(true)} />
+                ) : (
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <label className="text-sm font-medium text-white">Medzizastávka (spiatočná)</label>
+                      <button type="button" disabled={isSubmitting}
+                        onClick={() => { setHasReturnWaypoint(false); setReturnWaypointPlaceId(""); setReturnWaypointLat(""); setReturnWaypointLng("") }}
+                        className="text-xs text-[#666666] hover:text-white transition-colors">
+                        × Odstrániť
+                      </button>
+                    </div>
+                    <Input ref={returnWaypointAddressRef} name="returnWaypointAddress"
+                      placeholder="Zadajte medzizastávku (autocomplete)" disabled={isSubmitting}
+                      className="bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors focus:border-[#B88746]" />
+                    <input type="hidden" name="returnWaypointPlaceId" value={returnWaypointPlaceId} />
+                    <input type="hidden" name="returnWaypointLat" value={returnWaypointLat} />
+                    <input type="hidden" name="returnWaypointLng" value={returnWaypointLng} />
+                  </div>
+                )}
+
                 {/* Return destination */}
                 <div>
                   <label className="block text-sm font-medium mb-3 text-white">Cieľová adresa (spiatočná)*</label>
                   <Input ref={returnDestinationAddressRef} name="returnDestinationAddress"
-                    className={`bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors ${formState?.errors?.returnDestinationAddress ? "border-red-500 focus:border-red-500" : "focus:border-[#B88746]"}`}
-                    placeholder="Zadajte cieľovú adresu (autocomplete)" disabled={isSubmitting} />
+                    placeholder="Zadajte cieľovú adresu (autocomplete)" disabled={isSubmitting}
+                    className={`bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors ${formState?.errors?.returnDestinationAddress ? "border-red-500 focus:border-red-500" : "focus:border-[#B88746]"}`} />
                   <input type="hidden" name="returnDestinationPlaceId" value={returnDestinationPlaceId} />
                   <input type="hidden" name="returnDestinationLat" value={returnDestinationLat} />
                   <input type="hidden" name="returnDestinationLng" value={returnDestinationLng} />
@@ -530,7 +608,6 @@ export function ReservationFormTest() {
                       onChange={(e) => setReturnPassengerCount(Number(e.target.value))}
                       className={`bg-[#1d1d1d] border-[#333333] text-white rounded-lg py-3 transition-colors ${formState?.errors?.returnPassengers ? "border-red-500 focus:border-red-500" : "focus:border-[#B88746]"}`}
                       disabled={isSubmitting} />
-                    {returnPassengerCount >= 4 && passengerDisclaimer}
                     {formState?.errors?.returnPassengers && <p className="text-red-500 text-sm mt-1 flex items-center gap-1"><AlertCircle className="w-4 h-4" />{formState.errors.returnPassengers}</p>}
                   </div>
                   <div>
@@ -543,6 +620,9 @@ export function ReservationFormTest() {
                     {formState?.errors?.returnVehicleCategory && <p className="text-red-500 text-sm mt-1 flex items-center gap-1"><AlertCircle className="w-4 h-4" />{formState.errors.returnVehicleCategory}</p>}
                   </div>
                 </div>
+
+                {/* Return passenger disclaimer — full width */}
+                {returnPassengerCount >= 4 && <PassengerDisclaimer />}
 
                 {/* Return passenger name */}
                 <div className="flex items-center gap-3">
@@ -559,16 +639,14 @@ export function ReservationFormTest() {
                   <div className="grid md:grid-cols-2 gap-8">
                     <div>
                       <label className="block text-sm font-medium mb-3 text-white">Meno pasažiera (spiatočná)*</label>
-                      <Input name="returnPassengerFirstName"
-                        className={`bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors ${formState?.errors?.returnPassengerFirstName ? "border-red-500 focus:border-red-500" : "focus:border-[#B88746]"}`}
-                        placeholder="Meno pasažiera" disabled={isSubmitting} />
+                      <Input name="returnPassengerFirstName" placeholder="Meno pasažiera" disabled={isSubmitting}
+                        className={`bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors ${formState?.errors?.returnPassengerFirstName ? "border-red-500 focus:border-red-500" : "focus:border-[#B88746]"}`} />
                       {formState?.errors?.returnPassengerFirstName && <p className="text-red-500 text-sm mt-1 flex items-center gap-1"><AlertCircle className="w-4 h-4" />{formState.errors.returnPassengerFirstName}</p>}
                     </div>
                     <div>
                       <label className="block text-sm font-medium mb-3 text-white">Priezvisko pasažiera (spiatočná)*</label>
-                      <Input name="returnPassengerLastName"
-                        className={`bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors ${formState?.errors?.returnPassengerLastName ? "border-red-500 focus:border-red-500" : "focus:border-[#B88746]"}`}
-                        placeholder="Priezvisko pasažiera" disabled={isSubmitting} />
+                      <Input name="returnPassengerLastName" placeholder="Priezvisko pasažiera" disabled={isSubmitting}
+                        className={`bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors ${formState?.errors?.returnPassengerLastName ? "border-red-500 focus:border-red-500" : "focus:border-[#B88746]"}`} />
                       {formState?.errors?.returnPassengerLastName && <p className="text-red-500 text-sm mt-1 flex items-center gap-1"><AlertCircle className="w-4 h-4" />{formState.errors.returnPassengerLastName}</p>}
                     </div>
                   </div>
@@ -577,63 +655,13 @@ export function ReservationFormTest() {
                 {/* Return flight number */}
                 <div>
                   <label className="block text-sm font-medium mb-3 text-white">Číslo letu — spiatočná cesta (voliteľné)</label>
-                  <Input name="returnFlightNumber"
-                    className="bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors focus:border-[#B88746]"
-                    placeholder="Číslo letu" disabled={isSubmitting} />
+                  <Input name="returnFlightNumber" placeholder="Číslo letu" disabled={isSubmitting}
+                    className="bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors focus:border-[#B88746]" />
                 </div>
 
               </div>
             </div>
           )}
-
-          {/* Vehicle Category */}
-          <div>
-            <label className="block text-sm font-medium mb-3 text-white">Kategória vozidla*</label>
-            <select name="vehicleCategory" required disabled={isSubmitting}
-              className="w-full bg-[#1d1d1d] border border-[#333333] text-white rounded-lg py-3 px-4 transition-colors focus:border-[#B88746]">
-              <option value="">Vyberte kategóriu</option>
-              {VEHICLE_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-            </select>
-            {formState?.errors?.vehicleCategory && <p className="text-red-500 text-sm mt-1 flex items-center gap-1"><AlertCircle className="w-4 h-4" />{formState.errors.vehicleCategory}</p>}
-          </div>
-
-          {/* Main passenger toggle */}
-          <div className="flex items-center gap-3">
-            <input type="hidden" name="sameAsMainPassenger" value={isDifferentMainPassenger ? "false" : "true"} />
-            <input id="sameAsMainPassenger" type="checkbox" checked={!isDifferentMainPassenger}
-              onChange={() => setIsDifferentMainPassenger(!isDifferentMainPassenger)}
-              disabled={isSubmitting} className="btw-checkbox" />
-            <label htmlFor="sameAsMainPassenger" className="text-white select-none cursor-pointer">
-              Meno a priezvisko je totožné s hlavným pasažierom
-            </label>
-          </div>
-
-          {isDifferentMainPassenger && (
-            <div className="grid md:grid-cols-2 gap-8">
-              <div>
-                <label className="block text-sm font-medium mb-3 text-white">Meno pasažiera*</label>
-                <Input name="mainPassengerFirstName"
-                  className={`bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors ${formState?.errors?.mainPassengerFirstName ? "border-red-500 focus:border-red-500" : "focus:border-[#B88746]"}`}
-                  placeholder="Meno pasažiera" required disabled={isSubmitting} />
-                {formState?.errors?.mainPassengerFirstName && <p className="text-red-500 text-sm mt-1 flex items-center gap-1"><AlertCircle className="w-4 h-4" />{formState.errors.mainPassengerFirstName}</p>}
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-3 text-white">Priezvisko pasažiera*</label>
-                <Input name="mainPassengerLastName"
-                  className={`bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors ${formState?.errors?.mainPassengerLastName ? "border-red-500 focus:border-red-500" : "focus:border-[#B88746]"}`}
-                  placeholder="Priezvisko pasažiera" required disabled={isSubmitting} />
-                {formState?.errors?.mainPassengerLastName && <p className="text-red-500 text-sm mt-1 flex items-center gap-1"><AlertCircle className="w-4 h-4" />{formState.errors.mainPassengerLastName}</p>}
-              </div>
-            </div>
-          )}
-
-          {/* Flight number (outbound) */}
-          <div>
-            <label className="block text-sm font-medium mb-3 text-white">Číslo letu (voliteľné)</label>
-            <Input name="flightNumber"
-              className="bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors focus:border-[#B88746]"
-              placeholder="Číslo letu" disabled={isSubmitting} />
-          </div>
 
           {/* Payment */}
           <div>
@@ -651,10 +679,9 @@ export function ReservationFormTest() {
           {/* Notes */}
           <div>
             <label className="block text-sm font-medium mb-3 text-white">Poznámky (voliteľné)</label>
-            <Textarea name="notes"
-              className="bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors focus:border-[#B88746] min-h-[120px]"
+            <Textarea name="notes" disabled={isSubmitting}
               placeholder="Napíšte doplňujúce informácie (batožina, autosedačka, preferencie, ...)"
-              disabled={isSubmitting} />
+              className="bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors focus:border-[#B88746] min-h-[120px]" />
           </div>
 
           {/* Honeypot */}
@@ -699,9 +726,7 @@ export function ReservationFormTest() {
               className="bg-[#B88746] hover:bg-[#A67C52] text-white px-10 py-3 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium">
               {isSubmitting ? (
                 <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Odosielam...</>
-              ) : (
-                "Odoslať nezáväzný dopyt"
-              )}
+              ) : "Odoslať nezáväzný dopyt"}
             </Button>
           </div>
 
