@@ -41,12 +41,31 @@ interface FormState {
   }
 }
 
+interface Waypoint {
+  id: string
+  placeId: string
+  lat: string
+  lng: string
+}
+
 const VEHICLE_CATEGORIES = ["Business Van", "Business Class", "First Class", "Nezáleží"]
+const MAX_WAYPOINTS = 5
 
 const PassengerDisclaimer = () => (
   <div className="p-4 rounded-lg border border-[#B88746]/40 bg-[#B88746]/10 text-sm text-[#D4A96A] leading-relaxed">
     <strong className="block mb-1 text-[#B88746]">Upozornenie na kapacitu vozidiel:</strong>
     Vozidlá kategórie Business Class a First Class majú maximálny počet pasažierov 3. Vozidlá kategórie Business Van majú maximálny počet pasažierov 7. V prípade presahujúceho počtu pasažierov zvolenej kategórie vozidla bude potrebné navýšiť počet vozidiel, čo znamená zvýšenie celkovej ceny za transfer.
+  </div>
+)
+
+const WaypointLimitDisclaimer = () => (
+  <div className="p-4 rounded-lg border border-[#B88746]/40 bg-[#B88746]/10 text-sm text-[#D4A96A] leading-relaxed">
+    <strong className="block mb-1 text-[#B88746]">Pre viac medzizastávok a komplexnejšiu objednávku nás kontaktujte individuálne:</strong>
+    <span className="block mt-1">
+      tel.: <a href="tel:+421905102220" className="underline hover:text-[#B88746]">+421 905 102 220</a>
+      &nbsp;&nbsp;|&nbsp;&nbsp;
+      email: <a href="mailto:btw@btw.sk" className="underline hover:text-[#B88746]">btw@btw.sk</a>
+    </span>
   </div>
 )
 
@@ -57,44 +76,40 @@ export function ReservationFormTest() {
 
   const [mapsLoaded, setMapsLoaded] = useState(false)
   const returnAutocompleteInitialized = useRef(false)
-  const waypointAutocompleteInitialized = useRef(false)
-  const returnWaypointAutocompleteInitialized = useRef(false)
+
+  // Waypoints
+  const [waypoints, setWaypoints] = useState<Waypoint[]>([])
+  const [returnWaypoints, setReturnWaypoints] = useState<Waypoint[]>([])
+  const waypointInputsRef = useRef<Record<string, HTMLInputElement | null>>({})
+  const returnWaypointInputsRef = useRef<Record<string, HTMLInputElement | null>>({})
+  const waypointAcInitialized = useRef<Set<string>>(new Set())
+  const returnWaypointAcInitialized = useRef<Set<string>>(new Set())
 
   // Main trip refs & state
   const dateInputRef = useRef<HTMLInputElement>(null)
   const timeInputRef = useRef<HTMLInputElement>(null)
   const pickupAddressRef = useRef<HTMLInputElement>(null)
   const destinationAddressRef = useRef<HTMLInputElement>(null)
-  const waypointAddressRef = useRef<HTMLInputElement>(null)
   const [pickupPlaceId, setPickupPlaceId] = useState("")
   const [pickupLat, setPickupLat] = useState("")
   const [pickupLng, setPickupLng] = useState("")
   const [destinationPlaceId, setDestinationPlaceId] = useState("")
   const [destinationLat, setDestinationLat] = useState("")
   const [destinationLng, setDestinationLng] = useState("")
-  const [waypointPlaceId, setWaypointPlaceId] = useState("")
-  const [waypointLat, setWaypointLat] = useState("")
-  const [waypointLng, setWaypointLng] = useState("")
   const [passengerCount, setPassengerCount] = useState(0)
-  const [hasWaypoint, setHasWaypoint] = useState(false)
 
   // Return trip refs & state
   const returnDateInputRef = useRef<HTMLInputElement>(null)
   const returnTimeInputRef = useRef<HTMLInputElement>(null)
   const returnPickupAddressRef = useRef<HTMLInputElement>(null)
   const returnDestinationAddressRef = useRef<HTMLInputElement>(null)
-  const returnWaypointAddressRef = useRef<HTMLInputElement>(null)
   const [returnPickupPlaceId, setReturnPickupPlaceId] = useState("")
   const [returnPickupLat, setReturnPickupLat] = useState("")
   const [returnPickupLng, setReturnPickupLng] = useState("")
   const [returnDestinationPlaceId, setReturnDestinationPlaceId] = useState("")
   const [returnDestinationLat, setReturnDestinationLat] = useState("")
   const [returnDestinationLng, setReturnDestinationLng] = useState("")
-  const [returnWaypointPlaceId, setReturnWaypointPlaceId] = useState("")
-  const [returnWaypointLat, setReturnWaypointLat] = useState("")
-  const [returnWaypointLng, setReturnWaypointLng] = useState("")
   const [returnPassengerCount, setReturnPassengerCount] = useState(0)
-  const [hasReturnWaypoint, setHasReturnWaypoint] = useState(false)
 
   // Form toggles
   const [personType, setPersonType] = useState<"individual" | "company">("individual")
@@ -129,7 +144,6 @@ export function ReservationFormTest() {
     const opts = makeAutocompleteOptions(g)
     const ac = new g.maps.places.Autocomplete(inputRef.current, opts)
     let selected = false
-
     ac.addListener("place_changed", () => {
       selected = true
       const place = ac.getPlace() || {}
@@ -141,7 +155,6 @@ export function ReservationFormTest() {
       setLat(typeof lat === "number" ? String(lat) : "")
       setLng(typeof lng === "number" ? String(lng) : "")
     })
-
     inputRef.current.addEventListener("input", () => {
       if (!selected) return
       selected = false
@@ -149,18 +162,44 @@ export function ReservationFormTest() {
     })
   }
 
+  const attachWaypointAutocomplete = (
+    g: any,
+    el: HTMLInputElement,
+    wpId: string,
+    setWps: React.Dispatch<React.SetStateAction<Waypoint[]>>,
+    acSet: React.MutableRefObject<Set<string>>,
+  ) => {
+    if (acSet.current.has(wpId)) return
+    const opts = makeAutocompleteOptions(g)
+    const ac = new g.maps.places.Autocomplete(el, opts)
+    let selected = false
+    ac.addListener("place_changed", () => {
+      selected = true
+      const place = ac.getPlace() || {}
+      const label = buildLabel(place)
+      if (label) el.value = label
+      const lat = place?.geometry?.location?.lat?.()
+      const lng = place?.geometry?.location?.lng?.()
+      setWps(prev => prev.map(w => w.id === wpId ? {
+        ...w,
+        placeId: place.place_id || "",
+        lat: typeof lat === "number" ? String(lat) : "",
+        lng: typeof lng === "number" ? String(lng) : "",
+      } : w))
+    })
+    el.addEventListener("input", () => {
+      if (!selected) return
+      selected = false
+      setWps(prev => prev.map(w => w.id === wpId ? { ...w, placeId: "", lat: "", lng: "" } : w))
+    })
+    acSet.current.add(wpId)
+  }
+
   const initOutboundAutocomplete = () => {
     const g = (window as any)?.google
     if (!g?.maps?.places) return
     attachAutocomplete(g, pickupAddressRef, setPickupPlaceId, setPickupLat, setPickupLng)
     attachAutocomplete(g, destinationAddressRef, setDestinationPlaceId, setDestinationLat, setDestinationLng)
-  }
-
-  const initWaypointAutocomplete = () => {
-    const g = (window as any)?.google
-    if (!g?.maps?.places) return
-    attachAutocomplete(g, waypointAddressRef, setWaypointPlaceId, setWaypointLat, setWaypointLng)
-    waypointAutocompleteInitialized.current = true
   }
 
   const initReturnAutocomplete = () => {
@@ -171,12 +210,28 @@ export function ReservationFormTest() {
     returnAutocompleteInitialized.current = true
   }
 
-  const initReturnWaypointAutocomplete = () => {
+  // Init autocomplete for new waypoints
+  useEffect(() => {
+    if (!mapsLoaded) return
     const g = (window as any)?.google
     if (!g?.maps?.places) return
-    attachAutocomplete(g, returnWaypointAddressRef, setReturnWaypointPlaceId, setReturnWaypointLat, setReturnWaypointLng)
-    returnWaypointAutocompleteInitialized.current = true
-  }
+    waypoints.forEach(wp => {
+      const el = waypointInputsRef.current[wp.id]
+      if (el) attachWaypointAutocomplete(g, el, wp.id, setWaypoints, waypointAcInitialized)
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [waypoints, mapsLoaded])
+
+  useEffect(() => {
+    if (!mapsLoaded) return
+    const g = (window as any)?.google
+    if (!g?.maps?.places) return
+    returnWaypoints.forEach(wp => {
+      const el = returnWaypointInputsRef.current[wp.id]
+      if (el) attachWaypointAutocomplete(g, el, wp.id, setReturnWaypoints, returnWaypointAcInitialized)
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [returnWaypoints, mapsLoaded])
 
   useEffect(() => {
     if (!isReturnTrip) { returnAutocompleteInitialized.current = false; return }
@@ -184,17 +239,27 @@ export function ReservationFormTest() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isReturnTrip, mapsLoaded])
 
-  useEffect(() => {
-    if (!hasWaypoint) { waypointAutocompleteInitialized.current = false; return }
-    if (mapsLoaded && !waypointAutocompleteInitialized.current) initWaypointAutocomplete()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasWaypoint, mapsLoaded])
+  const addWaypoint = () => {
+    if (waypoints.length >= MAX_WAYPOINTS) return
+    setWaypoints(prev => [...prev, { id: `wp-${Date.now()}`, placeId: "", lat: "", lng: "" }])
+  }
 
-  useEffect(() => {
-    if (!hasReturnWaypoint) { returnWaypointAutocompleteInitialized.current = false; return }
-    if (mapsLoaded && !returnWaypointAutocompleteInitialized.current) initReturnWaypointAutocomplete()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasReturnWaypoint, mapsLoaded])
+  const removeWaypoint = (id: string) => {
+    setWaypoints(prev => prev.filter(w => w.id !== id))
+    waypointAcInitialized.current.delete(id)
+    delete waypointInputsRef.current[id]
+  }
+
+  const addReturnWaypoint = () => {
+    if (returnWaypoints.length >= MAX_WAYPOINTS) return
+    setReturnWaypoints(prev => [...prev, { id: `rwp-${Date.now()}`, placeId: "", lat: "", lng: "" }])
+  }
+
+  const removeReturnWaypoint = (id: string) => {
+    setReturnWaypoints(prev => prev.filter(w => w.id !== id))
+    returnWaypointAcInitialized.current.delete(id)
+    delete returnWaypointInputsRef.current[id]
+  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -203,6 +268,18 @@ export function ReservationFormTest() {
 
     const formData = new FormData(e.currentTarget)
     formData.set("startedAt", String(startedAt))
+    formData.set("waypointCount", String(waypoints.length))
+    waypoints.forEach((wp, i) => {
+      formData.set(`waypointPlaceId_${i}`, wp.placeId)
+      formData.set(`waypointLat_${i}`, wp.lat)
+      formData.set(`waypointLng_${i}`, wp.lng)
+    })
+    formData.set("returnWaypointCount", String(returnWaypoints.length))
+    returnWaypoints.forEach((wp, i) => {
+      formData.set(`returnWaypointPlaceId_${i}`, wp.placeId)
+      formData.set(`returnWaypointLat_${i}`, wp.lat)
+      formData.set(`returnWaypointLng_${i}`, wp.lng)
+    })
 
     const errors: FormState["errors"] = {}
 
@@ -210,14 +287,12 @@ export function ReservationFormTest() {
       const companyName = formData.get("companyName")?.toString().trim() || ""
       if (!companyName) errors.companyName = "Názov spoločnosti je povinný."
     }
-
     if (isDifferentMainPassenger) {
       const mainFirstName = formData.get("mainPassengerFirstName")?.toString().trim() || ""
       const mainLastName = formData.get("mainPassengerLastName")?.toString().trim() || ""
       if (!mainFirstName) errors.mainPassengerFirstName = "Meno pasažiera je povinné."
       if (!mainLastName) errors.mainPassengerLastName = "Priezvisko pasažiera je povinné."
     }
-
     if (isReturnTrip) {
       const retPickup = formData.get("returnPickupAddress")?.toString().trim() || ""
       if (retPickup.length < 5) errors.returnPickupAddress = "Adresa vyzdvihnutia spiatočnej cesty je povinná."
@@ -236,7 +311,6 @@ export function ReservationFormTest() {
         if (retLast.length < 2) errors.returnPassengerLastName = "Priezvisko pasažiera je povinné."
       }
     }
-
     if (formData.get("gdprConsent") !== "true") {
       errors.gdprConsent = "Na odoslanie formulára je potrebný súhlas so spracovaním osobných údajov."
     }
@@ -248,15 +322,10 @@ export function ReservationFormTest() {
     }
 
     try {
-      const response = await fetch("/api/reservation", {
-        method: "POST",
-        body: formData,
-      })
-
+      const response = await fetch("/api/reservation", { method: "POST", body: formData })
       const rawText = await response.text()
       let result: any = null
       try { result = rawText ? JSON.parse(rawText) : null } catch { result = null }
-
       if (!response.ok && !result) throw new Error(`Request failed (${response.status})`)
 
       if (result?.success) {
@@ -270,24 +339,22 @@ export function ReservationFormTest() {
         setMarketingConsent(false)
         setPassengerCount(0)
         setReturnPassengerCount(0)
-        setHasWaypoint(false)
-        setHasReturnWaypoint(false)
+        setWaypoints([])
+        setReturnWaypoints([])
+        waypointAcInitialized.current.clear()
+        returnWaypointAcInitialized.current.clear()
+        waypointInputsRef.current = {}
+        returnWaypointInputsRef.current = {}
         setPickupPlaceId(""); setPickupLat(""); setPickupLng("")
         setDestinationPlaceId(""); setDestinationLat(""); setDestinationLng("")
-        setWaypointPlaceId(""); setWaypointLat(""); setWaypointLng("")
         setReturnPickupPlaceId(""); setReturnPickupLat(""); setReturnPickupLng("")
         setReturnDestinationPlaceId(""); setReturnDestinationLat(""); setReturnDestinationLng("")
-        setReturnWaypointPlaceId(""); setReturnWaypointLat(""); setReturnWaypointLng("")
         setTimeout(() => {
           const el = document.getElementById("form-message")
           if (el) el.scrollIntoView({ behavior: "smooth", block: "center" })
         }, 100)
       } else {
-        setFormState({
-          success: false,
-          message: result?.message || "Nastala chyba pri odosielaní správy.",
-          errors: result?.errors,
-        })
+        setFormState({ success: false, message: result?.message || "Nastala chyba pri odosielaní správy.", errors: result?.errors })
       }
     } catch (error) {
       console.error("Form submission error:", error)
@@ -297,16 +364,63 @@ export function ReservationFormTest() {
     }
   }
 
-  const WaypointButton = ({ onClick }: { onClick: () => void }) => (
+  const WaypointAddButton = ({ onClick }: { onClick: () => void }) => (
     <div className="flex items-center gap-3 py-1">
       <div className="flex-1 h-px bg-[#2a2a2a]" />
       <button type="button" onClick={onClick} disabled={isSubmitting}
         className="flex items-center gap-2 text-sm text-[#888888] hover:text-[#B88746] transition-colors whitespace-nowrap disabled:opacity-40">
         + Pridať medzizastávku
-        <span className="text-xs border border-current/50 px-2 py-0.5 rounded-full text-[#B88746] border-[#B88746]/40">+10 EUR</span>
+        <span className="text-xs border border-[#B88746]/40 text-[#B88746] px-2 py-0.5 rounded-full">+10 EUR</span>
       </button>
       <div className="flex-1 h-px bg-[#2a2a2a]" />
     </div>
+  )
+
+  const WaypointFields = ({
+    wps,
+    inputsRef,
+    onAdd,
+    onRemove,
+    namePrefix,
+  }: {
+    wps: Waypoint[]
+    inputsRef: React.MutableRefObject<Record<string, HTMLInputElement | null>>
+    onAdd: () => void
+    onRemove: (id: string) => void
+    namePrefix: string
+  }) => (
+    <>
+      {wps.map((wp, i) => (
+        <div key={wp.id}>
+          <div className="flex items-center justify-between mb-3">
+            <label className="text-sm font-medium text-white">
+              Medzizastávka {wps.length > 1 ? i + 1 : ""}
+            </label>
+            <button type="button" disabled={isSubmitting}
+              onClick={() => onRemove(wp.id)}
+              className="text-xs text-[#666666] hover:text-white transition-colors">
+              × Odstrániť
+            </button>
+          </div>
+          <Input
+            ref={(el) => { inputsRef.current[wp.id] = el }}
+            name={`${namePrefix}_${i}`}
+            placeholder="Zadajte medzizastávku (autocomplete)"
+            disabled={isSubmitting}
+            className="bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors focus:border-[#B88746]"
+          />
+          <input type="hidden" name={`${namePrefix}PlaceId_${i}`} value={wp.placeId} />
+          <input type="hidden" name={`${namePrefix}Lat_${i}`} value={wp.lat} />
+          <input type="hidden" name={`${namePrefix}Lng_${i}`} value={wp.lng} />
+        </div>
+      ))}
+
+      {wps.length < MAX_WAYPOINTS && (
+        <WaypointAddButton onClick={onAdd} />
+      )}
+
+      {wps.length === MAX_WAYPOINTS && <WaypointLimitDisclaimer />}
+    </>
   )
 
   return (
@@ -401,27 +515,14 @@ export function ReservationFormTest() {
             {formState?.errors?.pickupAddress && <p className="text-red-500 text-sm mt-1 flex items-center gap-1"><AlertCircle className="w-4 h-4" />{formState.errors.pickupAddress}</p>}
           </div>
 
-          {/* Waypoint (main) */}
-          {!hasWaypoint ? (
-            <WaypointButton onClick={() => setHasWaypoint(true)} />
-          ) : (
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <label className="text-sm font-medium text-white">Medzizastávka</label>
-                <button type="button" disabled={isSubmitting}
-                  onClick={() => { setHasWaypoint(false); setWaypointPlaceId(""); setWaypointLat(""); setWaypointLng("") }}
-                  className="text-xs text-[#666666] hover:text-white transition-colors">
-                  × Odstrániť
-                </button>
-              </div>
-              <Input ref={waypointAddressRef} name="waypointAddress"
-                placeholder="Zadajte medzizastávku (autocomplete)" disabled={isSubmitting}
-                className="bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors focus:border-[#B88746]" />
-              <input type="hidden" name="waypointPlaceId" value={waypointPlaceId} />
-              <input type="hidden" name="waypointLat" value={waypointLat} />
-              <input type="hidden" name="waypointLng" value={waypointLng} />
-            </div>
-          )}
+          {/* Waypoints (main) */}
+          <WaypointFields
+            wps={waypoints}
+            inputsRef={waypointInputsRef}
+            onAdd={addWaypoint}
+            onRemove={removeWaypoint}
+            namePrefix="waypointAddress"
+          />
 
           {/* Destination */}
           <div>
@@ -474,7 +575,6 @@ export function ReservationFormTest() {
             </div>
           </div>
 
-          {/* Passenger disclaimer — full width, below the grid */}
           {passengerCount >= 4 && <PassengerDisclaimer />}
 
           {/* Vehicle Category */}
@@ -516,14 +616,14 @@ export function ReservationFormTest() {
             </div>
           )}
 
-          {/* Flight number (outbound) */}
+          {/* Flight number */}
           <div>
             <label className="block text-sm font-medium mb-3 text-white">Číslo letu (voliteľné)</label>
             <Input name="flightNumber" placeholder="Číslo letu" disabled={isSubmitting}
               className="bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors focus:border-[#B88746]" />
           </div>
 
-          {/* Return trip section — above payment */}
+          {/* Return trip section */}
           {isReturnTrip && (
             <div>
               <div className="flex items-center gap-3 mb-8">
@@ -534,7 +634,6 @@ export function ReservationFormTest() {
 
               <div className="space-y-8 pl-4 border-l-2 border-[#B88746]/25">
 
-                {/* Return pickup */}
                 <div>
                   <label className="block text-sm font-medium mb-3 text-white">Adresa vyzdvihnutia (spiatočná)*</label>
                   <Input ref={returnPickupAddressRef} name="returnPickupAddress"
@@ -546,29 +645,15 @@ export function ReservationFormTest() {
                   {formState?.errors?.returnPickupAddress && <p className="text-red-500 text-sm mt-1 flex items-center gap-1"><AlertCircle className="w-4 h-4" />{formState.errors.returnPickupAddress}</p>}
                 </div>
 
-                {/* Waypoint (return) */}
-                {!hasReturnWaypoint ? (
-                  <WaypointButton onClick={() => setHasReturnWaypoint(true)} />
-                ) : (
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <label className="text-sm font-medium text-white">Medzizastávka (spiatočná)</label>
-                      <button type="button" disabled={isSubmitting}
-                        onClick={() => { setHasReturnWaypoint(false); setReturnWaypointPlaceId(""); setReturnWaypointLat(""); setReturnWaypointLng("") }}
-                        className="text-xs text-[#666666] hover:text-white transition-colors">
-                        × Odstrániť
-                      </button>
-                    </div>
-                    <Input ref={returnWaypointAddressRef} name="returnWaypointAddress"
-                      placeholder="Zadajte medzizastávku (autocomplete)" disabled={isSubmitting}
-                      className="bg-[#1d1d1d] border-[#333333] text-white placeholder:text-[#666666] rounded-lg py-3 transition-colors focus:border-[#B88746]" />
-                    <input type="hidden" name="returnWaypointPlaceId" value={returnWaypointPlaceId} />
-                    <input type="hidden" name="returnWaypointLat" value={returnWaypointLat} />
-                    <input type="hidden" name="returnWaypointLng" value={returnWaypointLng} />
-                  </div>
-                )}
+                {/* Waypoints (return) */}
+                <WaypointFields
+                  wps={returnWaypoints}
+                  inputsRef={returnWaypointInputsRef}
+                  onAdd={addReturnWaypoint}
+                  onRemove={removeReturnWaypoint}
+                  namePrefix="returnWaypointAddress"
+                />
 
-                {/* Return destination */}
                 <div>
                   <label className="block text-sm font-medium mb-3 text-white">Cieľová adresa (spiatočná)*</label>
                   <Input ref={returnDestinationAddressRef} name="returnDestinationAddress"
@@ -580,7 +665,6 @@ export function ReservationFormTest() {
                   {formState?.errors?.returnDestinationAddress && <p className="text-red-500 text-sm mt-1 flex items-center gap-1"><AlertCircle className="w-4 h-4" />{formState.errors.returnDestinationAddress}</p>}
                 </div>
 
-                {/* Return date + time */}
                 <div className="grid md:grid-cols-2 gap-8">
                   <div>
                     <label className="block text-sm font-medium mb-3 text-white">Dátum spiatočnej cesty*</label>
@@ -600,7 +684,6 @@ export function ReservationFormTest() {
                   </div>
                 </div>
 
-                {/* Return passengers + vehicle */}
                 <div className="grid md:grid-cols-2 gap-8">
                   <div>
                     <label className="block text-sm font-medium mb-3 text-white">Počet pasažierov (spiatočná)*</label>
@@ -621,10 +704,8 @@ export function ReservationFormTest() {
                   </div>
                 </div>
 
-                {/* Return passenger disclaimer — full width */}
                 {returnPassengerCount >= 4 && <PassengerDisclaimer />}
 
-                {/* Return passenger name */}
                 <div className="flex items-center gap-3">
                   <input type="hidden" name="returnSamePassenger" value={isReturnSamePassenger ? "true" : "false"} />
                   <input id="returnSamePassenger" type="checkbox" checked={isReturnSamePassenger}
@@ -652,7 +733,6 @@ export function ReservationFormTest() {
                   </div>
                 )}
 
-                {/* Return flight number */}
                 <div>
                   <label className="block text-sm font-medium mb-3 text-white">Číslo letu — spiatočná cesta (voliteľné)</label>
                   <Input name="returnFlightNumber" placeholder="Číslo letu" disabled={isSubmitting}
