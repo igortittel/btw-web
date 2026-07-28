@@ -115,6 +115,11 @@ export async function POST(request: NextRequest): Promise<NextResponse<Reservati
     const returnVehicleCategory = (payload["returnVehicleCategory"] as string) || ""
     const returnFlightNumber = (payload["returnFlightNumber"] as string) || ""
     const returnSamePassengerRaw = (payload["returnSamePassenger"] as string) || "true"
+
+    const waypointCount = Math.min(parseInt((payload["waypointCount"] as string) || "0", 10), 5)
+    const waypointAddresses: string[] = Array.from({ length: waypointCount }, (_, i) => (payload[`waypointAddress_${i}`] as string) || "")
+    const returnWaypointCount = Math.min(parseInt((payload["returnWaypointCount"] as string) || "0", 10), 5)
+    const returnWaypointAddresses: string[] = Array.from({ length: returnWaypointCount }, (_, i) => (payload[`returnWaypointAddress_${i}`] as string) || "")
     const returnSamePassenger = returnSamePassengerRaw !== "false"
     const returnPassengerFirstName = (payload["returnPassengerFirstName"] as string) || ""
     const returnPassengerLastName = (payload["returnPassengerLastName"] as string) || ""
@@ -195,6 +200,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<Reservati
       }
       if (!returnDate) {
         errors.returnDate = "Dátum spiatočnej cesty je povinný"
+      } else if (date && returnDate < date) {
+        errors.returnDate = "Dátum spiatočnej cesty nemôže byť skorší ako dátum primárnej cesty"
       }
       if (!returnTime) {
         errors.returnTime = "Čas spiatočnej cesty je povinný"
@@ -323,6 +330,11 @@ export async function POST(request: NextRequest): Promise<NextResponse<Reservati
                     <td style="padding: 10px 0; font-weight: 600; color: #555;">Vyzdvihnutie:</td>
                     <td style="padding: 10px 0;">${escapeHtml(pickupAddress)}</td>
                   </tr>
+                  ${waypointAddresses.map((addr, i) => addr ? `
+                  <tr>
+                    <td style="padding: 10px 0; font-weight: 600; color: #555;">Medzizastávka${waypointAddresses.length > 1 ? ` ${i + 1}` : ""}:</td>
+                    <td style="padding: 10px 0;">${escapeHtml(addr)}</td>
+                  </tr>` : "").join("")}
                   <tr>
                     <td style="padding: 10px 0; font-weight: 600; color: #555;">Cieľ:</td>
                     <td style="padding: 10px 0;">${escapeHtml(destinationAddress)}</td>
@@ -347,6 +359,11 @@ export async function POST(request: NextRequest): Promise<NextResponse<Reservati
                     <td style="padding: 10px 0; font-weight: 600; color: #555; width: 180px; vertical-align: top;">Vyzdvihnutie (sp.):</td>
                     <td style="padding: 10px 0;">${escapeHtml(returnPickupAddress)}</td>
                   </tr>
+                  ${returnWaypointAddresses.map((addr, i) => addr ? `
+                  <tr>
+                    <td style="padding: 10px 0; font-weight: 600; color: #555;">Medzizastávka${returnWaypointAddresses.length > 1 ? ` ${i + 1}` : ""} (sp.):</td>
+                    <td style="padding: 10px 0;">${escapeHtml(addr)}</td>
+                  </tr>` : "").join("")}
                   <tr>
                     <td style="padding: 10px 0; font-weight: 600; color: #555;">Cieľ (sp.):</td>
                     <td style="padding: 10px 0;">${escapeHtml(returnDestinationAddress)}</td>
@@ -455,6 +472,7 @@ ${personType === "company" ? `Firma: ${companyName}` : ""}
 Email: ${email}
 Telefón: ${phone}
 Vyzdvihnutie: ${pickupAddress}
+${waypointAddresses.filter(Boolean).map((addr, i) => `Medzizastávka${waypointAddresses.filter(Boolean).length > 1 ? ` ${i + 1}` : ""}: ${addr}`).join("\n")}
 Cieľ: ${destinationAddress}
 Dátum a čas: ${date} ${time}
 Pasažieri: ${passengers}
@@ -462,6 +480,7 @@ Spiatočná cesta: ${returnTrip ? "Áno" : "Nie"}
 ${returnTrip ? `
 ─── SPIATOČNÁ CESTA ───
 Vyzdvihnutie (sp.): ${returnPickupAddress}
+${returnWaypointAddresses.filter(Boolean).map((addr, i) => `Medzizastávka${returnWaypointAddresses.filter(Boolean).length > 1 ? ` ${i + 1}` : ""} (sp.): ${addr}`).join("\n")}
 Cieľ (sp.): ${returnDestinationAddress}
 Dátum a čas (sp.): ${returnDate} ${returnTime}
 Pasažieri (sp.): ${returnPassengersRaw}
@@ -538,6 +557,11 @@ Táto správa bola odoslaná z rezervačného formulára na bythewave.sk
                           <td style="padding:8px 0; color:#bdbdbd; width: 190px;">Vyzdvihnutie</td>
                           <td style="padding:8px 0; color:#fff;">${escapeHtml(pickupAddress)}</td>
                         </tr>
+                        ${waypointAddresses.map((addr, i) => addr ? `
+                        <tr>
+                          <td style="padding:8px 0; color:#bdbdbd;">Medzizastávka${waypointAddresses.length > 1 ? ` ${i + 1}` : ""}</td>
+                          <td style="padding:8px 0; color:#fff;">${escapeHtml(addr)}</td>
+                        </tr>` : "").join("")}
                         <tr>
                           <td style="padding:8px 0; color:#bdbdbd;">Cieľ</td>
                           <td style="padding:8px 0; color:#fff;">${escapeHtml(destinationAddress)}</td>
@@ -562,6 +586,11 @@ Táto správa bola odoslaná z rezervačného formulára na bythewave.sk
                           <td style="padding:8px 0; color:#bdbdbd;">Vyzdvihnutie (sp.)</td>
                           <td style="padding:8px 0; color:#fff;">${escapeHtml(returnPickupAddress)}</td>
                         </tr>
+                        ${returnWaypointAddresses.map((addr, i) => addr ? `
+                        <tr>
+                          <td style="padding:8px 0; color:#bdbdbd;">Medzizastávka${returnWaypointAddresses.length > 1 ? ` ${i + 1}` : ""} (sp.)</td>
+                          <td style="padding:8px 0; color:#fff;">${escapeHtml(addr)}</td>
+                        </tr>` : "").join("")}
                         <tr>
                           <td style="padding:8px 0; color:#bdbdbd;">Cieľ (sp.)</td>
                           <td style="padding:8px 0; color:#fff;">${escapeHtml(returnDestinationAddress)}</td>
@@ -619,6 +648,7 @@ Táto správa bola odoslaná z rezervačného formulára na bythewave.sk
               `ďakujeme za prejavenú dôveru. Váš dopyt na transfer sme úspešne prijali.\n\n` +
               `Informácie o dopyte:\n` +
               `Vyzdvihnutie: ${pickupAddress}\n` +
+              (waypointAddresses.filter(Boolean).length > 0 ? waypointAddresses.filter(Boolean).map((addr, i) => `Medzizastávka${waypointAddresses.filter(Boolean).length > 1 ? ` ${i + 1}` : ""}: ${addr}`).join("\n") + "\n" : "") +
               `Cieľ: ${destinationAddress}\n` +
               `Dátum a čas: ${date} ${time}\n` +
               `Počet pasažierov: ${passengers}\n` +
@@ -626,6 +656,7 @@ Táto správa bola odoslaná z rezervačného formulára na bythewave.sk
               (returnTrip ? (
                 `\n─── Spiatočná cesta ───\n` +
                 `Vyzdvihnutie: ${returnPickupAddress}\n` +
+                (returnWaypointAddresses.filter(Boolean).length > 0 ? returnWaypointAddresses.filter(Boolean).map((addr, i) => `Medzizastávka${returnWaypointAddresses.filter(Boolean).length > 1 ? ` ${i + 1}` : ""} (sp.): ${addr}`).join("\n") + "\n" : "") +
                 `Cieľ: ${returnDestinationAddress}\n` +
                 `Dátum a čas: ${returnDate} ${returnTime}\n` +
                 `Počet pasažierov: ${returnPassengersRaw}\n` +

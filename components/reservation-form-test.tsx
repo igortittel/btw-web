@@ -307,7 +307,13 @@ export function ReservationFormTest() {
     if (isReturnTrip) {
       if ((formData.get("returnPickupAddress")?.toString().trim() || "").length < 5) errors.returnPickupAddress = "Adresa vyzdvihnutia spiatočnej cesty je povinná."
       if ((formData.get("returnDestinationAddress")?.toString().trim() || "").length < 5) errors.returnDestinationAddress = "Cieľová adresa spiatočnej cesty je povinná."
-      if (!formData.get("returnDate")) errors.returnDate = "Dátum spiatočnej cesty je povinný."
+      const rdVal = formData.get("returnDate")?.toString() ?? ""
+      const primaryDateVal = formData.get("date")?.toString() ?? ""
+      if (!rdVal) {
+        errors.returnDate = "Dátum spiatočnej cesty je povinný."
+      } else if (primaryDateVal && rdVal < primaryDateVal) {
+        errors.returnDate = "Dátum spiatočnej cesty nemôže byť skorší ako dátum primárnej cesty."
+      }
       if (!formData.get("returnTime")) errors.returnTime = "Čas spiatočnej cesty je povinný."
       const rp = parseInt(formData.get("returnPassengers")?.toString() || "", 10)
       if (isNaN(rp) || rp < 1 || rp > 20) errors.returnPassengers = "Počet pasažierov musí byť číslo od 1 do 20."
