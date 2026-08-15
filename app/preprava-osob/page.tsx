@@ -390,7 +390,11 @@ export default function PrepravaOsobPage() {
             <Reveal y={24} delay={0.15}>
               <div className="mt-6">
                 <p className="text-base md:text-xl text-white/90 leading-relaxed">
-                  Súkromný transfer z Bratislavy a okolia na letisko Schwechat (VIE).
+                  Súkromný{" "}
+                  <Link href="/transfer-bratislava-schwechat" className="text-white/90 hover:text-[#B88746] transition-colors">
+                    transfer Bratislava – Schwechat
+                  </Link>
+                  {" "}(VIE), priamo na adresu.
                 </p>
 
                 {promo.active ? (
@@ -425,11 +429,6 @@ export default function PrepravaOsobPage() {
                   </Button>
                 </Link>
               </div>
-              <p className="mt-4 text-sm text-center text-white/50">
-                <Link href="/transfer-bratislava-schwechat" className="hover:text-[#B88746] transition-colors underline underline-offset-2">
-                  transfer Bratislava Schwechat
-                </Link>
-              </p>
             </Reveal>
           </div>
         </section>
