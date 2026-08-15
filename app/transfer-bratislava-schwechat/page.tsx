@@ -9,6 +9,7 @@ import Script from "next/script"
 import { VehicleCardDynamic } from "@/components/vehicle-card-dynamic"
 import { TransferSummerPromo } from "@/components/transfer-summer-promo"
 import { getPromoData } from "@/lib/promo"
+import { ExpandableSection } from "@/components/expandable-section"
 
 export const metadata: Metadata = {
   title: "Transfer Bratislava – Schwechat | Odvoz na letisko Viedeň (VIE) | By The Wave",
@@ -456,6 +457,120 @@ export default async function TransferBratislavaSchwechatPage() {
         </section>
 
  
+        {/* FAQ Schema */}
+        <Script
+          id="ld-json-faq-transfer-schwechat"
+          type="application/ld+json"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              mainEntity: [
+                {
+                  "@type": "Question",
+                  name: "Koľko stojí transfer z Bratislavy na letisko Schwechat?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Cena transferu je fixná za celé vozidlo, nie za osobu. Business class (Mercedes E-Class) stojí od 60 € počas letnej akcie do 15. septembra (bežná cena 73 €), Business Van (Mercedes V-Class) od 99 € počas akcie (bežná cena 110 €), First Class 125 €. Ceny sú konečné — keďže ide o medzinárodnú prepravu osôb, DPH sa v súlade so zákonom neuplatňuje.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Ako dlho trvá cesta z Bratislavy na letisko Schwechat?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Vzdialenosť Bratislava – Schwechat je približne 60 km a cesta trvá 45 – 60 minút v závislosti od premávky. Pri ranných letoch plánujeme vždy dostatočnú rezervu, aby ste dorazili načas.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Ako si môžem rezervovať transfer na letisko Schwechat?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Transfer si rezervujete cez náš online rezervačný formulár. Stačí zadať adresu vyzdvihnutia, dátum, čas odletu a číslo letu. Rezerváciu je potrebné urobiť minimálne 24 hodín vopred.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Čo ak má môj let meškanie?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Šoféri sledujú prílety priamo na webstránke letiska Schwechat. Ak má let meškanie, šofér to vie vopred a príde k terminálu načas – klient nečaká zbytočne a neplatí žiadny príplatok za čakanie.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Kde nás šofér vyzdvihne a kde nás vyloží na Schwechat?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Šofér vás vyzdvihne priamo na vašej adrese – doma, v hoteli alebo v práci. Na Schwechat vás dopravíme k príslušnému terminálu odletu. Pri prílete vyzdvihujeme klientov v príletovej hale.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Aké vozidlá používate na transfer Bratislava – Schwechat?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Na transfer ponúkame tri kategórie vozidiel: Business Class (Mercedes E-Class, kapacita 1–3 osoby s batožinou), Business Van (Mercedes V-Class, kapacita 6–8 osôb) a First Class. Všetky vozidlá majú klimatizáciu, priestranný interiér a dostatok miesta na batožinu.",
+                  },
+                },
+              ],
+            }),
+          }}
+        />
+
+        {/* FAQ Section */}
+        <section className="py-20 px-6 bg-[#0B0B0B]">
+          <div className="max-w-4xl mx-auto">
+            <Reveal y={24} delay={0.05}>
+              <h2 className="text-3xl md:text-4xl font-bold tracking-wide text-center">
+                Často kladené otázky
+              </h2>
+            </Reveal>
+
+            <Reveal y={24} delay={0.12}>
+              <div className="mt-10">
+                <ExpandableSection title="Koľko stojí transfer z Bratislavy na letisko Schwechat?">
+                  <p className="text-sm">
+                    Cena transferu je fixná za celé vozidlo, nie za osobu. Business class (Mercedes E-Class) stojí od 60 € počas letnej akcie do 15. septembra (bežná cena 73 €), Business Van (Mercedes V-Class) od 99 € počas akcie (bežná cena 110 €), First Class 125 €. Ceny sú konečné — keďže ide o medzinárodnú prepravu osôb, DPH sa v súlade so zákonom neuplatňuje.
+                  </p>
+                </ExpandableSection>
+
+                <ExpandableSection title="Ako dlho trvá cesta z Bratislavy na letisko Schwechat?">
+                  <p className="text-sm">
+                    Vzdialenosť Bratislava – Schwechat je približne 60 km a cesta trvá 45 – 60 minút v závislosti od premávky. Pri ranných letoch plánujeme vždy dostatočnú rezervu, aby ste dorazili načas.
+                  </p>
+                </ExpandableSection>
+
+                <ExpandableSection title="Ako si môžem rezervovať transfer na letisko Schwechat?">
+                  <p className="text-sm">
+                    Transfer si rezervujete cez náš online rezervačný formulár. Stačí zadať adresu vyzdvihnutia, dátum, čas odletu a číslo letu. Rezerváciu je potrebné urobiť minimálne 24 hodín vopred.
+                  </p>
+                </ExpandableSection>
+
+                <ExpandableSection title="Čo ak má môj let meškanie?">
+                  <p className="text-sm">
+                    Šoféri sledujú prílety priamo na webstránke letiska Schwechat. Ak má let meškanie, šofér to vie vopred a príde k terminálu načas – klient nečaká zbytočne a neplatí žiadny príplatok za čakanie.
+                  </p>
+                </ExpandableSection>
+
+                <ExpandableSection title="Kde nás šofér vyzdvihne a kde nás vyloží na Schwechat?">
+                  <p className="text-sm">
+                    Šofér vás vyzdvihne priamo na vašej adrese – doma, v hoteli alebo v práci. Na Schwechat vás dopravíme k príslušnému terminálu odletu. Pri prílete vyzdvihujeme klientov v príletovej hale.
+                  </p>
+                </ExpandableSection>
+
+                <ExpandableSection title="Aké vozidlá používate na transfer Bratislava – Schwechat?">
+                  <p className="text-sm">
+                    Na transfer ponúkame tri kategórie vozidiel: Business Class (Mercedes E-Class, kapacita 1–3 osoby s batožinou), Business Van (Mercedes V-Class, kapacita 6–8 osôb) a First Class. Všetky vozidlá majú klimatizáciu, priestranný interiér a dostatok miesta na batožinu.
+                  </p>
+                </ExpandableSection>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
       </main>
 
       <Footer />

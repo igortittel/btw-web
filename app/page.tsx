@@ -239,9 +239,14 @@ export default async function HomePage() {
                   </Button>
                 </Link>
               </div>
-            </Reveal>                
+              <p className="mt-4 text-sm text-center text-white/50">
+                <Link href="/transfer-bratislava-schwechat" className="hover:text-[#B88746] transition-colors underline underline-offset-2">
+                  transfer Bratislava Schwechat
+                </Link>
+              </p>
+            </Reveal>
           </div>
-        </section>  
+        </section>
 
       {/* Features Section */}
       <section className="py-20 px-6 bg-[#111111]">
