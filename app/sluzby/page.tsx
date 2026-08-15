@@ -11,6 +11,7 @@ import type { Metadata } from "next"
 import { VehicleShowcase } from "@/components/vehicle-showcase"
 import Image from "next/image"
 import { Reveal } from "@/components/Reveal"
+import { getPromoData } from "@/lib/promo"
 
 export const metadata: Metadata = {
   title: "Naše služby - Prenájom vozidiel a preprava osôb",
@@ -37,6 +38,8 @@ export const metadata: Metadata = {
 }
 
 export default function SluzbyPage() {
+  const promo = getPromoData()
+
   return (
     <div className="min-h-screen bg-[#000000] text-white">
       <ScrollToTop />
@@ -207,6 +210,9 @@ export default function SluzbyPage() {
                   "Pomoc s batožinou",
                   "Sledovanie času príletov a odletov",
                   "Individuálny transfer",
+                  promo.active
+                    ? `Letná akcia: od ${promo.eClass.odchod} € / vozidlo (pôvodná cena ${promo.eClass.regular} €, platí do 15. septembra)`
+                    : `Cena od ${promo.eClass.regular} € / vozidlo`,
                 ]}
                 description=""
                 buttonText="Rezervovať odvoz"
