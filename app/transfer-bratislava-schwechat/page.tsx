@@ -472,7 +472,7 @@ export default async function TransferBratislavaSchwechatPage() {
                   name: "Koľko stojí transfer z Bratislavy na letisko Schwechat?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "Cena transferu je fixná za celé vozidlo, nie za osobu. Business class (Mercedes E-Class) stojí od 60 € počas letnej akcie do 15. septembra (bežná cena 73 €), Business Van (Mercedes V-Class) od 99 € počas akcie (bežná cena 110 €), First Class 125 €. Ceny sú konečné — keďže ide o medzinárodnú prepravu osôb, DPH sa v súlade so zákonom neuplatňuje.",
+                    text: "Cena transferu je fixná za celé vozidlo, nie za osobu. Business Class (Mercedes E-Class) od 73 €, Business Van (Mercedes V-Class) od 110 €, First Class 125 €. Ceny sú konečné — keďže ide o medzinárodnú prepravu osôb, DPH sa v súlade so zákonom neuplatňuje.",
                   },
                 },
                 {
@@ -533,7 +533,7 @@ export default async function TransferBratislavaSchwechatPage() {
               <div className="mt-10">
                 <ExpandableSection title="Koľko stojí transfer z Bratislavy na letisko Schwechat?">
                   <p className="text-sm">
-                    Cena transferu je fixná za celé vozidlo, nie za osobu. Business class (Mercedes E-Class) stojí od 60 € počas letnej akcie do 15. septembra (bežná cena 73 €), Business Van (Mercedes V-Class) od 99 € počas akcie (bežná cena 110 €), First Class 125 €. Ceny sú konečné — keďže ide o medzinárodnú prepravu osôb, DPH sa v súlade so zákonom neuplatňuje.
+                    Cena transferu je fixná za celé vozidlo, nie za osobu. Business Class (Mercedes E-Class) od 73 €, Business Van (Mercedes V-Class) od 110 €, First Class 125 €. Ceny sú konečné — keďže ide o medzinárodnú prepravu osôb, DPH sa v súlade so zákonom neuplatňuje.
                   </p>
                 </ExpandableSection>
 
