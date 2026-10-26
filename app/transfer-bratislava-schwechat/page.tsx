@@ -331,13 +331,15 @@ export default async function TransferBratislavaSchwechatPage() {
                       {rows.map((row, i) => (
                         <div key={i} className={`border-t border-[#222222] ${i % 2 === 0 ? "bg-[#111111]" : "bg-[#151515]"}`}>
                           {/* Mobile */}
-                          <div className="md:hidden px-5 py-4">
-                            <p className="text-[#CCCCCC] text-sm mb-2">{row.service}</p>
-                            <div className="flex gap-4 text-sm">
-                              <span className="text-[#888888]">Class</span>
-                              <span className="text-white font-medium">{row.bc}</span>
-                              <span className="text-[#888888] ml-2">Van</span>
-                              <span className="text-white font-medium">{row.bv}</span>
+                          <div className="md:hidden px-5 py-4 space-y-1">
+                            <p className="text-[#CCCCCC] text-sm mb-3">{row.service}</p>
+                            <div className="flex justify-between items-center">
+                              <span className="text-[#B88746] text-xs uppercase tracking-widest font-medium">Business Class</span>
+                              <span className="text-white font-semibold text-sm">{row.bc}</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="text-[#B88746] text-xs uppercase tracking-widest font-medium">Business Van</span>
+                              <span className="text-white font-semibold text-sm">{row.bv}</span>
                             </div>
                           </div>
                           {/* Desktop */}

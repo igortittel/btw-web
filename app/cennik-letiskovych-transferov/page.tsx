@@ -134,27 +134,34 @@ export default function CennikLetiskovychTransferovPage() {
 
           <Reveal delay={0.08}>
             <div className="rounded-xl overflow-hidden border border-[#333333]">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="bg-[#1D1D1D]">
-                    <th className="text-left px-6 py-4 text-[#CCCCCC] font-medium w-full">Služba</th>
-                    <th className="text-center px-6 py-4 text-[#B88746] font-semibold whitespace-nowrap">Business Class</th>
-                    <th className="text-center px-6 py-4 text-[#B88746] font-semibold whitespace-nowrap">Business Van</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {surcharges.map((row, i) => (
-                    <tr
-                      key={i}
-                      className={`border-t border-[#222222] ${i % 2 === 0 ? "bg-[#111111]" : "bg-[#151515]"}`}
-                    >
-                      <td className="px-6 py-4 text-[#CCCCCC]">{row.service}</td>
-                      <td className="px-6 py-4 text-white text-center font-medium whitespace-nowrap">{row.businessClass}</td>
-                      <td className="px-6 py-4 text-white text-center font-medium whitespace-nowrap">{row.businessVan}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              {/* Desktop header */}
+              <div className="hidden md:grid md:grid-cols-[1fr_140px_140px] bg-[#1D1D1D]">
+                <span className="px-6 py-4 text-[#CCCCCC] font-medium text-sm">Služba</span>
+                <span className="px-6 py-4 text-[#B88746] font-semibold text-sm text-center">Business Class</span>
+                <span className="px-6 py-4 text-[#B88746] font-semibold text-sm text-center">Business Van</span>
+              </div>
+              {surcharges.map((row, i) => (
+                <div key={i} className={`border-t border-[#222222] ${i % 2 === 0 ? "bg-[#111111]" : "bg-[#151515]"}`}>
+                  {/* Mobile */}
+                  <div className="md:hidden px-5 py-4 space-y-1">
+                    <p className="text-[#CCCCCC] text-sm mb-3">{row.service}</p>
+                    <div className="flex justify-between items-center">
+                      <span className="text-[#B88746] text-xs uppercase tracking-widest font-medium">Business Class</span>
+                      <span className="text-white font-semibold text-sm">{row.businessClass}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-[#B88746] text-xs uppercase tracking-widest font-medium">Business Van</span>
+                      <span className="text-white font-semibold text-sm">{row.businessVan}</span>
+                    </div>
+                  </div>
+                  {/* Desktop */}
+                  <div className="hidden md:grid md:grid-cols-[1fr_140px_140px]">
+                    <span className="px-6 py-4 text-[#CCCCCC] text-sm">{row.service}</span>
+                    <span className="px-6 py-4 text-white text-center font-medium text-sm">{row.businessClass}</span>
+                    <span className="px-6 py-4 text-white text-center font-medium text-sm">{row.businessVan}</span>
+                  </div>
+                </div>
+              ))}
             </div>
           </Reveal>
         </div>
