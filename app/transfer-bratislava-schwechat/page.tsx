@@ -308,36 +308,49 @@ export default async function TransferBratislavaSchwechatPage() {
             {/* Surcharges Dropdown */}
             <Reveal delay={0.12}>
               <ExpandableSection title="Príplatky">
-                <div className="mt-4 rounded-xl overflow-hidden border border-[#333333]">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="bg-[#1D1D1D]">
-                        <th className="text-left px-5 py-3 text-[#CCCCCC] font-medium w-full">Služba</th>
-                        <th className="text-center px-5 py-3 text-[#B88746] font-semibold whitespace-nowrap">Business Class</th>
-                        <th className="text-center px-5 py-3 text-[#B88746] font-semibold whitespace-nowrap">Business Van</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {[
-                        { service: "Ďalšia adresa", bc: "+5 €", bv: "+5 €" },
-                        { service: "Nočný transfer (22:00 – 06:00)", bc: "+10 €", bv: "+10 €" },
-                        { service: "Parkovné – odlet", bc: "+3 €", bv: "+3 €" },
-                        { service: "Parkovné – prílet", bc: "+6 €", bv: "+6 €" },
-                        { service: "Vzdialené mestské časti: Devín, Devínska Nová Ves, Záhorská Bystrica, Čunovo", bc: "+10 €", bv: "+10 €" },
-                        { service: "Vajnory, Rusovce, Jarovce", bc: "+10 €", bv: "+10 €" },
-                        { service: "Čakanie nad rámec bezplatného času (každých začatých 30 min)", bc: "+20 €", bv: "+25 €" },
-                        { service: "Expresná objednávka do 3 hodín pred jazdou (podľa dostupnosti)", bc: "+10 €", bv: "+15 €" },
-                        { service: "Detská autosedačka", bc: "Zdarma", bv: "Zdarma" },
-                      ].map((row, i) => (
-                        <tr key={i} className={`border-t border-[#222222] ${i % 2 === 0 ? "bg-[#111111]" : "bg-[#151515]"}`}>
-                          <td className="px-5 py-3 text-[#CCCCCC]">{row.service}</td>
-                          <td className="px-5 py-3 text-white text-center font-medium whitespace-nowrap">{row.bc}</td>
-                          <td className="px-5 py-3 text-white text-center font-medium whitespace-nowrap">{row.bv}</td>
-                        </tr>
+                {(() => {
+                  const rows = [
+                    { service: "Ďalšia adresa", bc: "+5 €", bv: "+5 €" },
+                    { service: "Nočný transfer (22:00 – 06:00)", bc: "+10 €", bv: "+10 €" },
+                    { service: "Parkovné – odlet", bc: "+3 €", bv: "+3 €" },
+                    { service: "Parkovné – prílet", bc: "+6 €", bv: "+6 €" },
+                    { service: "Vzdialené mestské časti: Devín, Devínska Nová Ves, Záhorská Bystrica, Čunovo", bc: "+10 €", bv: "+10 €" },
+                    { service: "Vajnory, Rusovce, Jarovce", bc: "+10 €", bv: "+10 €" },
+                    { service: "Čakanie nad rámec bezplatného času (každých začatých 30 min)", bc: "+20 €", bv: "+25 €" },
+                    { service: "Expresná objednávka do 3 hodín pred jazdou (podľa dostupnosti)", bc: "+10 €", bv: "+15 €" },
+                    { service: "Detská autosedačka", bc: "Zdarma", bv: "Zdarma" },
+                  ]
+                  return (
+                    <div className="mt-4 rounded-xl overflow-hidden border border-[#333333]">
+                      {/* Desktop header */}
+                      <div className="hidden md:grid md:grid-cols-[1fr_140px_140px] bg-[#1D1D1D]">
+                        <span className="px-5 py-3 text-[#CCCCCC] font-medium text-sm">Služba</span>
+                        <span className="px-5 py-3 text-[#B88746] font-semibold text-sm text-center">Business Class</span>
+                        <span className="px-5 py-3 text-[#B88746] font-semibold text-sm text-center">Business Van</span>
+                      </div>
+                      {rows.map((row, i) => (
+                        <div key={i} className={`border-t border-[#222222] ${i % 2 === 0 ? "bg-[#111111]" : "bg-[#151515]"}`}>
+                          {/* Mobile */}
+                          <div className="md:hidden px-5 py-4">
+                            <p className="text-[#CCCCCC] text-sm mb-2">{row.service}</p>
+                            <div className="flex gap-4 text-sm">
+                              <span className="text-[#888888]">Class</span>
+                              <span className="text-white font-medium">{row.bc}</span>
+                              <span className="text-[#888888] ml-2">Van</span>
+                              <span className="text-white font-medium">{row.bv}</span>
+                            </div>
+                          </div>
+                          {/* Desktop */}
+                          <div className="hidden md:grid md:grid-cols-[1fr_140px_140px]">
+                            <span className="px-5 py-3 text-[#CCCCCC] text-sm">{row.service}</span>
+                            <span className="px-5 py-3 text-white text-center font-medium text-sm">{row.bc}</span>
+                            <span className="px-5 py-3 text-white text-center font-medium text-sm">{row.bv}</span>
+                          </div>
+                        </div>
                       ))}
-                    </tbody>
-                  </table>
-                </div>
+                    </div>
+                  )
+                })()}
               </ExpandableSection>
             </Reveal>
 
