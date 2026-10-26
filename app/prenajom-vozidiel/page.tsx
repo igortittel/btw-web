@@ -5,6 +5,7 @@ import { Footer } from "@/components/footer"
 import { ContactForm } from "@/components/contact-form"
 import { ExpandableSection } from "@/components/expandable-section"
 import { ScrollToTop } from "@/components/scroll-to-top"
+import { VehicleShowcase } from "@/components/vehicle-showcase"
 import Link from "next/link"
 import Script from "next/script"
 import type { Metadata } from "next"
@@ -214,6 +215,32 @@ export default function PrenajomVozidielPage() {
             </Reveal>
           </div>
 
+        </div>
+      </section>
+
+      {/* Vehicle Showcase */}
+      <section className="py-20 px-6 bg-[#1D1D1D] relative">
+        <div className="max-w-6xl mx-auto">
+          <Reveal y={24}>
+            <h2 className="text-4xl font-bold text-center mb-16 tracking-wide text-white">NAŠE VOZIDLÁ</h2>
+          </Reveal>
+          <div className="relative">
+            <VehicleShowcase />
+          </div>
+          <div className="text-center mt-8">
+            <Reveal delay={0.12}>
+              <Link href="/nase-vozidla">
+                <Button className="bg-[#B88746] hover:bg-[#A67C52] text-white font-medium px-6 py-2">
+                  Zobraziť všetky vozidlá
+                </Button>
+              </Link>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20 px-6 bg-[#111111]">
+        <div className="max-w-6xl mx-auto">
           {/* FAQ Sections */}
           <Reveal y={16} delay={0.22}>
             <div className="mb-16">

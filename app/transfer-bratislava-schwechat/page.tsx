@@ -163,7 +163,7 @@ export default async function TransferBratislavaSchwechatPage() {
 
                 {promo.active ? (
                   <div className="mt-6 flex flex-col items-center gap-1.5">
-                    <span className="text-base text-white/50 line-through">Pôvodná cena 73 €</span>
+                    <span className="text-base text-white/50 line-through">Pôvodná cena 65 €</span>
                     <div className="inline-flex items-center gap-3 rounded-full border border-[#B88746]/40 bg-[#B88746]/10 backdrop-blur-md px-7 py-3">
                       <span className="text-base md:text-xl font-semibold tracking-wide text-[#B88746]">
                         Už od 60 €
@@ -182,7 +182,7 @@ export default async function TransferBratislavaSchwechatPage() {
                 ) : (
                   <div className="mt-6 inline-flex items-center gap-4 rounded-full border border-white/20 bg-white/10 backdrop-blur-md px-7 py-3 shadow-[0_0_0_1px_rgba(255,255,255,0.05)]">
                     <span className="text-base md:text-xl font-semibold tracking-wide text-[#B88746]">
-                      Už od 73 €
+                      Už od 65 €
                     </span>
                     <span className="hidden sm:inline text-sm md:text-base text-white/80">
                       Bratislava – Schwechat
@@ -263,13 +263,110 @@ export default async function TransferBratislavaSchwechatPage() {
           </div>
         </section>
 
+        {/* Pricing Section */}
+        <section className="py-16 px-6 bg-[#000000]">
+          <div className="max-w-4xl mx-auto">
+            <Reveal y={24}>
+              <h2 className="text-3xl md:text-4xl font-bold tracking-wide text-white text-center mb-12">
+                Ceny transferov
+              </h2>
+            </Reveal>
+
+            {/* Price Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <Reveal y={24}>
+                <div className="bg-[#1A1A1A] border border-[#333333] rounded-xl p-8 flex flex-col items-center text-center hover:border-[#444444] transition-colors">
+                  <p className="text-xs uppercase tracking-widest text-[#B88746] font-semibold mb-4">Business Class</p>
+                  <p className="text-6xl font-bold text-white mb-1">65 €</p>
+                  <p className="text-[#CCCCCC] text-sm mb-6">za jednu jazdu</p>
+                  <div className="border-t border-[#333333] w-full pt-6 space-y-2">
+                    <p className="text-white font-medium">Mercedes-Benz E-Class</p>
+                    <p className="text-[#CCCCCC] text-sm">1 – 3 cestujúci</p>
+                  </div>
+                </div>
+              </Reveal>
+
+              <Reveal y={24} delay={0.08}>
+                <div className="bg-[#1A1A1A] border border-[#B88746] rounded-xl p-8 flex flex-col items-center text-center hover:border-[#D2A15E] transition-colors">
+                  <p className="text-xs uppercase tracking-widest text-[#B88746] font-semibold mb-4">Business Van</p>
+                  <p className="text-6xl font-bold text-white mb-1">99 €</p>
+                  <p className="text-[#CCCCCC] text-sm mb-6">za jednu jazdu</p>
+                  <div className="border-t border-[#333333] w-full pt-6 space-y-2">
+                    <p className="text-white font-medium">Mercedes-Benz V-Class</p>
+                    <p className="text-[#CCCCCC] text-sm">Business Van · štandardne 1 – 7 cestujúcich*</p>
+                  </div>
+                </div>
+              </Reveal>
+            </div>
+
+            <Reveal delay={0.1}>
+              <p className="text-[#666666] text-xs text-center mb-10">
+                * Kapacita závisí od konfigurácie konkrétneho vozidla a množstva batožiny.
+              </p>
+            </Reveal>
+
+            {/* Surcharges Dropdown */}
+            <Reveal delay={0.12}>
+              <ExpandableSection title="Príplatky">
+                <div className="mt-4 rounded-xl overflow-hidden border border-[#333333]">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-[#1D1D1D]">
+                        <th className="text-left px-5 py-3 text-[#CCCCCC] font-medium w-full">Služba</th>
+                        <th className="text-center px-5 py-3 text-[#B88746] font-semibold whitespace-nowrap">Business Class</th>
+                        <th className="text-center px-5 py-3 text-[#B88746] font-semibold whitespace-nowrap">Business Van</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        { service: "Ďalšia adresa", bc: "+5 €", bv: "+5 €" },
+                        { service: "Nočný transfer (22:00 – 06:00)", bc: "+10 €", bv: "+10 €" },
+                        { service: "Parkovné – odlet", bc: "+3 €", bv: "+3 €" },
+                        { service: "Parkovné – prílet", bc: "+6 €", bv: "+6 €" },
+                        { service: "Vzdialené mestské časti: Devín, Devínska Nová Ves, Záhorská Bystrica, Čunovo", bc: "+10 €", bv: "+10 €" },
+                        { service: "Vajnory, Rusovce, Jarovce", bc: "+10 €", bv: "+10 €" },
+                        { service: "Čakanie nad rámec bezplatného času (každých začatých 30 min)", bc: "+20 €", bv: "+25 €" },
+                        { service: "Expresná objednávka do 3 hodín pred jazdou (podľa dostupnosti)", bc: "+10 €", bv: "+15 €" },
+                        { service: "Detská autosedačka", bc: "Zdarma", bv: "Zdarma" },
+                      ].map((row, i) => (
+                        <tr key={i} className={`border-t border-[#222222] ${i % 2 === 0 ? "bg-[#111111]" : "bg-[#151515]"}`}>
+                          <td className="px-5 py-3 text-[#CCCCCC]">{row.service}</td>
+                          <td className="px-5 py-3 text-white text-center font-medium whitespace-nowrap">{row.bc}</td>
+                          <td className="px-5 py-3 text-white text-center font-medium whitespace-nowrap">{row.bv}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </ExpandableSection>
+            </Reveal>
+
+            {/* Conditions */}
+            <Reveal delay={0.14}>
+              <ul className="mt-10 space-y-3">
+                {[
+                  "Čakanie pri prílete: prvých 60 minút od pristátia zdarma pri sledovaní letu.",
+                  "Čakanie pri odchode z Bratislavy: prvých 10 minút zdarma.",
+                  "Storno: viac ako 24 hodín pred jazdou zdarma; menej ako 24 hodín 50 % ceny; nedostavenie sa bez zrušenia 100 % ceny.",
+                  "Platba: kartou, hotovosťou alebo na faktúru po schválení.",
+                ].map((condition, i) => (
+                  <li key={i} className="flex items-start gap-3 text-[#CCCCCC] text-sm">
+                    <span className="mt-1 w-1.5 h-1.5 rounded-full bg-[#B88746] flex-shrink-0" />
+                    {condition}
+                  </li>
+                ))}
+              </ul>
+            </Reveal>
+          </div>
+        </section>
+
         {/* Vehicles Section */}
         <section className="py-10 px-6 bg-[#111111]">
           <div className="max-w-6xl mx-auto">
             <Reveal y={16} delay={0.02}>
               <h2 className="text-3xl md:text-4xl font-bold tracking-wide text-white text-center">
                 Vozidlá
-                <span className="block text-[#B88746]">na prenájom a transfer</span>
+                <span className="block text-[#B88746]">na transfer</span>
               </h2>
             </Reveal>
 
@@ -472,7 +569,7 @@ export default async function TransferBratislavaSchwechatPage() {
                   name: "Koľko stojí transfer z Bratislavy na letisko Schwechat?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "Cena transferu je fixná za celé vozidlo, nie za osobu. Business Class (Mercedes E-Class) od 73 €, Business Van (Mercedes V-Class) od 110 €, First Class 125 €. Ceny sú konečné — keďže ide o medzinárodnú prepravu osôb, DPH sa v súlade so zákonom neuplatňuje.",
+                    text: "Cena transferu je fixná za celé vozidlo, nie za osobu. Business Class (Mercedes E-Class) od 65 €, Business Van (Mercedes V-Class) od 110 €, First Class 125 €. Ceny sú konečné — keďže ide o medzinárodnú prepravu osôb, DPH sa v súlade so zákonom neuplatňuje.",
                   },
                 },
                 {
@@ -533,7 +630,7 @@ export default async function TransferBratislavaSchwechatPage() {
               <div className="mt-10">
                 <ExpandableSection title="Koľko stojí transfer z Bratislavy na letisko Schwechat?">
                   <p className="text-sm">
-                    Cena transferu je fixná za celé vozidlo, nie za osobu. Business Class (Mercedes E-Class) od 73 €, Business Van (Mercedes V-Class) od 110 €, First Class 125 €. Ceny sú konečné — keďže ide o medzinárodnú prepravu osôb, DPH sa v súlade so zákonom neuplatňuje.
+                    Cena transferu je fixná za celé vozidlo, nie za osobu. Business Class (Mercedes E-Class) od 65 €, Business Van (Mercedes V-Class) od 110 €, First Class 125 €. Ceny sú konečné — keďže ide o medzinárodnú prepravu osôb, DPH sa v súlade so zákonom neuplatňuje.
                   </p>
                 </ExpandableSection>
 

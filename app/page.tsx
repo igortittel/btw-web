@@ -215,7 +215,7 @@ export default async function HomePage() {
 
                 {promo.active ? (
                   <div className="mt-6 flex flex-col items-center gap-1.5">
-                    <span className="text-base text-white/50 line-through">Pôvodná cena 73 €</span>
+                    <span className="text-base text-white/50 line-through">Pôvodná cena 65 €</span>
                     <div className="inline-flex items-center gap-3 rounded-full border border-[#B88746]/40 bg-[#B88746]/10 backdrop-blur-md px-7 py-3">
                       <span className="text-base md:text-xl font-semibold tracking-wide text-[#B88746]">
                         Transfer už od 60 €
@@ -226,7 +226,7 @@ export default async function HomePage() {
                 ) : (
                   <div className="mt-6 inline-flex items-center gap-4 rounded-full border border-white/20 bg-white/10 backdrop-blur-md px-7 py-3 shadow-[0_0_0_1px_rgba(255,255,255,0.05)]">
                     <span className="text-base md:text-xl font-semibold tracking-wide text-[#B88746]">
-                      Už od 73 €
+                      Už od 65 €
                     </span>
                     <span className="hidden sm:inline text-sm md:text-base text-white/80">
                       Bratislava – Schwechat

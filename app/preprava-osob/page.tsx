@@ -403,7 +403,7 @@ export default function PrepravaOsobPage() {
                       Už od 60 €
                     </span>
                     <span className="hidden sm:inline text-sm text-white/40 line-through">
-                      73 €
+                      65 €
                     </span>
                     <span className="hidden sm:inline text-xs uppercase tracking-widest text-[#B88746]/70">
                       Letná akcia
@@ -412,7 +412,7 @@ export default function PrepravaOsobPage() {
                 ) : (
                   <div className="mt-6 inline-flex items-center gap-4 rounded-full border border-white/20 bg-white/10 backdrop-blur-md px-7 py-3 shadow-[0_0_0_1px_rgba(255,255,255,0.05)]">
                     <span className="text-base md:text-xl font-semibold tracking-wide text-[#B88746]">
-                      Už od 73 €
+                      Už od 65 €
                     </span>
                     <span className="hidden sm:inline text-sm md:text-base text-white/80">
                       Bratislava – Schwechat
@@ -432,10 +432,39 @@ export default function PrepravaOsobPage() {
             </Reveal>
           </div>
         </section>
+        </div>
+      </section>
 
+      {/* Vehicle Showcase */}
+      <section className="py-20 px-6 bg-[#1D1D1D] relative">
+        <div className="max-w-6xl mx-auto">
+          <Reveal y={24}>
+            <h2 className="text-4xl font-bold text-center mb-16 tracking-wide text-white">NAŠE VOZIDLÁ</h2>
+          </Reveal>
+
+          <Reveal y={32} delay={0.08}>
+            <div className="relative">
+              <VehicleShowcase />
+            </div>
+          </Reveal>
+
+          <Reveal y={16} delay={0.12}>
+            <div className="text-center mt-8">
+              <Link href="/nase-vozidla">
+                <Button className="bg-[#B88746] hover:bg-[#A67C52] text-white font-medium px-6 py-2">
+                  Zobraziť všetky vozidlá
+                </Button>
+              </Link>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      <section className="py-20 px-6 bg-[#111111]">
+        <div className="max-w-6xl mx-auto">
           {/* FAQ Sections */}
           <Reveal y={32}>
-            <div className="mt-24 mb-16">
+            <div className="mb-16">
               <ExpandableSection title="Ako si môžem objednať prepravu?">
                 <p className="text-sm">
                   Prepravu si viete objednať online cez náš rezervačný formulár alebo telefonicky. Stačí uviesť
@@ -491,31 +520,6 @@ export default function PrepravaOsobPage() {
                   alebo nevyužití prepravy sa môže účtovať storno poplatok. Detaily vždy uvádzame v potvrdení rezervácie.
                 </p>
               </ExpandableSection>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* Vehicle Showcase */}
-      <section className="py-20 px-6 bg-[#1D1D1D] relative">
-        <div className="max-w-6xl mx-auto">
-          <Reveal y={24}>
-            <h2 className="text-4xl font-bold text-center mb-16 tracking-wide text-white">NAŠE VOZIDLÁ</h2>
-          </Reveal>
-
-          <Reveal y={32} delay={0.08}>
-            <div className="relative">
-              <VehicleShowcase />
-            </div>
-          </Reveal>
-
-          <Reveal y={16} delay={0.12}>
-            <div className="text-center mt-8">
-              <Link href="/nase-vozidla">
-                <Button className="bg-[#B88746] hover:bg-[#A67C52] text-white font-medium px-6 py-2">
-                  Zobraziť všetky vozidlá
-                </Button>
-              </Link>
             </div>
           </Reveal>
         </div>

@@ -45,14 +45,6 @@ export function Header() {
             Služby
           </Link>
           <Link
-            href="/nase-vozidla"
-            className={`text-[#CCCCCC] hover:text-white transition-colors ${
-              isActiveLink("/nase-vozidla") ? "border-b-2 border-[#B88746] text-white" : ""
-            }`}
-          >
-            Naše vozidlá
-          </Link>
-          <Link
             href="/prenajom-vozidiel"
             className={`text-[#CCCCCC] hover:text-white transition-colors ${
               isActiveLink("/prenajom-vozidiel") ? "border-b-2 border-[#B88746] text-white" : ""
@@ -102,15 +94,6 @@ export function Header() {
               onClick={() => setIsMenuOpen(false)}
             >
               Služby
-            </Link>
-            <Link
-              href="/nase-vozidla"
-              className={`text-[#CCCCCC] hover:text-white transition-colors text-lg ${
-                isActiveLink("/nase-vozidla") ? "border-b-2 border-[#B88746] text-white pb-2" : ""
-              }`}
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Naše vozidlá
             </Link>
             <Link
               href="/prenajom-vozidiel"

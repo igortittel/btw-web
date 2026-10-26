@@ -309,7 +309,7 @@ export default function BlogArticlePage() {
                       {
                         label: "Základná cena",
                         bus: "5–10 € / osoba",
-                        transfer: "od 73 € / vozidlo",
+                        transfer: "od 65 € / vozidlo",
                         transferNote: true,
                       },
                       {
