@@ -199,6 +199,25 @@ const faqItems = [
   },
 ]
 
+type PriceRow = {
+  label: string
+  bus: string
+  transfer: string
+  busNeg?: boolean
+  transferPos?: boolean
+  transferNote?: boolean
+}
+
+const priceRows: PriceRow[] = [
+  { label: "Základná cena", bus: "5–10 € / osoba", transfer: "od 65 € / vozidlo", transferNote: true },
+  { label: "Doprava na zastávku", bus: "+ 8–12 € (Bolt/taxi)", busNeg: true, transfer: "—", transferPos: true },
+  { label: "Vyzdvihnutie mimo Bratislavy", bus: "nutný prestup", busNeg: true, transfer: "priamo na adrese", transferPos: true },
+  { label: "Dostupnosť 24 / 7", bus: "podľa cestovného poriadku", busNeg: true, transfer: "áno", transferPos: true },
+  { label: "Pomoc s batožinou", bus: "nie", busNeg: true, transfer: "áno", transferPos: true },
+  { label: "Meškanie letu pri prílete", bus: "riziko zmeškaného spoja", busNeg: true, transfer: "šofér čaká", transferPos: true },
+  { label: "Nočný taxík (havarijný scenár)", bus: "+ 90–130 €", busNeg: true, transfer: "—", transferPos: true },
+]
+
 export default function BlogArticlePage() {
   return (
     <div className="min-h-screen bg-[#000000] text-white">
@@ -289,10 +308,10 @@ export default function BlogArticlePage() {
               </p>
             </Reveal>
 
-            {/* Price table */}
+            {/* Price table — desktop */}
             <Reveal y={20} delay={0.1}>
-              <div className="mt-6 mb-4 overflow-x-auto rounded-xl border border-[#1a1a1a]">
-                <table className="w-full text-sm min-w-[480px]">
+              <div className="mt-6 mb-4 hidden md:block overflow-x-auto rounded-xl border border-[#1a1a1a]">
+                <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-[#1a1a1a]">
                       <th className="text-left px-5 py-4 text-[#555] font-medium w-[42%]" />
@@ -305,56 +324,7 @@ export default function BlogArticlePage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#111]">
-                    {[
-                      {
-                        label: "Základná cena",
-                        bus: "5–10 € / osoba",
-                        transfer: "od 65 € / vozidlo",
-                        transferNote: true,
-                      },
-                      {
-                        label: "Doprava na zastávku",
-                        bus: "+ 8–12 € (Bolt/taxi)",
-                        busNeg: true,
-                        transfer: "—",
-                        transferPos: true,
-                      },
-                      {
-                        label: "Vyzdvihnutie mimo Bratislavy",
-                        bus: "nutný prestup",
-                        busNeg: true,
-                        transfer: "priamo na adrese",
-                        transferPos: true,
-                      },
-                      {
-                        label: "Dostupnosť 24 / 7",
-                        bus: "podľa cestovného poriadku",
-                        busNeg: true,
-                        transfer: "áno",
-                        transferPos: true,
-                      },
-                      {
-                        label: "Pomoc s batožinou",
-                        bus: "nie",
-                        busNeg: true,
-                        transfer: "áno",
-                        transferPos: true,
-                      },
-                      {
-                        label: "Meškanie letu pri prílete",
-                        bus: "riziko zmeškaného spoja",
-                        busNeg: true,
-                        transfer: "šofér čaká",
-                        transferPos: true,
-                      },
-                      {
-                        label: "Nočný taxík (havarijný scenár)",
-                        bus: "+ 90–130 €",
-                        busNeg: true,
-                        transfer: "—",
-                        transferPos: true,
-                      },
-                    ].map((row, i) => (
+                    {priceRows.map((row, i) => (
                       <tr key={i} className={i % 2 === 0 ? "bg-[#0a0a0a]" : "bg-[#080808]"}>
                         <td className="px-5 py-3.5 text-[#888]">{row.label}</td>
                         <td className={`px-5 py-3.5 text-center ${row.busNeg ? "text-[#aa4444]" : "text-[#777]"}`}>
@@ -376,6 +346,44 @@ export default function BlogArticlePage() {
                     </tr>
                   </tfoot>
                 </table>
+              </div>
+
+              {/* Price table — mobile (karty) */}
+              <div className="mt-6 mb-4 md:hidden space-y-3" role="table" aria-label="Porovnanie nákladov: autobus vs. súkromný transfer">
+                {priceRows.map((row, i) => (
+                  <div
+                    key={i}
+                    role="row"
+                    className="rounded-xl border border-[#1a1a1a] bg-[#0a0a0a] overflow-hidden"
+                  >
+                    <div className="px-4 py-3 border-b border-[#1a1a1a] bg-[#0d0d0d]">
+                      <p className="text-[13px] font-medium text-white leading-snug">
+                        {row.label}
+                      </p>
+                    </div>
+                    <dl className="grid grid-cols-2 divide-x divide-[#141414] text-sm">
+                      <div className="px-4 py-3">
+                        <dt className="text-[11px] uppercase tracking-wider text-[#666] mb-1">
+                          Autobus
+                        </dt>
+                        <dd className={`leading-snug ${row.busNeg ? "text-[#c25555]" : "text-[#aaa]"}`}>
+                          {row.bus}
+                        </dd>
+                      </div>
+                      <div className="px-4 py-3">
+                        <dt className="text-[11px] uppercase tracking-wider text-[#B88746]/70 mb-1">
+                          Transfer
+                        </dt>
+                        <dd className={`leading-snug font-medium ${row.transferPos ? "text-[#B88746]" : row.transferNote ? "text-white" : "text-[#aaa]"}`}>
+                          {row.transfer}
+                        </dd>
+                      </div>
+                    </dl>
+                  </div>
+                ))}
+                <p className="px-1 pt-1 text-[11px] text-[#555] leading-snug">
+                  * Cena transferu je za celé vozidlo — pri 2+ cestujúcich sa delí.
+                </p>
               </div>
             </Reveal>
 
