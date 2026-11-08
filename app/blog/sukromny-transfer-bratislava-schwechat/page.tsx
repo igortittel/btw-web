@@ -338,11 +338,17 @@ export default function BlogArticlePage() {
                   </tbody>
                   <tfoot>
                     <tr className="border-t border-[#222]">
-                      <td className="px-5 py-4 text-[#555] text-xs">
-                        * Cena transferu je za celé vozidlo — pri 2+ cestujúcich sa delí.
+                      <td colSpan={3} className="px-5 py-4 text-[#666] text-xs leading-relaxed space-y-1">
+                        <p>
+                          * Ceny autobusových spojov (Slovak Lines, RegioJet) a súvisiacich
+                          nákladov (taxi/Bolt) sú orientačné — platné v čase publikácie
+                          článku a závisia od dopravcu, tarify, dňa a dostupnosti miest.
+                          Aktuálnu sadzbu odporúčame overiť priamo u dopravcu.
+                        </p>
+                        <p>
+                          ** Cena transferu je za celé vozidlo — pri 2+ cestujúcich sa delí.
+                        </p>
                       </td>
-                      <td />
-                      <td />
                     </tr>
                   </tfoot>
                 </table>
@@ -381,9 +387,17 @@ export default function BlogArticlePage() {
                     </dl>
                   </div>
                 ))}
-                <p className="px-1 pt-1 text-[11px] text-[#555] leading-snug">
-                  * Cena transferu je za celé vozidlo — pri 2+ cestujúcich sa delí.
-                </p>
+                <div className="px-1 pt-1 space-y-1.5 text-[11px] text-[#666] leading-snug">
+                  <p>
+                    * Ceny autobusových spojov (Slovak Lines, RegioJet) a súvisiacich
+                    nákladov (taxi/Bolt) sú orientačné — platné v čase publikácie článku
+                    a závisia od dopravcu, tarify, dňa a dostupnosti miest. Aktuálnu
+                    sadzbu odporúčame overiť priamo u dopravcu.
+                  </p>
+                  <p>
+                    ** Cena transferu je za celé vozidlo — pri 2+ cestujúcich sa delí.
+                  </p>
+                </div>
               </div>
             </Reveal>
 
