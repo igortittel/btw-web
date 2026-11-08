@@ -90,3 +90,65 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Google Places autocomplete — dark theme shared across forms (/rezervacie + /objednavka) */
+.pac-container {
+  background: #1d1d1d;
+  border: 1px solid #333333;
+  border-radius: 10px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+  z-index: 99999;
+  overflow: hidden;
+}
+.pac-container .pac-item {
+  color: #ffffff;
+  padding: 10px 12px;
+  border-top: 1px solid #2a2a2a;
+  cursor: pointer;
+  font-size: 14px;
+}
+.pac-container .pac-item:first-child {
+  border-top: none;
+}
+.pac-container .pac-item:hover {
+  background: #141414;
+}
+.pac-container .pac-item-query {
+  color: #ffffff;
+}
+.pac-container .pac-matched {
+  color: #b88746;
+  font-weight: 700;
+}
+
+/* Custom checkbox shared across forms */
+input.btw-checkbox {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 1px solid #333333;
+  background: #1d1d1d;
+  border-radius: 4px;
+  display: inline-block;
+  vertical-align: middle;
+  cursor: pointer;
+  transition: border-color 150ms ease, background-color 150ms ease;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 14px 14px;
+  flex-shrink: 0;
+}
+input.btw-checkbox:checked {
+  border-color: #b88746;
+  background-color: #b88746;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6L9 17l-5-5'/%3E%3C/svg%3E");
+}
+input.btw-checkbox:focus-visible {
+  outline: 2px solid rgba(184, 135, 70, 0.6);
+  outline-offset: 2px;
+}
+input.btw-checkbox:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
