@@ -1,10 +1,19 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { verifyVariantPrice, CLASS_LABEL, type VehicleClass } from "@/lib/pricing"
-import { isAirportPlace } from "@/lib/schwechat"
+import { CLASS_LABEL, type PriceLine, type VehicleClass } from "@/lib/pricing"
+import { parseTrip, priceSelection } from "@/lib/quote"
 
 export const runtime = "nodejs"
 
-type PlaceDTO = { address: string; placeId: string; lat: number; lng: number; types?: string[] }
+type PlaceDTO = {
+  address: string
+  placeId: string
+  lat: number
+  lng: number
+  types?: string[]
+  locality?: string
+  sublocality?: string
+  postalCode?: string
+}
 type OrderBody = {
   trip: {
     pickup: PlaceDTO
@@ -24,6 +33,7 @@ type OrderBody = {
     vehicleCount: number
     pricePerVehicle: number
     totalPrice: number
+    breakdown?: PriceLine[]
   }
   customer: {
     firstName: string
@@ -89,8 +99,14 @@ function buildAdminHtml(body: OrderBody, logoUrl: string): string {
           <table style="width:100%;font-size:14px;color:#333;">
             <tr><td style="padding:4px 0;color:#777;">Trieda:</td><td style="padding:4px 0;">${CLASS_LABEL[variant.class]} ${variant.vehicleCount > 1 ? `× ${variant.vehicleCount}` : ""}</td></tr>
             <tr><td style="padding:4px 0;color:#777;">Vzdialenosť:</td><td style="padding:4px 0;">${distance.km.toLocaleString("sk-SK")} km (${distance.source === "google" ? "Google Maps" : "odhad"})</td></tr>
+            ${(variant.breakdown ?? [])
+              .map(
+                l =>
+                  `<tr><td style="padding:2px 0 2px 10px;color:#777;font-size:13px;">${escapeHtml(l.label)}</td><td style="padding:2px 0;font-size:13px;">${formatEur(l.amount)} €</td></tr>`,
+              )
+              .join("")}
             <tr><td style="padding:4px 0;color:#777;">Cena / vozidlo:</td><td style="padding:4px 0;">${formatEur(variant.pricePerVehicle)} €</td></tr>
-            <tr><td style="padding:8px 0;color:#333;font-weight:700;">Celkom:</td><td style="padding:8px 0;color:#B88746;font-weight:700;font-size:18px;">${formatEur(variant.totalPrice)} €</td></tr>
+            <tr><td style="padding:8px 0;color:#333;font-weight:700;">Celkom bez DPH:</td><td style="padding:8px 0;color:#B88746;font-weight:700;font-size:18px;">${formatEur(variant.totalPrice)} €</td></tr>
           </table>
         </div>
 
@@ -137,6 +153,7 @@ function buildCustomerHtml(body: OrderBody, logoUrl: string): string {
         <div style="background:#f8f9fa;padding:16px;border-left:4px solid #B88746;border-radius:4px;margin:20px 0;">
           <strong style="color:#333;">${CLASS_LABEL[variant.class]}</strong>${variant.vehicleCount > 1 ? ` × ${variant.vehicleCount}` : ""}<br/>
           <span style="color:#B88746;font-size:22px;font-weight:bold;">${formatEur(variant.totalPrice)} €</span>
+          <span style="color:#777;font-size:12px;"> bez DPH</span>
         </div>
         <p style="font-size:13px;color:#777;">
           V prípade zmien nás kontaktujte na
@@ -156,9 +173,6 @@ function validate(body: OrderBody): { ok: true } | { ok: false; error: string } 
   }
   if (!body.trip.date || !body.trip.time) {
     return { ok: false, error: "Chýba dátum alebo čas." }
-  }
-  if (!body.distance?.km || body.distance.km <= 0) {
-    return { ok: false, error: "Chýba výpočet vzdialenosti." }
   }
   if (!body.variant || !body.variant.class) {
     return { ok: false, error: "Chýba výber vozidla." }
@@ -191,29 +205,25 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: valid.error }, { status: 400 })
   }
 
-  // Anti-tamper: recompute price from trusted inputs
-  const destIsAirport = isAirportPlace(body.trip.destination.placeId, body.trip.destination.types)
-  const priceOk = verifyVariantPrice(
-    {
-      km: body.distance.km,
-      pax: body.trip.pax,
-      destIsAirport,
-      isReturnTrip: body.trip.isReturnTrip,
-      waypointCount: body.trip.waypoints?.length ?? 0,
-      preferredClass: null,
-    },
-    {
-      class: body.variant.class,
-      vehicleCount: body.variant.vehicleCount,
-      totalPrice: body.variant.totalPrice,
-    },
-  )
-  if (!priceOk) {
+  // Anti-tamper: recompute the price on the server and use it for the e-mails
+  const trip = parseTrip(body.trip)
+  if (typeof trip === "string") {
+    return NextResponse.json({ error: trip }, { status: 400 })
+  }
+  const priced = await priceSelection(trip, body.variant.class, body.variant.vehicleCount)
+  if (!priced) {
+    return NextResponse.json({ error: "Neplatný výber vozidla." }, { status: 400 })
+  }
+  const submitted = Number(body.variant.totalPrice)
+  const tolerance = Math.max(2, priced.variant.totalPrice * 0.03)
+  if (!Number.isFinite(submitted) || Math.abs(priced.variant.totalPrice - submitted) > tolerance) {
     return NextResponse.json(
-      { error: "Cena vypršala, prosím obnovte výpočet." },
+      { error: "Cena sa medzičasom zmenila, prosím obnovte výpočet." },
       { status: 400 },
     )
   }
+  body.variant = priced.variant
+  body.distance = priced.distance
 
   const RESEND_KEY = process.env.RESEND_API_KEY
   if (!RESEND_KEY) {

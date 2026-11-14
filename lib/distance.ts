@@ -10,7 +10,7 @@ export type DistanceResult = {
 
 const HAVERSINE_ROAD_FACTOR = 1.3
 const EARTH_RADIUS_KM = 6371
-const DISTANCE_MATRIX_TIMEOUT_MS = 3000
+const DISTANCE_MATRIX_TIMEOUT_MS = 5000
 
 function toRad(deg: number): number {
   return (deg * Math.PI) / 180
@@ -37,6 +37,7 @@ export function haversineRouteKm(points: LatLng[]): number {
 
 function getApiKey(): string | null {
   return (
+    process.env.GOOGLE_ROUTES_API_KEY ||
     process.env.GOOGLE_DISTANCE_MATRIX_API_KEY ||
     process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ||
     null
@@ -45,7 +46,54 @@ function getApiKey(): string | null {
 
 type GoogleLegInput = { origin: string; destination: string }
 
+function routesWaypoint(ref: string): Record<string, unknown> {
+  if (ref.startsWith("place_id:")) return { placeId: ref.slice("place_id:".length) }
+  const [lat, lng] = ref.split(",").map(Number)
+  return { location: { latLng: { latitude: lat, longitude: lng } } }
+}
+
+/** Google Routes API (computeRoutes) – the current, non-legacy API. */
+async function fetchRoutesLeg(
+  { origin, destination }: GoogleLegInput,
+  apiKey: string,
+  signal: AbortSignal,
+): Promise<{ meters: number; seconds: number } | null> {
+  const res = await fetch("https://routes.googleapis.com/directions/v2:computeRoutes", {
+    method: "POST",
+    signal,
+    cache: "no-store",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Goog-Api-Key": apiKey,
+      "X-Goog-FieldMask": "routes.distanceMeters,routes.duration",
+    },
+    body: JSON.stringify({
+      origin: routesWaypoint(origin),
+      destination: routesWaypoint(destination),
+      travelMode: "DRIVE",
+      languageCode: "sk",
+    }),
+  })
+  if (!res.ok) return null
+  const data = (await res.json()) as { routes?: Array<{ distanceMeters?: number; duration?: string }> }
+  const r = data.routes?.[0]
+  if (!r || typeof r.distanceMeters !== "number") return null
+  const seconds = Number.parseInt((r.duration || "0s").replace("s", ""), 10) || 0
+  return { meters: r.distanceMeters, seconds }
+}
+
+/** Routes API first; legacy Distance Matrix as a second chance. */
 async function fetchGoogleLeg(
+  leg: GoogleLegInput,
+  apiKey: string,
+  signal: AbortSignal,
+): Promise<{ meters: number; seconds: number } | null> {
+  const viaRoutes = await fetchRoutesLeg(leg, apiKey, signal).catch(() => null)
+  if (viaRoutes) return viaRoutes
+  return fetchDistanceMatrixLeg(leg, apiKey, signal)
+}
+
+async function fetchDistanceMatrixLeg(
   { origin, destination }: GoogleLegInput,
   apiKey: string,
   signal: AbortSignal,
@@ -78,67 +126,79 @@ async function fetchGoogleLeg(
 }
 
 /**
- * Compute route distance across pickup → waypoints → destination.
- * Each place is addressed by Google Place ID ("place_id:<id>" format accepted by API).
- * Falls back to haversine × 1.3 when API key missing, timeout, or any leg fails.
+ * Distance for a set of legs (each leg = from → to). Duplicate legs are fetched once.
+ * Points with a placeId are addressed as "place_id:<id>", others by "lat,lng".
+ * Any leg Google can't answer falls back to haversine × 1.3 and marks the
+ * whole result as "haversine" (estimate).
  */
-export async function computeRouteDistance(
-  pickup: { placeId: string; lat: number; lng: number },
-  destination: { placeId: string; lat: number; lng: number },
-  waypoints: Array<{ placeId: string; lat: number; lng: number }>,
-): Promise<DistanceResult> {
+export type LegPoint = { placeId?: string; lat: number; lng: number }
+
+export type LegsResult = {
+  km: (from: LegPoint, to: LegPoint) => number
+  durationSec: (from: LegPoint, to: LegPoint) => number
+  source: DistanceSource
+}
+
+function pointRef(p: LegPoint): string {
+  return p.placeId ? `place_id:${p.placeId}` : `${p.lat.toFixed(6)},${p.lng.toFixed(6)}`
+}
+
+function legKey(a: LegPoint, b: LegPoint): string {
+  return `${pointRef(a)}|${pointRef(b)}`
+}
+
+export async function computeLegs(legs: Array<[LegPoint, LegPoint]>): Promise<LegsResult> {
+  const unique = new Map<string, [LegPoint, LegPoint]>()
+  for (const [a, b] of legs) unique.set(legKey(a, b), [a, b])
+
+  const results = new Map<string, { km: number; sec: number }>()
+  let source: DistanceSource = "google"
   const apiKey = getApiKey()
-  const allPoints: LatLng[] = [
-    { lat: pickup.lat, lng: pickup.lng },
-    ...waypoints.map(w => ({ lat: w.lat, lng: w.lng })),
-    { lat: destination.lat, lng: destination.lng },
-  ]
-
-  if (!apiKey) {
-    return {
-      km: round1(haversineRouteKm(allPoints)),
-      durationSec: estimateDurationSec(haversineRouteKm(allPoints)),
-      source: "haversine",
-    }
-  }
-
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), DISTANCE_MATRIX_TIMEOUT_MS)
+
   try {
-    const stops = [pickup, ...waypoints, destination]
-    const legs: GoogleLegInput[] = []
-    for (let i = 0; i < stops.length - 1; i++) {
-      legs.push({
-        origin: `place_id:${stops[i].placeId}`,
-        destination: `place_id:${stops[i + 1].placeId}`,
-      })
-    }
-    const results = await Promise.all(
-      legs.map(leg => fetchGoogleLeg(leg, apiKey, controller.signal)),
+    await Promise.all(
+      Array.from(unique.entries()).map(async ([key, [a, b]]) => {
+        if (pointRef(a) === pointRef(b)) {
+          results.set(key, { km: 0, sec: 0 })
+          return
+        }
+        let r: { meters: number; seconds: number } | null = null
+        if (apiKey) {
+          try {
+            r = await fetchGoogleLeg(
+              { origin: pointRef(a), destination: pointRef(b) },
+              apiKey,
+              controller.signal,
+            )
+          } catch {
+            r = null
+          }
+        }
+        if (r) {
+          results.set(key, { km: r.meters / 1000, sec: r.seconds })
+        } else {
+          source = "haversine"
+          const km = haversineRouteKm([a, b])
+          results.set(key, { km, sec: estimateDurationSec(km) })
+        }
+      }),
     )
-    if (results.some(r => r === null)) {
-      return haversineFallback(allPoints)
-    }
-    const totalMeters = results.reduce((sum, r) => sum + (r?.meters ?? 0), 0)
-    const totalSeconds = results.reduce((sum, r) => sum + (r?.seconds ?? 0), 0)
-    return {
-      km: round1(totalMeters / 1000),
-      durationSec: totalSeconds,
-      source: "google",
-    }
-  } catch {
-    return haversineFallback(allPoints)
   } finally {
     clearTimeout(timer)
   }
-}
 
-function haversineFallback(points: LatLng[]): DistanceResult {
-  const km = haversineRouteKm(points)
+  const get = (a: LegPoint, b: LegPoint) => {
+    const hit = results.get(legKey(a, b))
+    if (hit) return hit
+    const km = haversineRouteKm([a, b])
+    return { km, sec: estimateDurationSec(km) }
+  }
   return {
-    km: round1(km),
-    durationSec: estimateDurationSec(km),
-    source: "haversine",
+    km: (a, b) => get(a, b).km,
+    durationSec: (a, b) => get(a, b).sec,
+    source,
   }
 }
 
@@ -147,11 +207,11 @@ function estimateDurationSec(km: number): number {
   return Math.round((km / avgSpeedKmh) * 3600)
 }
 
-function round1(n: number): number {
+export function round1(n: number): number {
   return Math.round(n * 10) / 10
 }
 
-// --- Simple in-memory rate limiter for /api/distance (per-IP, 20 req/min) ---
+// --- Simple in-memory rate limiter for /api/quote (per-IP, 20 req/min) ---
 
 const buckets = new Map<string, { count: number; resetAt: number }>()
 const RATE_WINDOW_MS = 60_000

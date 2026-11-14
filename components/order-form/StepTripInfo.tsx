@@ -27,6 +27,17 @@ import {
 import type { VehicleClass } from "@/lib/pricing"
 import { CLASS_LABEL } from "@/lib/pricing"
 
+/** Dátum/čas: biela ikona kalendára/hodín a výber sa otvorí po kliknutí kamkoľvek do poľa. */
+const PICKER_CLASS = " btw-picker"
+
+function openPicker(e: React.MouseEvent<HTMLInputElement>) {
+  try {
+    e.currentTarget.showPicker?.()
+  } catch {
+    // Starší prehliadač alebo už otvorené – necháme natívne správanie.
+  }
+}
+
 type Props = {
   state: OrderFormState
   dispatch: React.Dispatch<Action>
@@ -70,6 +81,7 @@ export function StepTripInfo({ state, dispatch, mapsReady }: Props) {
         lat: 48.1102,
         lng: 16.5697,
         types: ["airport"],
+        locality: "Schwechat",
       },
     })
     setDestinationPromptDismissed(true)
@@ -203,7 +215,8 @@ export function StepTripInfo({ state, dispatch, mapsReady }: Props) {
             type="date"
             value={trip.date}
             onChange={e => setTripField("date", e.target.value)}
-            className={inputClass(!!meta.errors.date)}
+            onClick={openPicker}
+            className={inputClass(!!meta.errors.date) + PICKER_CLASS}
           />
           {meta.errors.date && <ErrorRow>{meta.errors.date}</ErrorRow>}
         </div>
@@ -214,7 +227,8 @@ export function StepTripInfo({ state, dispatch, mapsReady }: Props) {
             type="time"
             value={trip.time}
             onChange={e => setTripField("time", e.target.value)}
-            className={inputClass(!!meta.errors.time)}
+            onClick={openPicker}
+            className={inputClass(!!meta.errors.time) + PICKER_CLASS}
           />
           {meta.errors.time && <ErrorRow>{meta.errors.time}</ErrorRow>}
         </div>
@@ -248,9 +262,9 @@ export function StepTripInfo({ state, dispatch, mapsReady }: Props) {
             className={inputClass() + " appearance-none"}
           >
             <option value="">Nezáleží — porovnám ceny</option>
-            <option value="BC">{CLASS_LABEL.BC} (do 3 pax)</option>
-            <option value="Van">{CLASS_LABEL.Van} (do 7 pax)</option>
-            <option value="FC">{CLASS_LABEL.FC} (do 2 pax)</option>
+            <option value="BC">{CLASS_LABEL.BC} (do 3 os.)</option>
+            <option value="Van">{CLASS_LABEL.Van} (do 7 os.)</option>
+            <option value="FC">{CLASS_LABEL.FC} (do 2 os.)</option>
           </select>
         </div>
       </div>
@@ -277,7 +291,8 @@ export function StepTripInfo({ state, dispatch, mapsReady }: Props) {
                 value={trip.returnDate}
                 min={trip.date || undefined}
                 onChange={e => setTripField("returnDate", e.target.value)}
-                className={inputClass(!!meta.errors.returnDate)}
+                onClick={openPicker}
+                className={inputClass(!!meta.errors.returnDate) + PICKER_CLASS}
               />
               {meta.errors.returnDate && <ErrorRow>{meta.errors.returnDate}</ErrorRow>}
             </div>
@@ -288,7 +303,8 @@ export function StepTripInfo({ state, dispatch, mapsReady }: Props) {
                 type="time"
                 value={trip.returnTime}
                 onChange={e => setTripField("returnTime", e.target.value)}
-                className={inputClass(!!meta.errors.returnTime)}
+                onClick={openPicker}
+                className={inputClass(!!meta.errors.returnTime) + PICKER_CLASS}
               />
               {meta.errors.returnTime && <ErrorRow>{meta.errors.returnTime}</ErrorRow>}
             </div>
@@ -360,9 +376,6 @@ function WaypointList({
         >
           <Plus className="w-4 h-4" />
           Pridať medzizastávku
-          <span className="text-xs border border-[#B88746]/40 text-[#B88746] px-2 py-0.5 rounded-full">
-            +10 €
-          </span>
         </button>
         <div className="flex-1 h-px bg-[#2a2a2a]" />
       </div>

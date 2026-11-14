@@ -152,3 +152,14 @@ input.btw-checkbox:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* Dátum / čas v objednávke: biela ikona, klik kdekoľvek do poľa otvorí výber */
+input.btw-picker {
+  color-scheme: light;
+  cursor: pointer;
+}
+input.btw-picker::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 1;
+  cursor: pointer;
+}

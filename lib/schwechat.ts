@@ -1,4 +1,6 @@
-export const SCHWECHAT_PLACE_ID = "ChIJIyJbg7CobUcRRMCkW0UcVFM"
+import { SCHWECHAT_PLACE_ID } from "./places"
+
+export { SCHWECHAT_PLACE_ID }
 export const SCHWECHAT_LABEL = "Letisko Viedeň-Schwechat (VIE)"
 
 export function isAirportPlace(

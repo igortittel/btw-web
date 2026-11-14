@@ -3,14 +3,9 @@
 import { useEffect, useReducer, useRef } from "react"
 import type { DistanceResult } from "@/lib/distance"
 import type { Variant, VehicleClass } from "@/lib/pricing"
+import type { PlaceInfo } from "@/lib/places"
 
-export type PlaceValue = {
-  address: string
-  placeId: string
-  lat: number
-  lng: number
-  types?: string[]
-}
+export type PlaceValue = PlaceInfo
 
 export const EMPTY_PLACE: PlaceValue = {
   address: "",
@@ -226,7 +221,7 @@ function reducer(state: OrderFormState, action: Action): OrderFormState {
   }
 }
 
-const STORAGE_KEY = "btw.order.v1"
+const STORAGE_KEY = "btw.order.v2"
 const DEBOUNCE_MS = 300
 
 function isBrowser(): boolean {

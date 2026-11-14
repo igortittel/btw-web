@@ -1,14 +1,17 @@
 "use client"
 
-import { AlertCircle, ArrowLeft, CheckCircle, Loader2 } from "lucide-react"
+import { AlertCircle, ArrowLeft, Briefcase, CheckCircle, Loader2, Route, Users } from "lucide-react"
 import type { OrderFormState, Action } from "./useOrderForm"
+import { TripRoute } from "./TripRoute"
+import { VehicleImage, formatDuration, luggageLabel } from "./VariantCard"
+import { useTransferVehicles } from "./useTransferVehicles"
 import {
   AMBER_NOTE_CLASS,
   ERROR_TEXT_CLASS,
   PRIMARY_BUTTON_CLASS,
   SECONDARY_BUTTON_CLASS,
 } from "@/lib/formStyles"
-import { CLASS_LABEL, RATE } from "@/lib/pricing"
+import { CAPACITY, CLASS_LABEL } from "@/lib/pricing"
 import { PaymentGateway } from "./PaymentGateway"
 import { clearStorage } from "./useOrderForm"
 
@@ -32,6 +35,8 @@ function formatEur(n: number): string {
 
 export function StepSummary({ state, dispatch }: Props) {
   const { trip, customer, consents, selectedVariant, distance, meta } = state
+  const vehicles = useTransferVehicles()
+  const vehicle = selectedVariant ? vehicles[selectedVariant.class] : undefined
 
   if (!selectedVariant || !distance) {
     return (
@@ -41,10 +46,6 @@ export function StepSummary({ state, dispatch }: Props) {
     )
   }
 
-  const effKm = trip.isReturnTrip ? distance.km * 2 : distance.km
-  const subtotal = selectedVariant.pricePerVehicle * selectedVariant.vehicleCount
-  const waypointSurcharge = trip.waypoints.length * 10
-  const rate = RATE[selectedVariant.class]
 
   const submit = async () => {
     if (!consents.gdpr) {
@@ -113,85 +114,95 @@ export function StepSummary({ state, dispatch }: Props) {
       </div>
 
       {/* Trip recap */}
-      <Section title="Cesta">
-        <p className="text-white leading-relaxed break-words">
-          {[trip.pickup.address, ...trip.waypoints.map(w => w.address), trip.destination.address]
-            .filter(Boolean)
-            .join("  →  ")}
-        </p>
-        <p className="text-sm text-[#888] mt-2">
-          {trip.date} · {trip.time} · {trip.pax} pax
-          {trip.isReturnTrip && ` · spiatočná ${trip.returnDate} ${trip.returnTime}`}
-        </p>
+      <Section title="Cesta" onEdit={() => dispatch({ type: "GO_STEP", step: 1 })}>
+        <TripRoute trip={trip} />
       </Section>
 
       {/* Vehicle */}
-      <Section title="Vozidlo">
-        <p className="text-white">
-          {selectedVariant.vehicleCount > 1 && `${selectedVariant.vehicleCount}× `}
-          {CLASS_LABEL[selectedVariant.class]}
-        </p>
-        <p className="text-sm text-[#888] mt-1">
-          {customer.flightNumber && `Let: ${customer.flightNumber} · `}
-          Platba: {PAYMENT_LABEL[customer.paymentMethod]}
-        </p>
+      <Section title="Vozidlo" onEdit={() => dispatch({ type: "GO_STEP", step: 1.5 })}>
+        <div className="flex items-center gap-4">
+          <VehicleImage
+            cls={selectedVariant.class}
+            vehicle={vehicle}
+            className="h-20 w-28 flex-shrink-0 sm:h-24 sm:w-40"
+          />
+          <div className="min-w-0">
+            <p className="text-lg font-semibold leading-tight text-white">
+              {selectedVariant.vehicleCount > 1 && (
+                <span className="text-[#B88746]">{selectedVariant.vehicleCount}× </span>
+              )}
+              {CLASS_LABEL[selectedVariant.class]}
+            </p>
+            {vehicle?.title && <p className="mt-0.5 text-sm text-[#888]">{vehicle.title}</p>}
+            <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-[#AAAAAA]">
+              <span className="inline-flex items-center gap-1.5">
+                <Users className="h-4 w-4 text-[#B88746]" />
+                do {CAPACITY[selectedVariant.class] * selectedVariant.vehicleCount} os.
+              </span>
+              {vehicle?.luggage && (
+                <span className="inline-flex items-center gap-1.5">
+                  <Briefcase className="h-4 w-4 text-[#B88746]" />
+                  {luggageLabel(vehicle.luggage * selectedVariant.vehicleCount)}
+                </span>
+              )}
+              <span className="inline-flex items-center gap-1.5">
+                <Route className="h-4 w-4 text-[#B88746]" />
+                {distance.km.toLocaleString("sk-SK")} km · {formatDuration(distance.durationSec)}
+              </span>
+            </p>
+          </div>
+        </div>
       </Section>
 
       {/* Customer */}
-      <Section title="Objednávateľ">
-        <p className="text-white">
+      <Section title="Objednávateľ" onEdit={() => dispatch({ type: "GO_STEP", step: 2 })}>
+        <dl className="grid gap-x-6 gap-y-3 sm:grid-cols-2">
           {trip.personType === "company" && customer.companyName && (
-            <>
-              {customer.companyName}
-              <br />
-            </>
+            <Field label="Spoločnosť" value={customer.companyName} />
           )}
-          {customer.firstName} {customer.lastName}
-        </p>
-        <p className="text-sm text-[#888] mt-1">
-          {customer.email} · {customer.phone}
-        </p>
-        {customer.isDifferentMainPassenger && (
-          <p className="text-sm text-[#888] mt-1">
-            Hlavný pasažier: {customer.mainPassengerFirstName}{" "}
-            {customer.mainPassengerLastName}
-          </p>
-        )}
-        {customer.notes && (
-          <p className="text-sm text-[#888] mt-2 whitespace-pre-wrap">
-            Poznámka: {customer.notes}
-          </p>
-        )}
+          <Field label="Meno a priezvisko" value={`${customer.firstName} ${customer.lastName}`} />
+          <Field label="E-mail" value={customer.email} />
+          <Field label="Telefón" value={customer.phone} />
+          {customer.isDifferentMainPassenger && (
+            <Field
+              label="Hlavný pasažier"
+              value={`${customer.mainPassengerFirstName} ${customer.mainPassengerLastName}`}
+            />
+          )}
+          {customer.flightNumber && <Field label="Číslo letu" value={customer.flightNumber} />}
+          {customer.orderReference && (
+            <Field label="Referenčné číslo objednávky" value={customer.orderReference} />
+          )}
+          <Field label="Platba" value={PAYMENT_LABEL[customer.paymentMethod]} />
+          {customer.notes && (
+            <div className="sm:col-span-2">
+              <Field label="Poznámka" value={customer.notes} multiline />
+            </div>
+          )}
+        </dl>
       </Section>
 
       {/* Price breakdown */}
       <Section title="Cena">
         <dl className="space-y-1 text-sm">
-          <Row
-            label={`${distance.km.toLocaleString("sk-SK")} km × ${rate.toFixed(2)} €/km`}
-            value={`${formatEur(effKm * rate)} €`}
-            muted
-          />
-          {trip.isReturnTrip && (
-            <Row label="× 2 (spiatočná cesta)" value="" muted />
-          )}
-          {selectedVariant.vehicleCount > 1 && (
+          {(selectedVariant.breakdown ?? []).map((line, i) => (
             <Row
-              label={`× ${selectedVariant.vehicleCount} vozidiel`}
-              value={`${formatEur(subtotal)} €`}
+              key={i}
+              label={line.label}
+              value={`${line.amount < 0 ? "− " : ""}${formatEur(Math.abs(line.amount))} €`}
               muted
             />
-          )}
-          {waypointSurcharge > 0 && (
+          ))}
+          {selectedVariant.vehicleCount > 1 && (
             <Row
-              label={`+ ${trip.waypoints.length} medzizastávka${trip.waypoints.length > 1 ? "y" : ""}`}
-              value={`+ ${formatEur(waypointSurcharge)} €`}
+              label={`${formatEur(selectedVariant.pricePerVehicle)} € × ${selectedVariant.vehicleCount} vozidlá`}
+              value=""
               muted
             />
           )}
           <div className="border-t border-[#2a2a2a] my-2" />
           <Row
-            label="Celkom"
+            label="Celkom bez DPH"
             value={`${formatEur(selectedVariant.totalPrice)} €`}
             bold
           />
@@ -286,14 +297,38 @@ export function StepSummary({ state, dispatch }: Props) {
   )
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({
+  title,
+  onEdit,
+  children,
+}: {
+  title: string
+  onEdit?: () => void
+  children: React.ReactNode
+}) {
   return (
-    <section className="p-4 rounded-lg bg-[#0f0f0f] border border-[#1d1d1d]">
-      <h3 className="text-[11px] font-semibold uppercase tracking-wider text-[#666] mb-2">
-        {title}
-      </h3>
+    <section className="rounded-2xl border border-[#1d1d1d] bg-[#0f0f0f] p-4 sm:p-5">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <h3 className="text-[11px] font-semibold uppercase tracking-wider text-[#888]">{title}</h3>
+        {onEdit && (
+          <button type="button" onClick={onEdit} className="text-sm text-[#B88746] hover:underline">
+            Upraviť
+          </button>
+        )}
+      </div>
       {children}
     </section>
+  )
+}
+
+function Field({ label, value, multiline }: { label: string; value: string; multiline?: boolean }) {
+  return (
+    <div className="min-w-0">
+      <dt className="text-xs text-[#888]">{label}</dt>
+      <dd className={"mt-0.5 break-words text-white" + (multiline ? " whitespace-pre-wrap" : "")}>
+        {value}
+      </dd>
+    </div>
   )
 }
 

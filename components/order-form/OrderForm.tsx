@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Script from "next/script"
 import { CheckCircle } from "lucide-react"
 import { StepProgress } from "./StepProgress"
@@ -23,8 +23,24 @@ export function OrderForm() {
     dispatch({ type: "GO_STEP", step })
   }
 
+  // Each step change (and the success screen) starts at the top of the form,
+  // just below the fixed header. Skips the very first render / session restore.
+  const sectionRef = useRef<HTMLElement>(null)
+  const prevView = useRef<string | null>(null)
+  const view = state.submitted ? "done" : String(state.step)
+  useEffect(() => {
+    if (prevView.current !== null && prevView.current !== view && sectionRef.current) {
+      const header = document.querySelector("header")
+      const offset = (header?.getBoundingClientRect().height ?? 80) + 16
+      const top = sectionRef.current.getBoundingClientRect().top + window.scrollY - offset
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      window.scrollTo({ top: Math.max(0, top), behavior: reduce ? "auto" : "smooth" })
+    }
+    prevView.current = view
+  }, [view])
+
   return (
-    <section className="py-12 px-6 bg-[#0b0b0b]">
+    <section ref={sectionRef} className="py-12 px-6 bg-[#0b0b0b]">
       <div className="max-w-3xl mx-auto">
         {scriptSrc && (
           <Script

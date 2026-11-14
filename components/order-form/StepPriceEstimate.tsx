@@ -4,8 +4,10 @@ import { useEffect } from "react"
 import { AlertCircle, ArrowLeft } from "lucide-react"
 import type { OrderFormState, Action } from "./useOrderForm"
 import { VariantCard } from "./VariantCard"
-import { computeVariants, type Variant, MAX_PAX } from "@/lib/pricing"
-import { isAirportPlace } from "@/lib/schwechat"
+import { TripRoute } from "./TripRoute"
+import { useTransferVehicles } from "./useTransferVehicles"
+import { type Variant, MAX_PAX, CAPACITY, WAITING, NIGHT_SURCHARGE, isNightTime } from "@/lib/pricing"
+import { isSchwechat } from "@/lib/places"
 import { AMBER_NOTE_CLASS, SECONDARY_BUTTON_CLASS } from "@/lib/formStyles"
 import type { DistanceResult } from "@/lib/distance"
 
@@ -16,50 +18,47 @@ type Props = {
 
 export function StepPriceEstimate({ state, dispatch }: Props) {
   const { trip, distance } = state
+  const vehicles = useTransferVehicles()
 
-  // Fetch distance when entering step. StrictMode-safe: uses closure
-  // `cancelled` flag instead of a useRef flag that would stick true.
+  // Fetch the authoritative quote (distances + prices) from the server every
+  // time the step is entered or a price-relevant input changes.
+  const quoteInput = JSON.stringify({
+    pickup: trip.pickup,
+    destination: trip.destination,
+    waypoints: trip.waypoints,
+    time: trip.time,
+    pax: trip.pax,
+    isReturnTrip: trip.isReturnTrip,
+    returnTime: trip.returnTime,
+    preferredClass: trip.preferredClass,
+  })
+
   useEffect(() => {
-    if (distance) return
     let cancelled = false
     const controller = new AbortController()
+    dispatch({ type: "INVALIDATE_PRICE" })
 
     const run = async () => {
       try {
-        const res = await fetch("/api/distance", {
+        const res = await fetch("/api/quote", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            pickup: {
-              placeId: trip.pickup.placeId,
-              lat: trip.pickup.lat,
-              lng: trip.pickup.lng,
-            },
-            destination: {
-              placeId: trip.destination.placeId,
-              lat: trip.destination.lat,
-              lng: trip.destination.lng,
-            },
-            waypoints: trip.waypoints.map(w => ({
-              placeId: w.placeId,
-              lat: w.lat,
-              lng: w.lng,
-            })),
-          }),
+          body: quoteInput,
           signal: controller.signal,
         })
-        if (!res.ok) throw new Error(`Distance API ${res.status}`)
-        const data = (await res.json()) as DistanceResult
+        if (!res.ok) throw new Error(`Quote API ${res.status}`)
+        const data = (await res.json()) as { distance: DistanceResult; variants: Variant[] }
         if (!cancelled) {
-          dispatch({ type: "SET_DISTANCE", value: data })
+          dispatch({ type: "SET_DISTANCE", value: data.distance })
+          dispatch({ type: "SET_VARIANTS", variants: data.variants })
         }
       } catch (err) {
         if (cancelled) return
         if ((err as Error).name === "AbortError") return
-        console.error("[distance fetch]", err)
+        console.error("[quote fetch]", err)
         dispatch({
           type: "SET_ERRORS",
-          errors: { _form: "Nepodarilo sa spočítať vzdialenosť. Skúste znova." },
+          errors: { _form: "Nepodarilo sa spočítať cenu. Skúste znova." },
         })
       }
     }
@@ -69,32 +68,10 @@ export function StepPriceEstimate({ state, dispatch }: Props) {
       cancelled = true
       controller.abort()
     }
-  }, [distance, dispatch, trip.pickup, trip.destination, trip.waypoints])
+  }, [quoteInput, dispatch])
 
-  // Compute variants whenever distance / inputs change
-  useEffect(() => {
-    if (!distance) return
-    const variants = computeVariants({
-      km: distance.km,
-      pax: trip.pax,
-      destIsAirport: isAirportPlace(trip.destination.placeId, trip.destination.types),
-      isReturnTrip: trip.isReturnTrip,
-      waypointCount: trip.waypoints.length,
-      preferredClass: trip.preferredClass,
-    })
-    dispatch({ type: "SET_VARIANTS", variants })
-  }, [
-    distance,
-    trip.pax,
-    trip.preferredClass,
-    trip.isReturnTrip,
-    trip.waypoints.length,
-    trip.destination.placeId,
-    trip.destination.types,
-    dispatch,
-  ])
-
-  const destIsAirport = isAirportPlace(trip.destination.placeId, trip.destination.types)
+  const touchesAirport = isSchwechat(trip.destination) || isSchwechat(trip.pickup)
+  const night = isNightTime(trip.time) || (trip.isReturnTrip && isNightTime(trip.returnTime))
   const preferredOverCap =
     trip.preferredClass !== null && trip.pax > capacityOf(trip.preferredClass)
   const tooManyPax = trip.pax > MAX_PAX
@@ -113,7 +90,19 @@ export function StepPriceEstimate({ state, dispatch }: Props) {
         <h2 className="text-2xl md:text-3xl font-bold text-white">Cenová ponuka</h2>
       </div>
 
-      <RouteSummary state={state} />
+      <section className="rounded-2xl border border-[#1d1d1d] bg-[#0f0f0f] p-4 sm:p-5">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <h3 className="text-[11px] font-semibold uppercase tracking-wider text-[#888]">Vaša cesta</h3>
+          <button
+            type="button"
+            onClick={() => dispatch({ type: "GO_STEP", step: 1 })}
+            className="text-sm text-[#B88746] hover:underline"
+          >
+            Upraviť
+          </button>
+        </div>
+        <TripRoute trip={trip} />
+      </section>
 
       {state.meta.errors._form && (
         <div className="flex items-start gap-2 p-3 rounded-lg bg-red-900/20 border border-red-900/40 text-red-400 text-sm">
@@ -141,22 +130,31 @@ export function StepPriceEstimate({ state, dispatch }: Props) {
       {preferredOverCap && !tooManyPax && (
         <div className={AMBER_NOTE_CLASS}>
           <strong className="block mb-1 text-[#B88746]">
-            Pre {trip.pax} pasažierov zvolená trieda nestačí.
+            Pre {trip.pax} os. zvolená kategória nestačí.
           </strong>
-          Pripravili sme alternatívy — buď upgrade na väčšiu triedu, alebo viac vozidiel rovnakej triedy.
+          Vyberte si väčšie vozidlo alebo viac vozidiel zvolenej kategórie.
         </div>
       )}
 
-      {!distance && <SkeletonCards />}
+      {!distance && (
+        <SkeletonCards
+          count={trip.preferredClass && trip.pax <= capacityOf(trip.preferredClass) ? 1 : 3}
+        />
+      )}
 
       {distance && state.variants.length > 0 && (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="space-y-3">
+          <h3 className="text-lg font-semibold text-white">
+            {state.variants.length === 1 ? "Vaše vozidlo" : "Vyberte vozidlo"}
+          </h3>
           {state.variants.map((v, i) => (
             <VariantCard
               key={`${v.class}-${v.vehicleCount}-${i}`}
               variant={v}
+              vehicle={vehicles[v.class]}
               durationSec={distance.durationSec}
-              km={trip.isReturnTrip ? distance.km * 2 : distance.km}
+              km={distance.km}
+              isReturnTrip={trip.isReturnTrip}
               onSelect={() => handleSelect(v, dispatch)}
             />
           ))}
@@ -169,10 +167,18 @@ export function StepPriceEstimate({ state, dispatch }: Props) {
         </p>
       )}
 
-      {destIsAirport && (
-        <p className="text-xs text-[#888] text-center">
-          Minimálna cena pre transfer na letisko je 65 € za vozidlo.
-        </p>
+      {distance && state.variants.length > 0 && (
+        <div className="text-xs text-[#888] space-y-1 text-center">
+          <p>Všetky ceny sú uvedené bez DPH.</p>
+          {night && (
+            <p>Cena obsahuje nočný príplatok {NIGHT_SURCHARGE} € (22:00 – 06:00).</p>
+          )}
+          <p>
+            Čakanie: bezplatne {touchesAirport ? `${WAITING.freeAirportMin / 60} hodina na letisku` : `${WAITING.freeOtherMin} minút`}
+            , potom {touchesAirport ? "za každú začatú hodinu" : "za každých začatých 30 minút"}{" "}
+            {WAITING.perBlock.BC} € (Business Class) / {WAITING.perBlock.Van} € (Business Van).
+          </p>
+        </div>
       )}
 
       <div className="pt-2">
@@ -195,46 +201,26 @@ function handleSelect(variant: Variant, dispatch: React.Dispatch<Action>) {
 }
 
 function capacityOf(cls: "BC" | "Van" | "FC"): number {
-  return { BC: 3, Van: 7, FC: 2 }[cls]
+  return CAPACITY[cls]
 }
 
-function RouteSummary({ state }: { state: OrderFormState }) {
-  const { trip } = state
-  const parts = [trip.pickup.address, ...trip.waypoints.map(w => w.address), trip.destination.address].filter(Boolean)
+function SkeletonCards({ count }: { count: number }) {
   return (
-    <div className="p-4 rounded-lg bg-[#0f0f0f] border border-[#1d1d1d] text-sm">
-      <p className="text-[#888] mb-1">Trasa</p>
-      <p className="text-white break-words leading-relaxed">
-        {parts.join("  →  ")}
-      </p>
-      <div className="mt-2 flex flex-wrap gap-3 text-xs text-[#888]">
-        <span>{trip.date} · {trip.time}</span>
-        <span>· {trip.pax} pax</span>
-        {trip.isReturnTrip && <span>· spiatočná</span>}
-        {trip.waypoints.length > 0 && <span>· {trip.waypoints.length} medzizastávka{trip.waypoints.length > 1 ? "y" : ""}</span>}
-      </div>
-    </div>
-  )
-}
-
-function SkeletonCards() {
-  return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {[1, 2, 3].map(i => (
+    <div className="space-y-3">
+      {Array.from({ length: count }, (_, i) => (
         <div
           key={i}
-          className="bg-[#111] border border-[#2a2a2a] rounded-2xl p-6 animate-pulse"
+          className="flex animate-pulse items-center gap-4 rounded-2xl border border-[#2a2a2a] bg-[#111] p-4 sm:p-5"
         >
-          <div className="h-10 w-10 bg-[#1d1d1d] rounded-lg mb-4" />
-          <div className="h-4 w-32 bg-[#1d1d1d] rounded mb-2" />
-          <div className="h-3 w-20 bg-[#1d1d1d] rounded mb-6" />
-          <div className="h-8 w-28 bg-[#1d1d1d] rounded mb-2" />
-          <div className="h-3 w-24 bg-[#1d1d1d] rounded" />
+          <div className="h-20 w-28 flex-shrink-0 rounded-xl bg-[#1d1d1d] sm:h-24 sm:w-40" />
+          <div className="flex-1 space-y-2">
+            <div className="h-5 w-40 rounded bg-[#1d1d1d]" />
+            <div className="h-3 w-56 max-w-full rounded bg-[#1d1d1d]" />
+          </div>
+          <div className="hidden h-9 w-24 rounded bg-[#1d1d1d] sm:block" />
         </div>
       ))}
-      <p className="col-span-full text-center text-sm text-[#888]">
-        Počítame vzdialenosť a ceny...
-      </p>
+      <p className="text-center text-sm text-[#888]">Počítame vzdialenosť a ceny…</p>
     </div>
   )
 }

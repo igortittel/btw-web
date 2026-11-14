@@ -14,6 +14,7 @@ type GoogleAutocomplete = {
     place_id?: string
     name?: string
     types?: string[]
+    address_components?: Array<{ long_name: string; types: string[] }>
     geometry?: { location?: { lat: () => number; lng: () => number } }
   }
   addListener: (event: string, cb: () => void) => void
@@ -35,6 +36,17 @@ function buildLabel(place: ReturnType<GoogleAutocomplete["getPlace"]>): string {
   const name = place.name || ""
   const addr = place.formatted_address || ""
   return name && !addr.startsWith(name) ? `${name}, ${addr}` : addr
+}
+
+function component(
+  place: ReturnType<GoogleAutocomplete["getPlace"]>,
+  ...types: string[]
+): string | undefined {
+  for (const t of types) {
+    const c = place.address_components?.find(ac => ac.types.includes(t))
+    if (c?.long_name) return c.long_name
+  }
+  return undefined
 }
 
 function readGoogle(): GoogleNamespace | null {
@@ -70,7 +82,7 @@ export function useGooglePlaces({ onChange, ready }: UseGooglePlacesOptions) {
     if (!g) return
 
     const opts = {
-      fields: ["formatted_address", "place_id", "geometry", "name", "types"],
+      fields: ["formatted_address", "place_id", "geometry", "name", "types", "address_components"],
       types: ["geocode", "establishment"],
       bounds: new g.maps.LatLngBounds(BOUNDS.sw, BOUNDS.ne),
       strictBounds: false,
@@ -91,6 +103,9 @@ export function useGooglePlaces({ onChange, ready }: UseGooglePlacesOptions) {
         lat: typeof lat === "number" ? lat : 0,
         lng: typeof lng === "number" ? lng : 0,
         types: place.types || [],
+        locality: component(place, "locality", "postal_town"),
+        sublocality: component(place, "sublocality_level_1", "sublocality", "neighborhood"),
+        postalCode: component(place, "postal_code"),
       })
     })
 
